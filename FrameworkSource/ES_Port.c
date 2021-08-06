@@ -13,6 +13,7 @@
  History
  When           Who     What/Why
  -------------- ---     --------
+ 08/06/21 15:43 jec     no changes just a test of using GIT from within MPLABX
  08/06/21 13:04 jec     cleaned things up in preparation for the 2021 AY
  10/05/20 18:52 ram     started work on port to PIC32MX170F256B
  04/18/19 10:17 jec     started work on port to PIC16F15356
