@@ -66,11 +66,22 @@ extern  uint8_t _INTCON_temp;
 // for the PIC, at this time, we can not post from within interrupts so keep 
 // this definition commented. if you ever get posting from within a int working
 // then uncomment it.
+// For the PIC32, we *can* post from interrupts
 #define POST_FROM_INTS
 
+// in the MIPS architecture, interrupts are not disabled on entry to an ISR
+// the interrupt controller simply prevents interrupts from lower or the
+// same priority. As a result, we can create a critical region by simply
+// disabling interrupts. 
+// NOTE: This means that critical regions can not be nested
+// I don't think that this should be a serious limitation for the framework
+#ifdef POST_FROM_INTS
 #define EnterCritical()__builtin_disable_interrupts()
 #define ExitCritical() __builtin_enable_interrupts()
-
+#else
+#define EnterCritical()
+#define ExitCritical()
+#endif
 
 /* Rate constants for programming the SysTick Period to generate tick interrupts.
    These assume that we are using the M4K core timer running at 20MHz. Even

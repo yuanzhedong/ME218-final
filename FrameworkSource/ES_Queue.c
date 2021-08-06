@@ -89,16 +89,12 @@ bool ES_EnQueueFIFO(ES_Event_t *pBlock, ES_Event_t Event2Add)
   // index will go from 0 to QueueSize-1 so use '<' to test if there is space
   if (pThisQueue->NumEntries < pThisQueue->QueueSize) // save the new event, use % to create circular buffer in block
   {   
-#ifdef POST_FROM_INTS
     EnterCritical();  // save interrupt state, turn ints off
-#endif
 // 1+ to step past the Queue struct at the beginning of the block
 	pBlock[1 + ((pThisQueue->CurrentIndex + pThisQueue->NumEntries)
           % pThisQueue->QueueSize)] = Event2Add;
     pThisQueue->NumEntries++; // inc number of entries
-#ifdef POST_FROM_INTS
     ExitCritical();    // restore saved interrupt state
-#endif
 
     return true;
   }

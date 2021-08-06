@@ -13,6 +13,7 @@
  History
  When           Who     What/Why
  -------------- ---     --------
+ 08/06/21 13:04 jec     cleaned things up in preparation for the 2021 AY
  10/05/20 18:52 ram     started work on port to PIC32MX170F256B
  04/18/19 10:17 jec     started work on port to PIC16F15356
  08/21/17 13:47 jec     added functions to init 2 lines for debugging the framework
@@ -60,22 +61,19 @@
 // #pragma config statements should precede project file includes.
 // Use project enums instead of #define for ON and OFF.
 
-// #pragma config statements should precede project file includes.
-// Use project enums instead of #define for ON and OFF.
 
-#include <xc.h>
-#include <cp0defs.h> // for coprocessor functions
-#include <sys/attribs.h> // for ISR macors
+#include <xc.h>             // basic for all projects
+#include <cp0defs.h>        // for coprocessor functions
+#include <sys/attribs.h>    // for ISR macors
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <stdint.h>         // for exact size data types
+#include <stdbool.h>        // for the bool data type
 
-#include "Bin_Const.h"
-#include "ES_Port.h"
-#include "ES_Types.h"
-#include "ES_Timers.h"
+#include "ES_Port.h"        // the header file for this module
+#include "ES_Types.h"       // framework type definitions
+#include "ES_Timers.h"      // framework timer prototypes
 
-#include "terminal.h"
+#include "terminal.h"       // terminal prototypes for init function
 
 // TickCount is used to track the number of timer ints that have occurred
 // since the last check. It should really never be more than 1, but just to
@@ -97,7 +95,7 @@ static volatile TimerRate_t tickPeriod;
 
 // This variable is used to store the state of the interrupt mask when
 // doing EnterCritical/ExitCritical pairs
-uint8_t _INTCON_temp;
+// uint8_t _INTCON_temp;
 
 
 /****************************************************************************
@@ -107,15 +105,15 @@ uint8_t _INTCON_temp;
 //#define LED_DEBUG
 /****************************************************************************
  Function
-    _HW_PIC15356Init
+    _HW_PIC32Init
  Parameters
     none
  Returns
      None.
  Description
-    Initializes the basic hardware on the PIC. Sets up clock to 32MHz
+    Initializes the basic hardware on the PIC. 
  Notes
-     
+    The only thing that we need to initialize for the PIC32, is the UART 
  Author
      J. Edward Carryer, 04/18/19 16:17
 ****************************************************************************/
@@ -134,13 +132,13 @@ void _HW_PIC32Init(void)
  Function
      _HW_Timer_Init
  Parameters
-     unsigned char Rate set to one of the TMR_RATE_XX values to set the
+     TimerRate_t Rate set to one of the TMR_RATE_XX enum values to set the
      Tick rate
  Returns
      None.
  Description
-     Initializes the NCO to generate the SysTicks
-    rate
+     Initializes the Core Timer to generate the SysTicks
+    
  Notes
      modify as required to port to other timer hardware
  Author
@@ -163,7 +161,7 @@ void _HW_Timer_Init(const TimerRate_t Rate)
     _CP0_SET_COMPARE(currTime + Rate);
     // Use multivector
     INTCONbits.MVEC = 1;
-    // Set Core Timer CT interrupt priority to 7
+    // Set Core Timer CT interrupt priority to 3
     IPC0bits.CTIP = 3;
     // Enable the CT interrupt
     IFS0bits.CTIF = 0;
@@ -171,7 +169,7 @@ void _HW_Timer_Init(const TimerRate_t Rate)
     // global enable
     __builtin_enable_interrupts();
     
-  }//end if
+  }//end if (Rate > 0)
 
 #ifdef LED_DEBUG
   // setup RB15 as debug
@@ -179,7 +177,6 @@ void _HW_Timer_Init(const TimerRate_t Rate)
   LATBbits.LATB15 = 1;
   TRISBbits.TRISB15 = 0;
 #endif
-  // return
 
   return;
   
@@ -197,16 +194,23 @@ void _HW_Timer_Init(const TimerRate_t Rate)
      framework timers to run.
  Notes
      As currently (4/21/19) implemented this does not actually post events
-     but simply sets a flag to indicate that the interrupt has occurred.
+     but simply increments a counter to indicate that the interrupt has occurred.
      the framework response is handled below in _HW_Process_Pending_Ints
  Author
     R. Merchant, 10/05/20  18:57
 ****************************************************************************/
 void __ISR(_CORE_TIMER_VECTOR, IPL3AUTO ) _HW_SysTickIntHandler(void)
 {
+  #ifdef RIYAZ_ORIGINAL
   static uint32_t deltaTime; // static for speed
-  // clear interrupt flag
-  IFS0bits.CTIF = 0;
+#else
+  static uint8_t intsThatShouldHaveHappened;
+#endif
+  
+  // clear interrupt flag using the atomic write to the CLR version of the
+  // interrupt flag register
+  IFS0CLR = _IFS0_CTIF_MASK;
+#ifdef RIYAZ_ORIGINAL
   // get the time different since the interrupt
   deltaTime = _CP0_GET_COUNT() - _CP0_GET_COMPARE();
   // if the delta is less than the rate period, everything is fine
@@ -237,6 +241,25 @@ void __ISR(_CORE_TIMER_VECTOR, IPL3AUTO ) _HW_SysTickIntHandler(void)
   // update the ticks
   ++TickCount;          /* flag that it occurred and needs a response */
   ++SysTickCounter;     // keep the free running time going
+#else   //RIYAZ_ORIGINAL
+  // (_CP0_GET_COUNT() - _CP0_GET_COMPARE()) is the delta time since the last 
+  // compare happened, normally a number much less than tickPeriod
+  // add 1/2 tickPeriod to the measured delta to move the next compare 
+  // out a ways to be sure that we have time to finish this ISR before
+  // the next interrupt could occur
+  // divide by tickPeriod to get the number of 'missed' interrupts 
+  // that should have happened ( normally this will be 0)
+  // add 1 for this current interrupt
+  intsThatShouldHaveHappened = 
+    (((_CP0_GET_COUNT() - _CP0_GET_COMPARE()) + (tickPeriod/2))/tickPeriod) + 1;
+  // now update the compare register
+  _CP0_SET_COMPARE(_CP0_GET_COMPARE() + 
+    (intsThatShouldHaveHappened * tickPeriod));
+  // and keep our tick counters going
+  TickCount += intsThatShouldHaveHappened;
+  SysTickCounter += intsThatShouldHaveHappened;
+#endif // RIYAZ_ORIGINAL  
+
 #ifdef LED_DEBUG
   // Toggle debug line
   LATBbits.LATB15 = ~LATBbits.LATB15;
@@ -305,8 +328,7 @@ bool _HW_Process_Pending_Ints(void)
  Description
   Initializes the UART for console I/O
  Notes
-  for the PIC16F15356 we are using EUSART1 which defaults to Xmit on RC6 and
-  receive on RC7
+ real work moved to terminal.c to put all of the terminal functions together
  Author
      J. Edward Carryer, 04/20/19 10:32
  ****************************************************************************/

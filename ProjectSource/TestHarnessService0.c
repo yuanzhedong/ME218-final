@@ -127,7 +127,7 @@ bool InitTestHarnessService0(uint8_t Priority)
      PostTestHarnessService0
 
  Parameters
-     EF_Event ThisEvent ,the event to post to the queue
+     ES_Event ThisEvent ,the event to post to the queue
 
  Returns
      bool false if the Enqueue operation failed, true otherwise
