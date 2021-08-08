@@ -202,47 +202,44 @@ void _HW_Timer_Init(const TimerRate_t Rate)
 ****************************************************************************/
 void __ISR(_CORE_TIMER_VECTOR, IPL3AUTO ) _HW_SysTickIntHandler(void)
 {
-  #ifdef RIYAZ_ORIGINAL
   static uint32_t deltaTime; // static for speed
-#else
   static uint8_t intsThatShouldHaveHappened;
-#endif
   
   // clear interrupt flag using the atomic write to the CLR version of the
   // interrupt flag register
   IFS0CLR = _IFS0_CTIF_MASK;
-#ifdef RIYAZ_ORIGINAL
-  // get the time different since the interrupt
+  
+  // we create a critical region here in case a higher priority interrupt
+  // occurred between the calculation of deltaTime and the test & re-programming
+  // of the compare register. If that happened, we could end up programming the 
+  // compare for a time that had already passed, resulting in a loss of 
+  // tick interrupts until the CoreTimer rolled around.
+  EnterCritical();
+  // get the time difference since the interrupt
   deltaTime = _CP0_GET_COUNT() - _CP0_GET_COMPARE();
-  // if the delta is less than the rate period, everything is fine
-  if(deltaTime < tickPeriod)
+  
+  // We need to insure that there are enough cycles left in a tickPeriod to get 
+  // the compare register re-programmed before the next interrupt should happen.
+  // The -12 accounts for the number of instructions between the calculation
+  // of the delta and the re-programming of the Compare register.
+  // If there was not enough time available, we would end up programming 
+  // the compare for a count/time that had just passed and we would then need to 
+  // wait for an entire roll-over cycle before we would get our next tick. 
+  // From the outside it would appear that that timer had stopped ticking 
+  // for a long time. 
+  // 12 cycles is only 6 CoreTimer ticks, so this approach is very conservative.
+  // Structure comparison this way to avoid taking the difference of 2
+  // unsigned ints which would require a promotion to signed long to capture
+  // the possibility that deltaTime was greater than tickPeriod
+  if(deltaTime < (tickPeriod - 12))
   {
-    // add the rate back to compare
+    // add the rate back to compare register to set up for the next interrupt
     _CP0_SET_COMPARE(_CP0_GET_COMPARE() + tickPeriod);
+    intsThatShouldHaveHappened = 1; // in this case only 1 interrupt happened
   }
-   // else, interrupts were disabled for a long time
-  else
+  else  // else, interrupts were disabled for a long time
   {
-    // get the current count, and add the rate to it
-    // set the compare register
-    _CP0_SET_COMPARE(_CP0_GET_COUNT() + tickPeriod);
-    // adjust the ticks for the amount of time we missed
-    // start a loop to keep incrementing the ticks until the delta is less 
-    // than the rate
-    while(deltaTime > tickPeriod)
-    {
-      // subtract off the rate from the delta
-      deltaTime -= tickPeriod;
-      // update the ticks
-      ++TickCount;          /* flag that it occurred and needs a response */
-      ++SysTickCounter;     // keep the free running time going
-    } // end loop
-    
-  }// end if
-  // update the ticks
-  ++TickCount;          /* flag that it occurred and needs a response */
-  ++SysTickCounter;     // keep the free running time going
-#else   //RIYAZ_ORIGINAL
+  // We need to calculate how many interrupts that we missed  
   // (_CP0_GET_COUNT() - _CP0_GET_COMPARE()) is the delta time since the last 
   // compare happened, normally a number much less than tickPeriod
   // add 1/2 tickPeriod to the measured delta to move the next compare 
@@ -251,15 +248,15 @@ void __ISR(_CORE_TIMER_VECTOR, IPL3AUTO ) _HW_SysTickIntHandler(void)
   // divide by tickPeriod to get the number of 'missed' interrupts 
   // that should have happened ( normally this will be 0)
   // add 1 for this current interrupt
-  intsThatShouldHaveHappened = 
-    (((_CP0_GET_COUNT() - _CP0_GET_COMPARE()) + (tickPeriod/2))/tickPeriod) + 1;
-  // now update the compare register
-  _CP0_SET_COMPARE(_CP0_GET_COMPARE() + 
-    (intsThatShouldHaveHappened * tickPeriod));
+    intsThatShouldHaveHappened = ((deltaTime + (tickPeriod/2))/tickPeriod) + 1;
+    // now update the compare register
+    _CP0_SET_COMPARE(_CP0_GET_COMPARE() + 
+      (intsThatShouldHaveHappened * tickPeriod));
+  }// end if (deltaTime < tickPeriod +12)
+  ExitCritical();
   // and keep our tick counters going
   TickCount += intsThatShouldHaveHappened;
   SysTickCounter += intsThatShouldHaveHappened;
-#endif // RIYAZ_ORIGINAL  
 
 #ifdef LED_DEBUG
   // Toggle debug line
