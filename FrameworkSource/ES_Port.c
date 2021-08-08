@@ -228,7 +228,7 @@ void __ISR(_CORE_TIMER_VECTOR, IPL3AUTO ) _HW_SysTickIntHandler(void)
   // From the outside it would appear that that timer had stopped ticking 
   // for a long time. 
   // 12 cycles is only 6 CoreTimer ticks, so this approach is very conservative.
-  // Structure comparison this way to avoid taking the difference of 2
+  // Structure the comparison this way to avoid taking the difference of 2
   // unsigned ints which would require a promotion to signed long to capture
   // the possibility that deltaTime was greater than tickPeriod
   if(deltaTime < (tickPeriod - 12))
@@ -252,7 +252,7 @@ void __ISR(_CORE_TIMER_VECTOR, IPL3AUTO ) _HW_SysTickIntHandler(void)
     // now update the compare register
     _CP0_SET_COMPARE(_CP0_GET_COMPARE() + 
       (intsThatShouldHaveHappened * tickPeriod));
-  }// end if (deltaTime < tickPeriod +12)
+  }// end if (deltaTime < tickPeriod - 12)
   ExitCritical();
   // and keep our tick counters going
   TickCount += intsThatShouldHaveHappened;
@@ -307,6 +307,8 @@ uint16_t _HW_GetTickCount(void)
 ****************************************************************************/
 bool _HW_Process_Pending_Ints(void)
 {
+  // in the case where there was a long delay in getting to this function,
+  // multiple interrupts may have occurred (TickCount > 1), so process them all
   while (TickCount > 0)
   {
     /* call the framework tick response to actually run the timers */
