@@ -287,9 +287,9 @@ ES_Return_t ES_Initialize(TimerRate_t NewRate)
  Returns
    ES_Return_t : FailedRun is any of the run functions failed during execution
  Description
-   This is the main framework function. It searches through the state
-   machines to find one with a non-empty queue and then executes the
-   state machine to process the event in its queue.
+   This is the main framework function. It searches through the services
+   to find one with a non-empty queue and then executes the
+   service to process the event in its queue.
    while all the queues are empty, it searches for system generated or
    user generated events.
  Notes
