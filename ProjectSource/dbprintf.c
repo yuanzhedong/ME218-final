@@ -141,11 +141,11 @@ void DB_printf(const char *Format, ...)
    for (pBuffer = LineBuffer; *pBuffer != 0; pBuffer++)
    {
       if (*pBuffer != '\n')
-         putch(*pBuffer);
+         putchar(*pBuffer);
       else
       {
-         putch(CR);
-         putch(LF);
+         putchar(CR);
+         putchar(LF);
       }
    }
    return;

@@ -291,7 +291,7 @@ ES_Return_t ES_Initialize(TimerRate_t NewRate)
    to find one with a non-empty queue and then executes the
    service to process the event in its queue.
    while all the queues are empty, it searches for system generated or
-   user generated events.
+   user generated events or moves bytes from buffer to UART.
  Notes
    this function only returns in case of an error
  Author
@@ -331,7 +331,10 @@ ES_Return_t ES_Run(void)
     _HW_DebugSetLine2();
 #endif
     // all the queues are empty, so look for new user detected events
-    ES_CheckUserEvents();
+    if (!ES_CheckUserEvents()) // no new user events
+    {
+      Terminal_MoveBuffer2UART(); // try moving bytes, if available, to UART
+    }
 #ifdef _INCLUDE_BASIC_FRAMEWORK_DEBUG_
     _HW_DebugClearLine2();
 #endif

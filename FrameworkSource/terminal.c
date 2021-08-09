@@ -1,3 +1,4 @@
+//#define TEST
 /****************************************************************************
  Module
    terminal.c
@@ -22,22 +23,25 @@
 
 // Hardware
 #include <xc.h>
-#include "ES_Port.h"
-
 #include <stdio.h>
+
+#include "ES_General.h"
+#include "ES_Port.h"
+#include "circular_buffer.h"
 
 //this module
 #include "terminal.h"
 /*----------------------------- Module Defines ----------------------------*/
 #define BAUD_CONST 42 // sets up baud rate for 115200
 
-//#define TEST
 /*---------------------------- Module Functions ---------------------------*/
 /* prototypes for private functions for this service.They should be functions
    relevant to the behavior of this service
 */
 
 /*---------------------------- Module Variables ---------------------------*/
+uint8_t xmitBuffer[XMIT_BUFFER_SIZE];
+cbuf_handle_t xmitBufferHandle;
 
 /*------------------------------ Module Code ------------------------------*/
 /*******************************************************************************
@@ -96,6 +100,9 @@ void Terminal_HWInit(void)
   U1STAbits.URXEN = 1; // enable receive
   U1MODEbits.ON = 1; // turn peripheral on
   
+  // now initialize the circular buffer for transmitting
+  xmitBufferHandle = circular_buf_init( xmitBuffer, ARRAY_SIZE(xmitBuffer) );
+  
   return;
 }
 /*******************************************************************************
@@ -122,15 +129,19 @@ uint8_t Terminal_ReadByte(void)
  * Returns nothing
  * 
  * Created by: R. Merchant
- * Description: Writes the byte to the transmit register
+ * Description: Writes the byte to the transmit register or buffer
  ******************************************************************************/
 void Terminal_WriteByte(uint8_t txByte)
 {
+#ifdef NO_BUFFER
   // wait for the register to empty
   while(U1STAbits.UTXBF)
   {}
   // write the byte to the register
   U1TXREG = txByte;
+#else
+  circular_buf_put(xmitBufferHandle, txByte);
+#endif  
   return;
 }
 /*******************************************************************************
@@ -146,7 +157,7 @@ bool Terminal_IsRxData(void)
 {
   
     if(U1STAbits.FERR != 0 ){
-        U1RXREG;
+        U1RXREG; // in case of a framing error, read the data reg to clear err
         return false;
     }
     // Return Rx Data bit from status register
@@ -154,26 +165,41 @@ bool Terminal_IsRxData(void)
 }
 
 /*******************************************************************************
- * Function: write
- * Arguments: array handle, pointer to array, length of array
- * Returns status
+ * Function: _mon_putc
+ * Arguments: char c
+ * Returns none
  * 
- * Created by: Microchip
- * Description: Helper function for printf. Fills in the write function that
- *              belongs to the stdio.c file. 
+ * Created by: Ed Carryer
+ * Description: this is the function that connects the output of printf() to
+ *              hardware. In our case, we are going to use it to stuff the
+ *              characters into the circular buffer.
  ******************************************************************************/
-#ifdef __XC16__  // DEPRICATED, USE FOR xc16 of xc32 v1.34 or lower
-int write(int handle, void *buffer, unsigned int len)
+void _mon_putc (char c)
 {
-    unsigned int i;
-
-    for (i = len; i; --i)
-    {
-        Terminal_WriteByte(*(char*)buffer++);
-    }
-    return(len);
+  circular_buf_put(xmitBufferHandle, c);
 }
-#endif
+
+/*******************************************************************************
+ * Function: Terminal_MoveBuffer2UART
+ * Arguments: none
+ * Returns none
+ * 
+ * Created by: Ed Carryer
+ * Description: this functions pulls bytes, if any available, from the
+ *              circular buffer and stuffs them into the UART1 buffer
+ *              until we either run out of bytes in the circular buffer
+ *              or we run out of space in the UART FIFO
+ ******************************************************************************/
+void Terminal_MoveBuffer2UART( void )
+{
+  while ( (!circular_buf_empty(xmitBufferHandle)) && (!U1STAbits.UTXBF))
+  {
+    uint8_t byte2Xmit;
+    circular_buf_get(xmitBufferHandle, &byte2Xmit);
+    U1TXREG = byte2Xmit;
+  }
+}
+
 /***************************************************************************
  private functions
  ***************************************************************************/
@@ -186,10 +212,16 @@ int main(void)
   //_HW_Oscillator_Init();
   Terminal_HWInit();
   // test a print
-  printf("Hello World\n\r");
+  printf("Hello World! Let's show that it can handle a long string as well\n\r");
   //Terminal_WriteByte('H');
   while(1) //hang out in this loop forever, polling key hits
   {
+    Terminal_MoveBuffer2UART(); // move bytes from circ buffer to UART
+    // a delay loop to let me see that the buffering is working as expected.
+    { volatile uint32_t counter;
+      for (counter=0; counter< 3276800; counter++)
+      {}
+    }
     // test for tracking keys
     if(IsNewKeyReady())
     {
