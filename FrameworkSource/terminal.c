@@ -79,7 +79,6 @@ void Terminal_HWInit(void)
   TRISBbits.TRISB6 = 1;         // set RB6 as input
   RPB7R = 0b0001;               // map U1TX -> RB7
   U1RXR = 0b0001;               // map U1RX <- RB6
-  RPB6R = 0;
 #endif  //USE_RB2_3
   
   // disable the UART to be safe
