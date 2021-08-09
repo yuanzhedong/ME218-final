@@ -4,8 +4,9 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/terminal.c</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkHeaders/circular_buffer.h</file>
             <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/ES_Framework.c</file>
+            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkHeaders/ES_Configure.h</file>
+            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/ProjectSource/main.c</file>
             <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/ES_Port.c</file>
             <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkHeaders/terminal.h</file>
             <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/circular_buffer_no_modulo_threadsafe.c</file>

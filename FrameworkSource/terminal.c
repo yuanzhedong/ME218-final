@@ -33,6 +33,7 @@
 #include "terminal.h"
 /*----------------------------- Module Defines ----------------------------*/
 #define BAUD_CONST 42 // sets up baud rate for 115200
+//#define BAUD_CONST 21 // sets up baud rate for 230400
 
 /*---------------------------- Module Functions ---------------------------*/
 /* prototypes for private functions for this service.They should be functions
