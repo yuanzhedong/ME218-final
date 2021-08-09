@@ -36,7 +36,8 @@ typedef enum
   FailedRun,
   FailedPointer,
   FailedIndex,
-  FailedInit
+  FailedInit,
+  FailedOther
 }ES_Return_t;
 
 ES_Return_t ES_Initialize(TimerRate_t NewRate);

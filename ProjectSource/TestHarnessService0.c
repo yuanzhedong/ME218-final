@@ -30,12 +30,10 @@
 #include "../ProjectHeaders/TestHarnessService0.h"
 
 // debugging printf()
-//#include "dbprintf.h"
 
 // Hardware
 #include <xc.h>
-#include <proc/p32mx170f256b.h>
-#include <sys/attribs.h> // for ISR macors
+//#include <proc/p32mx170f256b.h>
 
 // Event & Services Framework
 #include "ES_Configure.h"
@@ -43,6 +41,8 @@
 #include "ES_DeferRecall.h"
 #include "ES_ShortTimer.h"
 #include "ES_Port.h"
+#include "terminal.h"
+#include "dbprintf.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 // these times assume a 10.000mS/tick timing
@@ -97,6 +97,19 @@ bool InitTestHarnessService0(uint8_t Priority)
   ES_Event_t ThisEvent;
 
   MyPriority = Priority;
+
+  // When doing testing, it is useful to announce just which program
+  // is running.
+  clrScrn();
+  puts("\rStarting Test Harness for \r");
+  DB_printf( "the 2nd Generation Events & Services Framework V2.4\r\n");
+  DB_printf( "compiled at %s on %s\n", __TIME__, __DATE__);
+  DB_printf( "\n\r\n");
+  DB_printf( "Press any key to post key-stroke events to Service 0\n\r");
+  DB_printf( "Press 'd' to test event deferral \n\r");
+  DB_printf( "Press 'r' to test event recall \n\r");
+  DB_printf( "Press 'p' to test posting from an interrupt \n\r");
+
   /********************************************
    in here you write your initialization code
    *******************************************/
@@ -176,16 +189,14 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
     {
       ES_Timer_InitTimer(SERVICE0_TIMER, HALF_SEC);
       puts("Service 00:");
-      printf("\rES_INIT received in Service %d\r\n", MyPriority);
+      DB_printf("\rES_INIT received in Service %d\r\n", MyPriority);
     }
     break;
     case ES_TIMEOUT:   // re-start timer & announce
     {
       ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
-      printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
+      DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
           ThisEvent.EventParam, MyPriority);
-      //StartTMR2();
-      //BlinkLED();
     }
     break;
     case ES_SHORT_TIMEOUT:   // lower the line & announce
@@ -218,8 +229,7 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
       }
       if ('p' == ThisEvent.EventParam)
       {
-        //ES_ShortTimerStart(TIMER_A, 10);
-        //puts("Pulsed!\r");
+        StartTMR2();
       }
     }
     break;
@@ -248,6 +258,8 @@ static void BlinkLED(void)
 }
 
 #ifdef TEST_INT_POST
+#include <sys/attribs.h> // for ISR macors
+
 // for testing posting from interrupts.
 // Intializes TMR2 to gerenate an interrupt at 100ms
 static void InitTMR2(void)

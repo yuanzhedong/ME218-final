@@ -28,6 +28,7 @@
 #include "ES_General.h"
 #include "ES_Port.h"
 #include "circular_buffer.h"
+#include "dbprintf.h"
 
 //this module
 #include "terminal.h"
@@ -200,6 +201,19 @@ void Terminal_MoveBuffer2UART( void )
   }
 }
 
+void __attribute__((noreturn)) _fassert(int nLineNumber,
+                                        const char * sFileName,
+                                        const char * sFailedExpression,
+                                        const char * sFunction )
+{
+  DB_printf("Assert \"%s\" Failed at Line: %d, in File: %s \n\r", 
+            sFailedExpression, nLineNumber, sFileName, sFunction);
+    // now pump the bytes out of the buffer into the UART
+    while(1) 
+    {
+        Terminal_MoveBuffer2UART();
+    }
+}
 /***************************************************************************
  private functions
  ***************************************************************************/

@@ -40,7 +40,7 @@
 #include "terminal.h"
 
 /*----------------------------- Module Defines ----------------------------*/
-#define LINE_LEN    60
+#define LINE_LEN    120
 #define FIELD_LEN   6
 
 #define CR 0x0d

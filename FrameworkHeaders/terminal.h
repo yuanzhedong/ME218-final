@@ -14,6 +14,11 @@ extern "C" {
     
 #include "ES_Port.h"
 
+// a few handy shortcuts for terminal control    
+#define clrScrn() printf("\x1b[2J")
+#define goHome() printf("\x1b[1,1H")
+#define clrLine() printf("\x1b[K")
+    
 #define XMIT_BUFFER_SIZE 1024
     
 // map the generic functions for testing the serial port to actual functions
