@@ -40,8 +40,8 @@
 */
 
 /*---------------------------- Module Variables ---------------------------*/
-uint8_t xmitBuffer[XMIT_BUFFER_SIZE];
-cbuf_handle_t xmitBufferHandle;
+static uint8_t xmitBuffer[XMIT_BUFFER_SIZE];
+static cbuf_handle_t xmitBufferHandle;
 
 /*------------------------------ Module Code ------------------------------*/
 /*******************************************************************************
