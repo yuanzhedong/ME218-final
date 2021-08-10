@@ -1,4 +1,4 @@
-//#define TEST
+#define TEST
 /****************************************************************************
  Module
      dbprintf.c
@@ -41,7 +41,8 @@
 
 /*----------------------------- Module Defines ----------------------------*/
 #define LINE_LEN    120
-#define FIELD_LEN   6
+// increased FIELD_LEN to accommodate 32 bit values for ints
+#define FIELD_LEN   11
 
 #define CR 0x0d
 #define LF 0x0a
@@ -180,9 +181,8 @@ static void uitoa(char **LineBuffer, unsigned int i, unsigned int baseNum)
 
 #ifdef TEST
 #define LONGTEST
+#include <xc.h>
 #include <limits.h>
-//#include <hc11defs.h>
-#include <SC1_comm.h>
 
 #define UINT_MIN 0
 #define UCHAR_MIN 0
@@ -201,9 +201,9 @@ void main(void)
    char  c='A';
    char  String[]="Hello World\n";
    float Floater = 1.23;
-   unsigned long LongOne = 100000L;
+   unsigned long LongOne = 123456789;
 
-   Init_SC1(BAUD38400);
+   Terminal_HWInit();
 
    DB_printf("Beginning DB_printf() test:\n");
 
@@ -227,21 +227,19 @@ void main(void)
    DB_printf("Printing a char as a single character: %c\n", c);
    DB_printf("Printing a string w/ embedded NL: %s\n", String);
 
-   DB_printf("Attempting to print a long: %ld\n",LongOne);
+   DB_printf("Attempting to print a long: %l\n",LongOne);
    DB_printf("Attempting to print a float: %f\n",Floater);
-   DB_printf("A way to print a long value: %x%x\n", HIWORD(LongOne),LOWORD(LongOne));
+//   DB_printf("A way to print a long value: %x%x\n", HIWORD(LongOne),LOWORD(LongOne));
 
 #else
-   Init_SC1(BAUD38400);
+   Terminal_HWInit();
    DB_printf("Hello World!\n");
 #endif
 
-/* -----------------2/22/98 11:57PM------------------
-Note: without out the following line, you may not be able to re-load after
- running your code without a reset. The reason is that the start-up code
- starts an interrupt response that is left running when your code exits.
- --------------------------------------------------*/
-//disable();
+while(1) //hang out in this loop forever, moving bytes to UART until finished
+{
+  Terminal_MoveBuffer2UART(); // move bytes from circ buffer to UART
+}
 }
 #endif
 
