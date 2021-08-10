@@ -150,7 +150,7 @@ void DB_printf(const char *Format, ...)
    }
    return;
 }
-/* integer to ascii conversion for unsigned numbers */
+/* integer to ascii conversion for unsigned numbers  */
 static void uitoa(char **LineBuffer, unsigned int i, unsigned int baseNum)
 {
   char *s;
