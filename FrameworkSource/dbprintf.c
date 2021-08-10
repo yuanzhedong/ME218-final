@@ -154,21 +154,25 @@ void DB_printf(const char *Format, ...)
 static void uitoa(char **LineBuffer, unsigned int i, unsigned int baseNum)
 {
   char *s;
-  unsigned int   rem;
+  uint8_t remainder;
   char FieldBuf[FIELD_LEN + 1];
 
   FieldBuf[FIELD_LEN] = 0;      /*start by NULL terminating the local buffer */
+  
+  // we treat a value of 0 as a special case, since it would break the
+  // general algorithm
   if (i == 0)
   {
-    (*LineBuffer)[0] = '0';
-    ++(*LineBuffer);
+    (*LineBuffer)[0] = '0'; // just copy the '0' to the return buffer
+    ++(*LineBuffer);        // and advance the pointer past the '0'
     return;
   }
+  // we will fill the FieldBuf from the LS position
   s = &FieldBuf[FIELD_LEN];
   while (i)
   {
-    rem = i % baseNum;
-    *--s = "0123456789abcdef"[rem];
+    remainder = i % baseNum;
+    *--s = "0123456789abcdef"[remainder];
     i /= baseNum;
   }
   while (*s)                    /* copy local buffer into passed buffer */
@@ -210,16 +214,16 @@ void main(void)
 
    DB_printf("Printing an unsigned char UCHAR_MAX, Decimal mode(%%u): %u, Hex mode: %x\n\n",uch, uch);
 
-   DB_printf("Printing an unsigned int UINT_MIN, Decimal mode(%%u): %u, Hex mode: %x\n\n",uil);
+   DB_printf("Printing an unsigned int UINT_MIN, Decimal mode(%%u): %u, Hex mode: %x\n\n",uil,uil);
 
    DB_printf("Printing an unsigned int UINT_MAX, Decimal mode(%%u): %u\n",uih);
    DB_printf("Printing an unsigned int UIINT_MAX, Hex mode: %x\n\n",uih);
 
    DB_printf("Printing an signed char SCHAR_MIN, Decimal mode(%%d): %d\n",cl);
-   DB_printf("Printing an signed char SCHAR_MAX, Decimal mode(%%d): %d\n\n",ch);
+   DB_printf("Printing an signed char SCHAR_MAX, Decimal mode(%%d):  %d\n\n",ch);
    
    DB_printf("Printing an signed int INT_MIN, Decimal mode(%%d): %d\n",il);
-   DB_printf("Printing an signed int INT_MAX, Decimal mode(%%d): %d\n\n",ih);
+   DB_printf("Printing an signed int INT_MAX, Decimal mode(%%d):  %d\n\n",ih);
 
    DB_printf("Printing a char as a single character: %c\n", c);
    DB_printf("Printing a string w/ embedded NL: %s\n\n", String);
