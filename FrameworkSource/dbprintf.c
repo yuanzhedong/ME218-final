@@ -1,4 +1,4 @@
-#define TEST
+//#define TEST
 /****************************************************************************
   Module
     dbprintf.c
@@ -9,9 +9,7 @@
     specifiers  recognized are : %d, %x, %u, %c, %s . It can not print
     floats or longs. If it is called with a format specifier other than
     those recognized, it will print BAD. Any values after that are garbage.
-    Two macros are provided in the header file to allow printing the upper &
-    lower halves of longs. Floats must be explicitly  cast to int before
-    printing.
+    Floats must be explicitly  cast to int before printing.
 
   Notes
     The maximum line length from a single call to DB_printf() is LINE_LEN
