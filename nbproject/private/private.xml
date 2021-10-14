@@ -3,15 +3,8 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkHeaders/ES_Framework.h</file>
             <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/terminal.c</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/ProjectSource/TestHarnessService0.c</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkHeaders/dbprintf.h</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkHeaders/ES_Configure.h</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/ProjectSource/main.c</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/dbprintf.c</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/ES_CheckEvents.c</file>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/circular_buffer_no_modulo_threadsafe.c</file>
+            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/FrameworkSource/ES_Port.c</file>
         </group>
     </open-files>
 </project-private>
