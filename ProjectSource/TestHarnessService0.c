@@ -39,7 +39,6 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "ES_DeferRecall.h"
-#include "ES_ShortTimer.h"
 #include "ES_Port.h"
 #include "terminal.h"
 #include "dbprintf.h"

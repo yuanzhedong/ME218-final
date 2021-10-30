@@ -17,7 +17,6 @@
       <itemPath>FrameworkHeaders/ES_PriorTables.h</itemPath>
       <itemPath>FrameworkHeaders/ES_Queue.h</itemPath>
       <itemPath>FrameworkHeaders/ES_ServiceHeaders.h</itemPath>
-      <itemPath>FrameworkHeaders/ES_ShortTimer.h</itemPath>
       <itemPath>FrameworkHeaders/ES_Timers.h</itemPath>
       <itemPath>FrameworkHeaders/ES_Types.h</itemPath>
       <itemPath>FrameworkHeaders/bitdefs.h</itemPath>
