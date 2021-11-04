@@ -99,7 +99,7 @@ bool ES_PostList00(ES_Event_t NewEvent)
 }
 
 #if NUM_DIST_LISTS > 1
-bool ES_PostList01(ES_Event NewEvent)
+bool ES_PostList01(ES_Event_t NewEvent)
 {
   return PostToList(DistList01, ARRAY_SIZE(DistList01), NewEvent);
 }
@@ -107,7 +107,7 @@ bool ES_PostList01(ES_Event NewEvent)
 #endif
 
 #if NUM_DIST_LISTS > 2
-bool ES_PostList02(ES_Event NewEvent)
+bool ES_PostList02(ES_Event_t NewEvent)
 {
   return PostToList(DistList02, ARRAY_SIZE(DistList02), NewEvent);
 }
@@ -115,7 +115,7 @@ bool ES_PostList02(ES_Event NewEvent)
 #endif
 
 #if NUM_DIST_LISTS > 3
-bool ES_PostList03(ES_Event NewEvent)
+bool ES_PostList03(ES_Event_t NewEvent)
 {
   return PostToList(DistList03, ARRAY_SIZE(DistList03), NewEvent);
 }
@@ -123,7 +123,7 @@ bool ES_PostList03(ES_Event NewEvent)
 #endif
 
 #if NUM_DIST_LISTS > 4
-bool ES_PostList04(ES_Event NewEvent)
+bool ES_PostList04(ES_Event_t NewEvent)
 {
   return PostToList(DistList04, ARRAY_SIZE(DistList04), NewEvent);
 }
@@ -131,7 +131,7 @@ bool ES_PostList04(ES_Event NewEvent)
 #endif
 
 #if NUM_DIST_LISTS > 5
-bool ES_PostList05(ES_Event NewEvent)
+bool ES_PostList05(ES_Event_t NewEvent)
 {
   return PostToList(DistList05, ARRAY_SIZE(DistList05), NewEvent);
 }
@@ -139,7 +139,7 @@ bool ES_PostList05(ES_Event NewEvent)
 #endif
 
 #if NUM_DIST_LISTS > 6
-bool ES_PostList06(ES_Event NewEvent)
+bool ES_PostList06(ES_Event_t NewEvent)
 {
   return PostToList(DistList06, ARRAY_SIZE(DistList06), NewEvent);
 }
@@ -147,7 +147,7 @@ bool ES_PostList06(ES_Event NewEvent)
 #endif
 
 #if NUM_DIST_LISTS > 7
-bool ES_PostList07(ES_Event NewEvent)
+bool ES_PostList07(ES_Event_t NewEvent)
 {
   return PostToList(DistList07, ARRAY_SIZE(DistList07), NewEvent);
 }
