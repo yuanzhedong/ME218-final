@@ -14,7 +14,6 @@
       <itemPath>FrameworkHeaders/ES_LookupTables.h</itemPath>
       <itemPath>FrameworkHeaders/ES_Port.h</itemPath>
       <itemPath>FrameworkHeaders/ES_PostList.h</itemPath>
-      <itemPath>FrameworkHeaders/ES_PriorTables.h</itemPath>
       <itemPath>FrameworkHeaders/ES_Queue.h</itemPath>
       <itemPath>FrameworkHeaders/ES_ServiceHeaders.h</itemPath>
       <itemPath>FrameworkHeaders/ES_Timers.h</itemPath>
@@ -783,8 +782,6 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d03ffff"/>
-        <property key="programmerToGoFilePath"
-                  value="J:/DevProjects/2021Projects/Framework4PIC32_2021/debug/default/default_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmentry.voltage" value="low"/>

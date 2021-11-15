@@ -52,3 +52,4 @@ Thumbs.db
 *.d
 *.i
 *.s
+nbproject/Makefile*
