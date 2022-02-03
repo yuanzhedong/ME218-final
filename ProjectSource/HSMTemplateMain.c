@@ -14,6 +14,7 @@
  History
  When           Who     What/Why
  -------------- ---     --------
+ 02/11/21 14:21 jec     updated to match the PIC32 compiler requirements
  11/26/17 14:09 jec     updated with changes from main.c for headers & port 
                         initialization
  02/27/17 12:01 jec     set framework timer rate to 1mS
@@ -31,32 +32,27 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "driverlib/sysctl.h"
-
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "ES_Port.h"
-#include "termio.h"
-#include "EnablePA25_PB23_PD7_PF0.h"
+
+// stripped down printf()
+#include "dbprintf.h"
+
 
 #define clrScrn() printf("\x1b[2J")
 #define goHome() printf("\x1b[1,1H")
 #define clrLine() printf("\x1b[K")
 
-int main (void)
+void main(void)
 {
   ES_Return_t ErrorType;
-    
-// Set the clock to run at 40MhZ using the PLL and 16MHz external crystal
-  SysCtlClockSet(SYSCTL_SYSDIV_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN
-			| SYSCTL_XTAL_16MHZ);
 
-  // Initialize the terminal for puts/printf debugging
-  TERMIO_Init();
+  _HW_PIC32Init();
   clrScrn();
-   
+
+  // When doing testing, it is useful to announce just which program
+  // is running.
 // When doing testing, it is useful to announce just which program
 // is running.
 	puts("\rStarting Test Harness for \r");
@@ -65,12 +61,6 @@ int main (void)
 	printf("%s %s\n",__TIME__, __DATE__);
 	printf("\n\r\n");
 
-  // reprogram the ports that are set as alternate functions or
-  // locked coming out of reset. (PA2-5, PB2-3, PD7, PF0)
-  // After this call these ports are set
-  // as GPIO inputs and can be freely re-programmed to change config.
-  // or assign to alternate any functions available on those pins
-  PortFunctionInit();
 
   // Your hardware initialization function calls go here
 
