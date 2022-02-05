@@ -201,6 +201,27 @@ void StartMasterSM ( ES_Event_t CurrentEvent )
   return;
 }
 
+/****************************************************************************
+ Function
+     QueryTopHSMTemplateSM
+
+ Parameters
+     None
+
+ Returns
+     MasterState_t  The current state of the Top Level Template state machine
+
+ Description
+     returns the current state of the Template state machine
+ Notes
+
+ Author
+     J. Edward Carryer, 2/05/22, 10:30AM
+****************************************************************************/
+MasterState_t  QueryTopHSMTemplateSM ( void )
+{
+   return(CurrentState);
+}
 
 /***************************************************************************
  private functions
