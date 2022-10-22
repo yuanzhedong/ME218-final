@@ -218,7 +218,7 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
       if ('r' == ThisEvent.EventParam)
       {
         ThisEvent.EventParam = 'Q';   // This one gets posted normally
-        ES_PostToService(MyPriority, ThisEvent);
+        PostTestHarnessService0(ThisEvent);
         // but we slide the deferred events under it so it(they) should come out first
         if (true == ES_RecallEvents(MyPriority, DeferralQueue))
         {

@@ -3,6 +3,13 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+#MPLABX ignores
+**/.generated_files/
+**/nbproject/private/
+**/build/
+**/dist/
+**/debug/
+
 # Node artifact files
 node_modules/
 dist/
