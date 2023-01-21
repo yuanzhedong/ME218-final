@@ -54,14 +54,17 @@
 #define ENTER_RUN      ((MyPriority<<3)|1)
 #define ENTER_TIMEOUT  ((MyPriority<<3)|2)
 
-#define TEST_INT_POST
+//#define TEST_INT_POST
+//#define BLINK LED
 /*---------------------------- Module Functions ---------------------------*/
 /* prototypes for private functions for this service.They should be functions
    relevant to the behavior of this service
 */
-
+#ifdef BLINK_LED
 static void InitLED(void);
 static void BlinkLED(void);
+#endif
+
 #ifdef TEST_INT_POST
 static void InitTMR2(void);
 static void StartTMR2(void);
@@ -115,7 +118,9 @@ bool InitTestHarnessService0(uint8_t Priority)
   // initialize deferral queue for testing Deferal function
   ES_InitDeferralQueueWith(DeferralQueue, ARRAY_SIZE(DeferralQueue));
   // initialize LED drive for testing/debug output
-  // InitLED();
+#ifdef BLINK_LED
+  InitLED();
+#endif
 #ifdef TEST_INT_POST
   InitTMR2();
 #endif
@@ -226,10 +231,12 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
           DeferredChar = '1';
         }
       }
+#ifdef TEST_INT_POST
       if ('p' == ThisEvent.EventParam)
       {
         StartTMR2();
       }
+#endif
     }
     break;
     default:
@@ -243,6 +250,7 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
 /***************************************************************************
  private functions
  ***************************************************************************/
+#ifdef BLINK_LED
 #define LED LATBbits.LATB6
 static void InitLED(void)
 {
@@ -255,6 +263,7 @@ static void BlinkLED(void)
   // toggle state of LED
   LED = ~LED;
 }
+#endif
 
 #ifdef TEST_INT_POST
 #include <sys/attribs.h> // for ISR macors
