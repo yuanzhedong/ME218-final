@@ -221,17 +221,6 @@ ES_Event_t RunTestHarnessService1(ES_Event_t ThisEvent)
         ES_Event_t EventPressB = {ES_PRESS_B, ThisEvent.EventParam};
         PostTestHarnessService1(EventPressB);
       }
-    }
-    break;
-    case ES_PRESS_A: {
-        DB_printf("\ES_PRESS_A received in Service %d\r\n", MyPriority);
-    }
-    break;
-    case ES_PRESS_B: {
-        DB_printf("\ES_PRESS_B received in Service %d\r\n", MyPriority);
-    }
-    break;
-  }
 
 #ifdef TEST_INT_POST
       if ('p' == ThisEvent.EventParam)
@@ -239,6 +228,15 @@ ES_Event_t RunTestHarnessService1(ES_Event_t ThisEvent)
         StartTMR2();
       }
 #endif
+    }
+    break;
+    
+    case ES_PRESS_A: {
+        DB_printf("\ES_PRESS_A received in Service %d\r\n", MyPriority);
+    }
+    break;
+    case ES_PRESS_B: {
+        DB_printf("\ES_PRESS_B received in Service %d\r\n", MyPriority);
     }
     break;
     default:

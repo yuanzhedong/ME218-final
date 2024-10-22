@@ -17,7 +17,7 @@
 
 bool InitTestHarnessService1(uint8_t Priority);
 bool PostTestHarnessService1(ES_Event_t ThisEvent);
-ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent);
+ES_Event_t RunTestHarnessService1(ES_Event_t ThisEvent);
 
 #endif /* ServTemplate_H */
 
