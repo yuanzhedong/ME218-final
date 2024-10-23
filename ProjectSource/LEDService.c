@@ -236,8 +236,9 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
             ES_Event_t LED_WRITE_ROW = {ES_LED_WRITE_ROW, ThisEvent.EventParam};
             PostLEDService(LED_WRITE_ROW);
         }
+    }
     break;
-    case LED_WRITE_ROW: {
+    case ES_LED_WRITE_ROW: {
         DB_printf("\ES_LED_WRITE_ROW received in Service %d\r\n", MyPriority);
         if (false == DM_TakeDisplayUpdateStep()) {
             PostLEDService(ThisEvent);
