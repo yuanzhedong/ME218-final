@@ -3,7 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/J:/DevProjects/2021Projects/Framework4PIC32_2021/ProjectSource/TestHarnessService0.c</file>
+            <file>file:/U:/yzd/lab3_3/ProjectSource/LEDService.c</file>
+            <file>file:/U:/yzd/lab3_3/FrameworkHeaders/ES_Configure.h</file>
+            <file>file:/U:/yzd/lab3_3/ProjectSource/DM_DisplayStarter.c</file>
+            <file>file:/U:/yzd/lab3_3/ProjectSource/TestHarnessService1.c</file>
+            <file>file:/U:/yzd/lab3_3/ProjectHeaders/DM_Display.h</file>
+            <file>file:/U:/yzd/lab3_3/ProjectSource/TestHarnessService0.c</file>
+            <file>file:/U:/yzd/lab3_3/ProjectHeaders/TestHarnessService1.h</file>
         </group>
     </open-files>
 </project-private>
