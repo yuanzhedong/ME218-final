@@ -86,10 +86,11 @@ static const uint8_t BitReverseTable256[] =
 
 void SPI_SendToAllModules(uint16_t data1, uint16_t data2, uint16_t data3, uint16_t data4) {
     // Send data to all 4 modules in one SPI transaction using SPIOperate_SPI1_Send16
+    //while (!SPIOperate_HasSS1_Risen());
     SPIOperate_SPI1_Send16(data1); // Data for Module 1
     SPIOperate_SPI1_Send16(data2); // Data for Module 2
     SPIOperate_SPI1_Send16(data3); // Data for Module 3
-    SPIOperate_SPI1_Send16Wait(data4); // Data for Module 4, wait for SS rise
+     SPIOperate_SPI1_Send16Wait(data4); // Data for Module 4, wait for SS rise
 }
 
 /*------------------------------ Module Code ------------------------------*/
@@ -110,13 +111,20 @@ void SPI_SendToAllModules(uint16_t data1, uint16_t data2, uint16_t data3, uint16
 bool DM_TakeInitDisplayStep(void) {
     static uint8_t rowIndex = 0;  // To keep track of the current row when filling the buffer
     bool ReturnVal = false;
+            //return ReturnVal;
 
     switch (CurrentInitStep) {
+            //return ReturnVal;
+
         case DM_StepStartShutdown:
             // Step 1: Put the display in shutdown to disable all displays
             SPI_SendToAllModules(DM_START_SHUTDOWN, DM_START_SHUTDOWN, DM_START_SHUTDOWN, DM_START_SHUTDOWN);
+            //return ReturnVal;
+
             CurrentInitStep = DM_StepFillBufferZeros;  // Move to the next step
-            break;
+            return ReturnVal;
+
+        break;
 
         case DM_StepFillBufferZeros:
             // Step 2: Fill the display RAM with Zeros to ensure blanked display
@@ -130,39 +138,39 @@ bool DM_TakeInitDisplayStep(void) {
                 rowIndex = 0;
                 CurrentInitStep = DM_StepDisableCodeB; // Move to next step
             }
-            break;
+        break;
 
         case DM_StepDisableCodeB:
             // Step 3: Disable Code B decoding for all digits
             SPI_SendToAllModules(DM_DISABLE_CODEB, DM_DISABLE_CODEB, DM_DISABLE_CODEB, DM_DISABLE_CODEB);
             CurrentInitStep = DM_StepEnableScanAll;  // Move to the next step
-            break;
+        break;
 
         case DM_StepEnableScanAll:
             // Step 4: Enable scanning for all digits (set to 7 digits: 0 -> 7)
             SPI_SendToAllModules(DM_ENABLE_SCAN, DM_ENABLE_SCAN, DM_ENABLE_SCAN, DM_ENABLE_SCAN);
             CurrentInitStep = DM_StepSetBrighness;  // Move to the next step
-            break;
+        break;
 
         case DM_StepSetBrighness:
             // Step 5: Set the brightness to minimum (intensity register)
             SPI_SendToAllModules(DM_SET_BRIGHT, DM_SET_BRIGHT, DM_SET_BRIGHT, DM_SET_BRIGHT);
             CurrentInitStep = DM_StepCopyBuffer2Display;  // Move to the next step
-            break;
+        break;
 
         case DM_StepCopyBuffer2Display:
             // Step 6: Copy our display buffer to the display
             if (true == DM_TakeDisplayUpdateStep()) {
                 CurrentInitStep = DM_StepEndShutdown;  // Move to the final step
             }
-            break;
+        break;
 
         case DM_StepEndShutdown:
             // Step 7: Finally, bring the display out of shutdown
             SPI_SendToAllModules(DM_END_SHUTDOWN, DM_END_SHUTDOWN, DM_END_SHUTDOWN, DM_END_SHUTDOWN);
             ReturnVal = true;  // Return true indicating that the initialization is complete
             CurrentInitStep = DM_StepStartShutdown;  // Reset for potential re-initialization
-            break;
+        break;
 
         default:
             break;
@@ -365,4 +373,6 @@ static void sendRow( uint8_t RowNum, DM_Row_t RowData )
 }
 
 
-
+bool DM_test(void) {
+    return true;
+}

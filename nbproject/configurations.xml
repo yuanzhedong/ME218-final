@@ -48,6 +48,7 @@
       <itemPath>ProjectHeaders/DM_Display.h</itemPath>
       <itemPath>ProjectHeaders/LEDService.h</itemPath>
       <itemPath>ProjectHeaders/FontStuff.h</itemPath>
+      <itemPath>ProjectHeaders/PIC32_SPI_HAL.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

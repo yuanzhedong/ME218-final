@@ -37,28 +37,28 @@ void main(void)
     {
       ErrorType = 0; // a hack to get a readable assert message
       assert( FailedPost == ErrorType );
-      //DB_printf("Failed on attempt to Post\n");
+      DB_printf("Failed on attempt to Post\n");
     }
     break;
     case FailedPointer:
     {
       ErrorType = 0; // a hack to get a readable assert message
       assert( FailedPointer  == ErrorType );
-//      DB_printf("Failed on NULL pointer\n");
+      DB_printf("Failed on NULL pointer\n");
     }
     break;
     case FailedInit:
     {
       ErrorType = 0; // a hack to get a readable assert message
       assert( FailedInit  == ErrorType );
-//      DB_printf("Failed Initialization\n");
+      DB_printf("Failed Initialization\n");
     }
     break;
     default:
     {
       ErrorType = 0; // a hack to get a readable assert message
       assert( FailedOther  == ErrorType );
-//      DB_printf("Other Failure\n");
+      DB_printf("Other Failure\n");
     }
     break;
   }

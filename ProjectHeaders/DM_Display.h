@@ -156,6 +156,7 @@ bool DM_QueryRowData( uint8_t RowToQuery, uint32_t * pReturnValue);
 
 void SPI_SendToAllModules(uint16_t data1, uint16_t data2, uint16_t data3, uint16_t data4);
 
+bool DM_test(void);
 
 #endif	/* DM_DISPLAY_H */
 

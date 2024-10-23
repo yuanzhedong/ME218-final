@@ -758,7 +758,7 @@ void SPIOperate_SPI1_Send16Wait(uint16_t TheData)
 
     // Wait for the transmission to complete by polling the SPI1 status flag
     // Wait until the SPI1 transmission is complete (SPIRBF = 1 or SPIBUSY = 0)
-    while (SPI1STATbits.SPIBUSY);  // Wait until the SPI module is not busy
+//    while (SPI1STATbits.SPIBUSY);  // Wait until the SPI module is not busy
 
     // Wait for the SS1 line to rise (poll the SS1 rising edge detection)
     while (!SPIOperate_HasSS1_Risen());  // Blocking wait until SS1 line rises
@@ -814,7 +814,7 @@ bool SPIOperate_HasSS1_Risen(void)
 
   if (IFS0bits.INT4IF == 1)
   {
-    IFS0CLR = _IFS0_INT1IF_MASK;
+    IFS0CLR = _IFS0_INT4IF_MASK;
   }else{
     ReturnVal = false;
   }

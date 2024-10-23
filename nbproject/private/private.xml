@@ -5,11 +5,11 @@
         <group>
             <file>file:/U:/yzd/lab3_3/ProjectSource/LEDService.c</file>
             <file>file:/U:/yzd/lab3_3/FrameworkHeaders/ES_Configure.h</file>
-            <file>file:/U:/yzd/lab3_3/ProjectSource/DM_DisplayStarter.c</file>
-            <file>file:/U:/yzd/lab3_3/ProjectSource/TestHarnessService1.c</file>
             <file>file:/U:/yzd/lab3_3/ProjectHeaders/DM_Display.h</file>
-            <file>file:/U:/yzd/lab3_3/ProjectSource/TestHarnessService0.c</file>
-            <file>file:/U:/yzd/lab3_3/ProjectHeaders/TestHarnessService1.h</file>
+            <file>file:/U:/yzd/lab3_3/ProjectSource/DM_DisplayStarter.c</file>
+            <file>file:/U:/yzd/lab3_3/ProjectHeaders/LEDService.h</file>
+            <file>file:/U:/yzd/lab3_3/ProjectSource/main.c</file>
+            <file>file:/U:/yzd/lab3_3/ProjectSource/PIC32_SPI_HAL_Starter.c</file>
         </group>
     </open-files>
 </project-private>

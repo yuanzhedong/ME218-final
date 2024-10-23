@@ -34,15 +34,18 @@
 
 // Hardware
 #include <xc.h>
+#include <xc.h>
+#include "PIC32_SPI_HAL.h"
 //#include <proc/p32mx170f256b.h>
 
 // Event & Services Framework
-#include "ES_Configure.h"
+#include "ES_Configure.h"aa
 #include "ES_Framework.h"
 #include "ES_DeferRecall.h"
 #include "ES_Port.h"
 #include "terminal.h"
 #include "dbprintf.h"
+
 
 /*----------------------------- Module Defines ----------------------------*/
 // these times assume a 10.000mS/tick timing
@@ -95,8 +98,23 @@ static ES_Event_t DeferralQueue[3 + 1];
  Author
      J. Edward Carryer, 01/16/12, 10:00
 ****************************************************************************/
+
+
+
 bool InitLEDService(uint8_t Priority)
 {
+    SPISetup_BasicConfig(SPI_SPI1);
+    SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
+    SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
+    SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
+    SPI1BUF;
+    SPISetEnhancedBuffer(SPI_SPI1, 1);
+    SPISetup_SetBitTime(SPI_SPI1, 10000);
+    SPISetup_SetXferWidth(SPI_SPI1, SPI_16BIT);
+    SPISetup_SetActiveEdge(SPI_SPI1, SPI_SECOND_EDGE);
+    SPISetup_SetClockIdleState(SPI_SPI1, SPI_CLK_HI);
+    SPI1CONbits.FRMPOL = 0;
+    SPISetup_EnableSPI(SPI_SPI1);
   ES_Event_t ThisEvent;
 
   MyPriority = Priority;
@@ -107,8 +125,19 @@ bool InitLEDService(uint8_t Priority)
   puts("\rStarting LED SERVICE for \r");
   DB_printf( "compiled at %s on %s\n", __TIME__, __DATE__);
   DB_printf( "\n\r\n");
+  DB_printf( "######\n");
+  DB_printf( "------");
+  //SPI_SendToAllModules(0x0C00,0x0C00,0x0C00,0x0C00);
+//  for (int i = 0; i < 10; ++i) {
+//      puts("#######1\r\n");
+////      DM_TakeInitDisplayStep();
+//      //DM_test();
+//      //puts((char)(DM_TakeInitDisplayStep() + '0'));
+//
+//  }      
   while (false == DM_TakeInitDisplayStep()) {
         // Continue calling to fully initialize the display
+
   }
   DB_printf( "Finish init LED\n");
 
@@ -182,6 +211,8 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
 {
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
+  //return ReturnEvent;
+  
 #ifdef _INCLUDE_BYTE_DEBUG_
   _HW_ByteDebug_SetValueWithStrobe( ENTER_RUN );
 #endif  
@@ -189,9 +220,9 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
   {
     case ES_INIT:
     {
-      ES_Timer_InitTimer(SERVICE0_TIMER, HALF_SEC);
-      puts("Service 00:");
-      DB_printf("\rES_INIT received in Service %d\r\n", MyPriority);
+//      ES_Timer_InitTimer(SERVICE0_TIMER, HALF_SEC);
+      puts("Service 02:");
+      DB_printf("\rES_INIT received in LED Service %d\r\n", MyPriority);
     }
     break;
     case ES_TIMEOUT:   // re-start timer & announce
@@ -208,11 +239,13 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
     break;
     case ES_NEW_KEY:   // announce
     {
-      if (false == DM_TakeDisplayUpdateStep()) {
-        break;
-      }
       DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
           (char)ThisEvent.EventParam);
+      if (false == DM_TakeDisplayUpdateStep()) {
+          DB_printf("Ignore input due to updating LED buffer....");
+        break;
+      }
+
       // update buffer
       DM_ScrollDisplayBuffer(4);
       DM_AddChar2DisplayBuffer((char)ThisEvent.EventParam);
