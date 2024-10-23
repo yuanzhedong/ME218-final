@@ -5,8 +5,8 @@
 
  ****************************************************************************/
 
-#ifndef TestHarnessService1_H
-#define TestHarnessService1_H
+#ifndef LEDService_H
+#define LEDService_H
 
 #include <stdint.h>
 #include <stdbool.h>

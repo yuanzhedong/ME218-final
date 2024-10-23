@@ -263,7 +263,9 @@ typedef enum
   ES_LOCK,
   ES_UNLOCK,
   ES_PRESS_A,
-  ES_PRESS_B
+  ES_PRESS_B,
+  ES_START_LED_WRITE,
+  ES_LED_WRITE_ROW
 }ES_EventType_t;
 
 /****************************************************************************/
