@@ -39,7 +39,7 @@
 //#include <proc/p32mx170f256b.h>
 
 // Event & Services Framework
-#include "ES_Configure.h"aa
+#include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "ES_DeferRecall.h"
 #include "ES_Port.h"
@@ -77,7 +77,7 @@ static void StartTMR2(void);
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 // add a deferral queue for up to 3 pending deferrals +1 to allow for overhead
-static ES_Event_t DeferralQueue[3 + 1];
+static uint8_t UpdatingLED = 0;
 
 /*------------------------------ Module Code ------------------------------*/
 /****************************************************************************
@@ -123,40 +123,13 @@ bool InitLEDService(uint8_t Priority)
   // is running.
   clrScrn();
   puts("\rStarting LED SERVICE for \r");
-  DB_printf( "compiled at %s on %s\n", __TIME__, __DATE__);
-  DB_printf( "\n\r\n");
-  DB_printf( "######\n");
-  DB_printf( "------");
-  //SPI_SendToAllModules(0x0C00,0x0C00,0x0C00,0x0C00);
-//  for (int i = 0; i < 10; ++i) {
-//      puts("#######1\r\n");
-////      DM_TakeInitDisplayStep();
-//      //DM_test();
-//      //puts((char)(DM_TakeInitDisplayStep() + '0'));
-//
-//  }      
+  DB_printf( "compiled at %s on %s\n", __TIME__, __DATE__);  
   while (false == DM_TakeInitDisplayStep()) {
         // Continue calling to fully initialize the display
 
   }
   DB_printf( "Finish init LED\n");
 
-  /********************************************
-   in here you write your initialization code
-   *******************************************/
-  // initialize deferral queue for testing Deferal function
-  ES_InitDeferralQueueWith(DeferralQueue, ARRAY_SIZE(DeferralQueue));
-  // initialize LED drive for testing/debug output
-#ifdef BLINK_LED
-  InitLED();
-#endif
-#ifdef TEST_INT_POST
-  InitTMR2();
-#endif
-  // initialize the Short timer system for channel A
-  //ES_ShortTimerInit(MyPriority, SHORT_TIMER_UNUSED);
-
-  // post the initial transition event
   ThisEvent.EventType = ES_INIT;
   if (ES_PostToService(MyPriority, ThisEvent) == true)
   {
@@ -232,49 +205,41 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
           ThisEvent.EventParam, MyPriority);
     }
     break;
-    case ES_SHORT_TIMEOUT:   // lower the line & announce
-    {
-      puts("\rES_SHORT_TIMEOUT received\r\n");
-    }
-    break;
+
     case ES_NEW_KEY:   // announce
     {
       DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
           (char)ThisEvent.EventParam);
-      if (false == DM_TakeDisplayUpdateStep()) {
+      if (UpdatingLED) {
           DB_printf("Ignore input due to updating LED buffer....");
-        break;
+          break;
       }
+      ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
 
-      // update buffer
-      DM_ScrollDisplayBuffer(4);
-      DM_AddChar2DisplayBuffer((char)ThisEvent.EventParam);
-
-       ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
-       PostLEDService(START_LED_WRITE);
-
-
-#ifdef TEST_INT_POST
-      if ('p' == ThisEvent.EventParam)
-      {
-        StartTMR2();
-      }
-#endif
+      PostLEDService(START_LED_WRITE);
     }
     break;
     
     case ES_START_LED_WRITE: {
-        DB_printf("\ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
-        if (false == DM_TakeDisplayUpdateStep()) {
-            ES_Event_t LED_WRITE_ROW = {ES_LED_WRITE_ROW, ThisEvent.EventParam};
-            PostLEDService(LED_WRITE_ROW);
+        DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+        if (UpdatingLED == 1) {
+            DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+            break;
         }
+        UpdatingLED = 1;
+        DM_ScrollDisplayBuffer(4);
+        DM_AddChar2DisplayBuffer((char)ThisEvent.EventParam);
+        ES_Event_t LED_WRITE_ROW = {ES_LED_WRITE_ROW, ThisEvent.EventParam};
+        PostLEDService(LED_WRITE_ROW);
     }
     break;
     case ES_LED_WRITE_ROW: {
-        DB_printf("\ES_LED_WRITE_ROW received in Service %d\r\n", MyPriority);
+        DB_printf("ES_LED_WRITE_ROW received in Service %d\r\n", MyPriority);
         if (false == DM_TakeDisplayUpdateStep()) {
             PostLEDService(ThisEvent);
+        }
+        else {
+           UpdatingLED = 0; 
         }
     }
     break;

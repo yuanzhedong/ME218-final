@@ -223,7 +223,7 @@ void DM_ScrollDisplayBuffer( uint8_t NumCols2Scroll)
         TempRow.FullRow = DM_Display[WhichRow].FullRow << NumCols2Scroll;
 
         // Wrap around the bits that "fell off" during the shift to the other side
-        TempRow.FullRow |= DM_Display[WhichRow].FullRow >> (32 - NumCols2Scroll);
+        //TempRow.FullRow |= DM_Display[WhichRow].FullRow >> (32 - NumCols2Scroll);
 
         // Update the display buffer with the new shifted row
         DM_Display[WhichRow] = TempRow;
