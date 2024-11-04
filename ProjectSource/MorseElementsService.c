@@ -248,6 +248,50 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
             }
         break;
 
+        case DecodeWaitFall:
+            if (ThisEvent.EventType == ES_MORSE_FALL) {
+                // Set TimeOfLastFall to the time from the event parameter
+                TimeOfLastFall = ThisEvent.EventParam;
+
+                // Transition to DecodeWaitRise
+                CurrentState = DecodeWaitRise;
+
+                // Call CharacterizePulse to process the pulse length
+                CharacterizePulse();
+             }
+                else if (ThisEvent.EventType == ES_BUTTON_PRESSED) {
+                    // If the double button (DBButtonDown) event is detected
+                    // Transition to CalWaitForRise for recalibration
+                CurrentState = CalWaitForRise;
+
+                // Reset FirstDelta to 0 for calibration
+             FirstDelta = 0;
+            }
+        break;
+
+        case DecodeWaitRise:
+            if (ThisEvent.EventType == ES_MORSE_RISE) {
+                // Set TimeOfLastRise to the time from the event parameter
+                TimeOfLastRise = ThisEvent.EventParam;
+
+                // Transition to DecodeWaitFall
+                CurrentState = DecodeWaitFall;
+
+                // Call CharacterizeSpace function to process the space length
+                CharacterizeSpace();
+            }
+            else if (ThisEvent.EventType == ES_BUTTON_PRESSED) {
+                // If the double button (DBButtonDown) event is detected
+                // Transition to CalWaitForRise for recalibration
+             CurrentState = CalWaitForRise;
+
+                // Reset FirstDelta to 0 for calibration
+             FirstDelta = 0;
+             }
+        break;
+
+
+
 
         default:
         break;
