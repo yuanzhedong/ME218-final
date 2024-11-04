@@ -118,6 +118,8 @@ bool InitLEDService(uint8_t Priority)
     SPI1CONbits.FRMPOL = 0;
     SPISetup_EnableSPI(SPI_SPI1);
   ES_Event_t ThisEvent;
+  
+   ES_InitDeferralQueueWith(DeferralQueue, ARRAY_SIZE(DeferralQueue));
 
   MyPriority = Priority;
 
@@ -208,26 +210,29 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
 //    }
 //    break;
 
-    case ES_NEW_KEY:   // announce
-    {
-     // DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
-     //     (char)ThisEvent.EventParam);
-      if (UpdatingLED) {
-          DB_printf("Ignore input due to updating LED buffer....");
-          break;
-      }
-      ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
-
-      PostLEDService(START_LED_WRITE);
-    }
+//    case ES_NEW_KEY:   // announce
+//    {
+//     // DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
+//     //     (char)ThisEvent.EventParam);
+//      if (UpdatingLED) aaaacacabaacabaacbbbd{
+//          DB_printf("Ignore input due to updating LED buffer....");
+//          break;
+//      }
+//      ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
+//
+//      PostLEDService(START_LED_WRITE);
+//    }
     break;
     
     case ES_START_LED_WRITE: {
         //DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
         if (UpdatingLED == 1) {
-            if (ES_DeferEvent(DeferralQueue, ThisEvent))
+            //puts("xxxxxx\r");
+
+            if (ES_DeferEvent(DeferralQueue, ThisEvent)==true)
             {
-              puts("ES_START_LED_WRITE deferred in LED Service\r");
+              //puts("ES_START_LED_WRITE deferred in LED Service\r");
+                ;
             }
             //DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
             break;
@@ -247,8 +252,9 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
         else {
            UpdatingLED = 0;
            //dequeue if needed
-           if (true == ES_RecallEvents(MyPriority, DeferralQueue) {
-            puts("writing recalled in LEDService \r");
+           if (true == ES_RecallEvents(MyPriority, DeferralQueue)) {
+            //puts("writing recalled in LEDService \r");
+               ;
            }
         }
     }

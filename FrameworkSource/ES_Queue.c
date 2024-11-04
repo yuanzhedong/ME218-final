@@ -124,6 +124,10 @@ bool ES_EnQueueFIFO(ES_Event_t *pBlock, ES_Event_t Event2Add)
 bool ES_EnQueueLIFO(ES_Event_t *pBlock, ES_Event_t Event2Add)
 {
   pQueue_t pThisQueue;
+//        DB_printf("%d", pThisQueue->NumEntries);
+//        DB_printf("%d", pThisQueue->QueueSize);
+
+
   pThisQueue = (pQueue_t)pBlock;
   // index will go from 0 to QueueSize-1 so use '<' to test if there is space
   if (pThisQueue->NumEntries < pThisQueue->QueueSize)
@@ -150,6 +154,7 @@ bool ES_EnQueueLIFO(ES_Event_t *pBlock, ES_Event_t Event2Add)
   }
   else    // in case no room on the queue
   {
+  //    puts("###$%@#$%@#$%#");
     return false;
   }
 }

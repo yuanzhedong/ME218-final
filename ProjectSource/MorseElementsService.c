@@ -229,7 +229,7 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
         case EOC_WaitFall:
             switch (ThisEvent.EventType) {
             case ES_MORSE_FALL:
-                puts("\rF");  // Indicate falling edge
+                //puts("\rF");  // Indicate falling edge
                 TimeOfLastFall = ThisEvent.EventParam;
             
                 // Call CharacterizeSpace to determine if it's a character, word, or bad space
@@ -246,12 +246,12 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
             break;
 
             case EOCDetected:
-                puts("eoc detected");
+                //puts("eoc detected");
                     CurrentState = DecodeWaitFall;
             break;
 
             case EOWDetected:
-                puts("eow detected");
+                //puts("eow detected");
                     CurrentState = DecodeWaitFall;
             break;
 
@@ -410,22 +410,26 @@ void CharacterizeSpace(void) {
             //puts("*****");
             ES_Event_t Event2Post;
             Event2Post.EventType = EOCDetected;
-            DB_printf(" ");
+            //DB_printf(" ");
 
             PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
-
+            PostDecodeMorseService(Event2Post);
         } else if (IsWordSpace(LastInterval)) {  // Check if it’s a Word space
             // Post an EOWDetected event for End of Word
             ES_Event_t Event2Post;
             Event2Post.EventType = EOWDetected;
-            DB_printf("   ");
+            //DB_printf("   ");
 
             PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
+            PostDecodeMorseService(Event2Post);
+
         } else {  
             // If neither Character nor Word space, post a BadSpace event
             ES_Event_t Event2Post;
             Event2Post.EventType = BadSpace;
             PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
+            PostDecodeMorseService(Event2Post);
+
         }
     }
     // If it's a Dot space, do nothing per the provided instructions
@@ -437,12 +441,12 @@ void CharacterizePulse(void) {
 
     // Determine if the pulse is a dot
     if (LastPulseWidth >= LengthOfDot - TOLERANCE && LastPulseWidth <= LengthOfDot + TOLERANCE) {
-        DB_printf(".");
+        //DB_printf(".");
         Event2Post.EventType = DotDetectedEvent;
     }
     // Determine if the pulse is a dash
     else if (LastPulseWidth >= 3 * LengthOfDot - TOLERANCE && LastPulseWidth <= 3 * LengthOfDot + TOLERANCE) {
-        DB_printf("-");
+        //DB_printf("-");
 
         Event2Post.EventType = DashDetectedEvent;
     }
@@ -453,6 +457,8 @@ void CharacterizePulse(void) {
 
     // Post the event to the Decode Morse Service
     PostMorseElementsService(Event2Post);
+    PostDecodeMorseService(Event2Post);
+
 }
 
 

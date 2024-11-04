@@ -191,9 +191,6 @@ ES_Event_t RunSendStringService(ES_Event_t ThisEvent)
       
     }
     break;
-    default:
-    {}
-     break;
   }
 
   return ReturnEvent;

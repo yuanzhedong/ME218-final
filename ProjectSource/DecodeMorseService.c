@@ -143,11 +143,9 @@ ES_Event_t RunDecodeMorseService(ES_Event_t ThisEvent)
     {
       if (strlen(morseChars)<= 8){
         strcat(morseChars,".");
-        // DB_printf(".");
       } 
       else {
         ReturnEvent.EventType = ES_ERROR;
-        // ReturnEvent.EventParam = 'X';
       }
     }
     break;
@@ -156,10 +154,8 @@ ES_Event_t RunDecodeMorseService(ES_Event_t ThisEvent)
     {
       if (strlen(morseChars)<= 8){
         strcat(morseChars,"-");
-        // DB_printf("_");
       } else {
         ReturnEvent.EventType = ES_ERROR;
-        // ReturnEvent.EventParam = 'Y';
       }
     }
     break;
