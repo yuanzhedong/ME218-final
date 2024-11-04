@@ -17,7 +17,7 @@
 
 typedef enum
 {
-  InitPState, CalWaitForRise, CalWaitForFall,EOC_WaitRise
+  InitPState, CalWaitForRise, CalWaitForFall,EOC_WaitRise, EOC_WaitFall
 }MorseElementState_t;
 
 

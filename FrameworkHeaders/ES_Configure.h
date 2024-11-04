@@ -270,6 +270,12 @@ typedef enum
   ES_MORSE_FALL,
   ES_BUTTON_PRESSED,
           EOC_WAIT_RISE,
+          DotDetectedEvent,
+          DashDetectedEvent,
+          BadPulseEvent,
+          BadSpace,
+          EOCDetected,
+          EOWDetected
 }ES_EventType_t;
 
 /****************************************************************************/

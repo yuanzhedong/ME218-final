@@ -344,12 +344,12 @@ void CharacterizePulse(void) {
     ES_Event_t Event2Post;
 
     // Determine if the pulse is a dot
-    if (LastPulseWidth >= DOT_LENGTH - TOLERANCE && LastPulseWidth <= DOT_LENGTH + TOLERANCE) {
+    if (LastPulseWidth >= LengthOfDot - TOLERANCE && LastPulseWidth <= LengthOfDot + TOLERANCE) {
         puts(".");
         Event2Post.EventType = DotDetectedEvent;
     }
     // Determine if the pulse is a dash
-    else if (LastPulseWidth >= 3 * DOT_LENGTH - TOLERANCE && LastPulseWidth <= 3 * DOT_LENGTH + TOLERANCE) {
+    else if (LastPulseWidth >= 3 * LengthOfDot - TOLERANCE && LastPulseWidth <= 3 * LengthOfDot + TOLERANCE) {
         puts("-");
 
         Event2Post.EventType = DashDetectedEvent;
