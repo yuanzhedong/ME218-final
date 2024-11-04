@@ -223,6 +223,31 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
                 CurrentState = CalWaitForRise;
             }
         break;
+        
+        case EOC_WaitFall:
+            switch (ThisEvent.EventType) {
+            case ES_MORSE_FALL:
+                puts("\rF");  // Indicate falling edge
+                TimeOfLastFall = ThisEvent.EventParam;
+            
+                // Call CharacterizeSpace to determine if it's a character, word, or bad space
+                CharacterizeSpace();
+            
+                // Transition to the next state based on what was characterized
+                CurrentState = EOC_WaitRise;  // Transition to EOC_WaitRise to wait for the next rising edge
+            break;
+        
+            case ES_BUTTON_PRESSED:  // Handle re-calibration if necessary
+                DB_printf("Re-calibrate initiated!");
+                FirstDelta = 0;
+                CurrentState = CalWaitForRise;
+            break;
+            default:
+                // Handle any unexpected events if necessary
+            break;
+            }
+        break;
+
 
         default:
         break;
