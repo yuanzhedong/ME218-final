@@ -57,6 +57,8 @@ static uint16_t FirstDelta;
 
 static MorseElementState_t CurrentState;
 
+void CharacterizePulse(void);
+void CharacterizeSpace(void);
 /*------------------------------ Module Code ------------------------------*/
 /****************************************************************************
  Function
@@ -243,11 +245,13 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
                 CurrentState = CalWaitForRise;
             break;
 
-            case: EOCDetected:
+            case EOCDetected:
+                puts("eoc detected");
                     CurrentState = DecodeWaitFall;
             break;
 
-            case: EOWDetected:
+            case EOWDetected:
+                puts("eow detected");
                     CurrentState = DecodeWaitFall;
             break;
 
@@ -269,7 +273,7 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
                     // Call CharacterizePulse to process the pulse length
                     CharacterizePulse();
                 break;
-                case: ES_BUTTON_PRESSED:
+                case ES_BUTTON_PRESSED:
                     // If the double button (DBButtonDown) event is detected
                     // Transition to CalWaitForRise for recalibration
                     CurrentState = CalWaitForRise;
@@ -376,16 +380,18 @@ bool IsDotSpace(uint16_t interval) {
 // Check if the given interval matches the character space criteria
 bool IsCharacterSpace(uint16_t interval) {
     uint16_t characterSpaceLength = 3 * LengthOfDot;
-    uint16_t lowerBound = characterSpaceLength - TOLERANCE;
-    uint16_t upperBound = characterSpaceLength + TOLERANCE;
+    //DB_printf("characterSpaceLength: %d \n\r",characterSpaceLength);
+
+    uint16_t lowerBound = characterSpaceLength - TOLERANCE * 3;
+    uint16_t upperBound = characterSpaceLength + TOLERANCE * 3;
     return (interval >= lowerBound) && (interval <= upperBound);
 }
 
 // Check if the given interval matches the word space criteria
 bool IsWordSpace(uint16_t interval) {
     uint16_t wordSpaceLength = 7 * LengthOfDot;
-    uint16_t lowerBound = wordSpaceLength - TOLERANCE;
-    uint16_t upperBound = wordSpaceLength + TOLERANCE;
+    uint16_t lowerBound = wordSpaceLength - TOLERANCE * 7;
+    uint16_t upperBound = wordSpaceLength + TOLERANCE * 7;
     return (interval >= lowerBound) && (interval <= upperBound);
 }
 
@@ -395,11 +401,16 @@ void CharacterizeSpace(void) {
     
     // Determine the type of space based on the LastInterval
     if (!IsDotSpace(LastInterval)) {  // If not a Dot space
+        //DB_printf("TimeOfLastRise: %d \n\r",TimeOfLastRise);
+        //DB_printf("TimeOfLastFall: %d \n\r",TimeOfLastFall);
+
+        //DB_printf("LastInterval: %d \n\r",LastInterval);
         if (IsCharacterSpace(LastInterval)) {  // Check if it’s a Character space
             // Post an EOCDetected event for End of Character
+            //puts("*****");
             ES_Event_t Event2Post;
             Event2Post.EventType = EOCDetected;
-            puts(" ");
+            DB_printf(" ");
 
             PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
 
@@ -407,7 +418,7 @@ void CharacterizeSpace(void) {
             // Post an EOWDetected event for End of Word
             ES_Event_t Event2Post;
             Event2Post.EventType = EOWDetected;
-            puts("    ");
+            DB_printf("   ");
 
             PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
         } else {  
@@ -426,12 +437,12 @@ void CharacterizePulse(void) {
 
     // Determine if the pulse is a dot
     if (LastPulseWidth >= LengthOfDot - TOLERANCE && LastPulseWidth <= LengthOfDot + TOLERANCE) {
-        puts(".");
+        DB_printf(".");
         Event2Post.EventType = DotDetectedEvent;
     }
     // Determine if the pulse is a dash
     else if (LastPulseWidth >= 3 * LengthOfDot - TOLERANCE && LastPulseWidth <= 3 * LengthOfDot + TOLERANCE) {
-        puts("-");
+        DB_printf("-");
 
         Event2Post.EventType = DashDetectedEvent;
     }
