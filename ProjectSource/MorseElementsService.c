@@ -205,7 +205,7 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
         break;
 
         case EOC_WaitRise:
-            //DB_printf("we are in the eoc state");
+            DB_printf("we are in the eoc state");
             switch (ThisEvent.EventType) {
                 case ES_BUTTON_PRESSED:
                     DB_printf("Re-calibrate initiated!");
@@ -213,9 +213,10 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
                     CurrentState = CalWaitForRise;
                 break;  
                 case ES_MORSE_RISE:
-                TimeOfLastRise = ThisEvent.EventParam;
-                CharacterizeSpace();
-                CurrentState = EOC_WaitFall;
+                    TimeOfLastRise = ThisEvent.EventParam;
+                    CharacterizeSpace();
+                    CurrentState = EOC_WaitFall;
+                 break;
             }
             if (ThisEvent.EventType == ES_INIT_MORSE) { // only respond to ES_Init
                 DB_printf("MorseElementsService running.\n\r");

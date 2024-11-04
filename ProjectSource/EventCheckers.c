@@ -174,7 +174,6 @@ bool CheckButtonState(void)
         if (CurrentButtonState){
             ES_Event_t ButtonEvent;
             ButtonEvent.EventType = ES_BUTTON_PRESSED;
-            puts("#######");
             PostMorseElementsService(ButtonEvent);
             ReturnVal = true;
         }
