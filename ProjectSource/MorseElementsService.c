@@ -211,7 +211,11 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
                     DB_printf("Re-calibrate initiated!");
                     FirstDelta == 0;
                     CurrentState = CalWaitForRise;
-                break;       
+                break;  
+                case ES_MORSE_RISE:
+                TimeOfLastRise = ThisEvent.EventParam;
+                CharacterizeSpace();
+                CurrentState = EOC_WaitFall;
             }
             if (ThisEvent.EventType == ES_INIT_MORSE) { // only respond to ES_Init
                 DB_printf("MorseElementsService running.\n\r");
@@ -231,7 +235,6 @@ void TestCalibration(){
         FirstDelta = TimeOfLastFall - TimeOfLastRise;
     }else{
         uint16_t SecondDelta = TimeOfLastFall - TimeOfLastRise;
-        //DB_printf("Second Delta: %d \n\r",SecondDelta);
         if ((100.0 * (double) FirstDelta / (double)SecondDelta) <= 33.3333) {
             LengthOfDot = FirstDelta;
             ES_Event_t NewEvent;
@@ -278,6 +281,90 @@ void ButtonPressd(void){
         }
     }
 }
+
+
+#define TOLERANCE 1  // Define tolerance for space length comparison
+
+// Check if the given interval matches the dot space criteria
+bool IsDotSpace(uint16_t interval) {
+    uint16_t lowerBound = LengthOfDot - TOLERANCE;
+    uint16_t upperBound = LengthOfDot + TOLERANCE;
+    return (interval >= lowerBound) && (interval <= upperBound);
+}
+
+// Check if the given interval matches the character space criteria
+bool IsCharacterSpace(uint16_t interval) {
+    uint16_t characterSpaceLength = 3 * LengthOfDot;
+    uint16_t lowerBound = characterSpaceLength - TOLERANCE;
+    uint16_t upperBound = characterSpaceLength + TOLERANCE;
+    return (interval >= lowerBound) && (interval <= upperBound);
+}
+
+// Check if the given interval matches the word space criteria
+bool IsWordSpace(uint16_t interval) {
+    uint16_t wordSpaceLength = 7 * LengthOfDot;
+    uint16_t lowerBound = wordSpaceLength - TOLERANCE;
+    uint16_t upperBound = wordSpaceLength + TOLERANCE;
+    return (interval >= lowerBound) && (interval <= upperBound);
+}
+
+
+void CharacterizeSpace(void) {
+    uint16_t LastInterval = TimeOfLastRise - TimeOfLastFall;  // Calculate interval between last rise and fall
+    
+    // Determine the type of space based on the LastInterval
+    if (!IsDotSpace(LastInterval)) {  // If not a Dot space
+        if (IsCharacterSpace(LastInterval)) {  // Check if it’s a Character space
+            // Post an EOCDetected event for End of Character
+            ES_Event_t Event2Post;
+            Event2Post.EventType = EOCDetected;
+            puts(" ");
+
+            PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
+
+        } else if (IsWordSpace(LastInterval)) {  // Check if it’s a Word space
+            // Post an EOWDetected event for End of Word
+            ES_Event_t Event2Post;
+            Event2Post.EventType = EOWDetected;
+            puts("    ");
+
+            PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
+        } else {  
+            // If neither Character nor Word space, post a BadSpace event
+            ES_Event_t Event2Post;
+            Event2Post.EventType = BadSpace;
+            PostMorseElementsService(Event2Post);  // Post event to Morse Elements Service
+        }
+    }
+    // If it's a Dot space, do nothing per the provided instructions
+}
+
+void CharacterizePulse(void) {
+    uint16_t LastPulseWidth = TimeOfLastFall - TimeOfLastRise;
+    ES_Event_t Event2Post;
+
+    // Determine if the pulse is a dot
+    if (LastPulseWidth >= DOT_LENGTH - TOLERANCE && LastPulseWidth <= DOT_LENGTH + TOLERANCE) {
+        puts(".");
+        Event2Post.EventType = DotDetectedEvent;
+    }
+    // Determine if the pulse is a dash
+    else if (LastPulseWidth >= 3 * DOT_LENGTH - TOLERANCE && LastPulseWidth <= 3 * DOT_LENGTH + TOLERANCE) {
+        puts("-");
+
+        Event2Post.EventType = DashDetectedEvent;
+    }
+    // Otherwise, it's an invalid pulse
+    else {
+        Event2Post.EventType = BadPulseEvent;
+    }
+
+    // Post the event to the Decode Morse Service
+    PostMorseElementsService(Event2Post);
+}
+
+
+
 
 /*------------------------------- Footnotes -------------------------------*/
 /*------------------------------ End of file ------------------------------*/
