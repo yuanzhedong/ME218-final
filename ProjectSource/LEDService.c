@@ -225,7 +225,11 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
     case ES_START_LED_WRITE: {
         //DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
         if (UpdatingLED == 1) {
-            DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+            if (ES_DeferEvent(DeferralQueue, ThisEvent))
+            {
+              puts("ES_START_LED_WRITE deferred in LED Service\r");
+            }
+            //DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
             break;
         }
         UpdatingLED = 1;
@@ -241,7 +245,11 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
             PostLEDService(ThisEvent);
         }
         else {
-           UpdatingLED = 0; 
+           UpdatingLED = 0;
+           //dequeue if needed
+           if (true == ES_RecallEvents(MyPriority, DeferralQueue) {
+            puts("writing recalled in LEDService \r");
+           }
         }
     }
     break;
