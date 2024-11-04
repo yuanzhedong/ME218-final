@@ -242,6 +242,15 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
                 FirstDelta = 0;
                 CurrentState = CalWaitForRise;
             break;
+
+            case: EOCDetected:
+                    CurrentState = DecodeWaitFall;
+            break;
+
+            case: EOWDetected:
+                    CurrentState = DecodeWaitFall;
+            break;
+
             default:
                 // Handle any unexpected events if necessary
             break;
@@ -249,23 +258,25 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
         break;
 
         case DecodeWaitFall:
-            if (ThisEvent.EventType == ES_MORSE_FALL) {
-                // Set TimeOfLastFall to the time from the event parameter
-                TimeOfLastFall = ThisEvent.EventParam;
+            switch (ThisEvent.EventType) {
+                case ES_MORSE_FALL:
+                    // Set TimeOfLastFall to the time from the event parameter
+                    TimeOfLastFall = ThisEvent.EventParam;
 
-                // Transition to DecodeWaitRise
-                CurrentState = DecodeWaitRise;
+                    // Transition to DecodeWaitRise
+                    CurrentState = DecodeWaitRise;
 
-                // Call CharacterizePulse to process the pulse length
-                CharacterizePulse();
-             }
-                else if (ThisEvent.EventType == ES_BUTTON_PRESSED) {
+                    // Call CharacterizePulse to process the pulse length
+                    CharacterizePulse();
+                break;
+                case: ES_BUTTON_PRESSED:
                     // If the double button (DBButtonDown) event is detected
                     // Transition to CalWaitForRise for recalibration
-                CurrentState = CalWaitForRise;
+                    CurrentState = CalWaitForRise;
 
-                // Reset FirstDelta to 0 for calibration
-             FirstDelta = 0;
+                    // Reset FirstDelta to 0 for calibration
+                     FirstDelta = 0;
+                break;
             }
         break;
 
