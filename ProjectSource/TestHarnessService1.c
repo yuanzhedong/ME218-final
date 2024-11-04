@@ -208,37 +208,37 @@ ES_Event_t RunTestHarnessService1(ES_Event_t ThisEvent)
     break;
     case ES_NEW_KEY:   // announce
     {
-      DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
+      DB_printf("ES_NEW_KEY received with -> %c <- in Service 1\r\n",
           (char)ThisEvent.EventParam);
+      
+      // a dot
       if ('a' == ThisEvent.EventParam)
       {
-        ES_Event_t EventPressA = {ES_PRESS_A, ThisEvent.EventParam};
-        PostTestHarnessService1(EventPressA);
+        ES_Event_t EventPressA = {DotDetectedEvent, ThisEvent.EventParam};
+        PostDecodeMorseService(EventPressA);
 
       }
+      // b dash
       if ('b' == ThisEvent.EventParam)
       {
-        ES_Event_t EventPressB = {ES_PRESS_B, ThisEvent.EventParam};
-        PostTestHarnessService1(EventPressB);
+        ES_Event_t EventPressB = {DashDetectedEvent, ThisEvent.EventParam};
+        PostDecodeMorseService(EventPressB);
       }
-
-#ifdef TEST_INT_POST
-      if ('p' == ThisEvent.EventParam)
-      {
-        StartTMR2();
+      
+      // c eoc
+      if ('c' == ThisEvent.EventParam) {
+        ES_Event_t EventPressC = {EOCDetected, ThisEvent.EventParam};
+        PostDecodeMorseService(EventPressC);
       }
-#endif
+      
+      // d eow
+      if ('d' == ThisEvent.EventParam) {
+        ES_Event_t EventPressD = {EOWDetected, ThisEvent.EventParam};
+        PostDecodeMorseService(EventPressD);
+      }
     }
     break;
     
-    case ES_PRESS_A: {
-        DB_printf("\ES_PRESS_A received in Service %d\r\n", MyPriority);
-    }
-    break;
-    case ES_PRESS_B: {
-        DB_printf("\ES_PRESS_B received in Service %d\r\n", MyPriority);
-    }
-    break;
     default:
     {}
      break;

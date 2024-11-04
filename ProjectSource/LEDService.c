@@ -79,6 +79,8 @@ static uint8_t MyPriority;
 // add a deferral queue for up to 3 pending deferrals +1 to allow for overhead
 static uint8_t UpdatingLED = 0;
 
+static ES_Event_t DeferralQueue[3 + 1];
+
 /*------------------------------ Module Code ------------------------------*/
 /****************************************************************************
  Function
@@ -194,22 +196,22 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
     case ES_INIT:
     {
 //      ES_Timer_InitTimer(SERVICE0_TIMER, HALF_SEC);
-      puts("Service 02:");
+      puts("Service LED:");
       DB_printf("\rES_INIT received in LED Service %d\r\n", MyPriority);
     }
     break;
-    case ES_TIMEOUT:   // re-start timer & announce
-    {
-      ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
-      DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
-          ThisEvent.EventParam, MyPriority);
-    }
-    break;
+//    case ES_TIMEOUT:   // re-start timer & announce
+//    {
+//      ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
+//      DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
+//          ThisEvent.EventParam, MyPriority);
+//    }
+//    break;
 
     case ES_NEW_KEY:   // announce
     {
-      DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
-          (char)ThisEvent.EventParam);
+     // DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
+     //     (char)ThisEvent.EventParam);
       if (UpdatingLED) {
           DB_printf("Ignore input due to updating LED buffer....");
           break;
@@ -221,7 +223,7 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
     break;
     
     case ES_START_LED_WRITE: {
-        DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+        //DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
         if (UpdatingLED == 1) {
             DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
             break;
@@ -234,7 +236,7 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
     }
     break;
     case ES_LED_WRITE_ROW: {
-        DB_printf("ES_LED_WRITE_ROW received in Service %d\r\n", MyPriority);
+        //DB_printf("ES_LED_WRITE_ROW received in Service %d\r\n", MyPriority);
         if (false == DM_TakeDisplayUpdateStep()) {
             PostLEDService(ThisEvent);
         }

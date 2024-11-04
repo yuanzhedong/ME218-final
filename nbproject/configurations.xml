@@ -52,6 +52,7 @@
       <itemPath>FrameworkHeaders/SendStringService.h</itemPath>
       <itemPath>ProjectHeaders/TemplateFSM.h</itemPath>
       <itemPath>ProjectHeaders/MorseElementsService.h</itemPath>
+      <itemPath>ProjectHeaders/DecodeMorseService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -71,6 +72,7 @@
       <itemPath>FrameworkHeaders/SendStringService.c</itemPath>
       <itemPath>ProjectSource/TemplateFSM.c</itemPath>
       <itemPath>ProjectSource/MorseElementsService.c</itemPath>
+      <itemPath>ProjectSource/DecodeMorseService.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -265,16 +267,100 @@
         <property key="wpo-lto" value="false"/>
       </C32Global>
       <item path="FrameworkHeaders/SendStringService.c" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="FrameworkHeaders/SendStringService.h" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
-      <item path="ProjectHeaders/LEDService.h" ex="true" overriding="false">
+      <item path="ProjectHeaders/LEDService.h" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
-      <item path="ProjectHeaders/TestHarnessService1.h" ex="true" overriding="false">
+      <item path="ProjectHeaders/TestHarnessService1.h" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
-      <item path="ProjectSource/LEDService.c" ex="true" overriding="false">
+      <item path="ProjectSource/LEDService.c" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
-      <item path="ProjectSource/TestHarnessService1.c" ex="true" overriding="false">
+      <item path="ProjectSource/TestHarnessService1.c" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
       </item>
       <item path="ProjectSource/main.c" ex="false" overriding="false">
         <C32>
