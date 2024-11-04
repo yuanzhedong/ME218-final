@@ -40,6 +40,7 @@
 // actual functionsdefinition
 #include "EventCheckers.h"
 
+
 // This is the event checking function sample. It is not intended to be
 // included in the module. It is only here as a sample to guide you in writing
 // your own event checkers
@@ -119,3 +120,65 @@ bool Check4Keystroke(void)
   return false;
 }
 
+
+bool CheckForMorseSignal(void)
+{
+    static uint8_t LastPinState = 0; // Last state of RA2
+    uint8_t CurrentPinState;
+    bool ReturnVal = false;
+
+    CurrentPinState = PORTAbits.RA2; // Read the current state of RA2
+
+    // Check for a rising edge
+    if ((CurrentPinState != LastPinState) && (CurrentPinState == 1)) 
+    {
+        // Rising edge detected
+        ES_Event_t ThisEvent;
+        ThisEvent.EventType = ES_MORSE_RISE; // Assuming MorseRise is defined appropriately
+        ThisEvent.EventParam = ES_Timer_GetTime();
+        PostMorseElementsService(ThisEvent);
+        ReturnVal = true;
+    }
+    // Check for a falling edge
+    else if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
+    {
+        // Falling edge detected
+        ES_Event_t ThisEvent;
+        ThisEvent.EventType = ES_MORSE_FALL; // Assuming MorseFall is defined appropriately
+        ThisEvent.EventParam = ES_Timer_GetTime();
+        PostMorseElementsService(ThisEvent);
+        ReturnVal = true;
+    }
+
+    LastPinState = CurrentPinState; // Update last state for the next check
+
+    return ReturnVal;
+}
+
+
+
+static uint16_t LastButtonState;
+
+void InitButtonStatus(void)
+{
+    puts("$$$$$");
+    TRISAbits.TRISA3 = 1;
+    LastButtonState = PORTAbits.RA3;
+}
+
+bool CheckButtonState(void)
+{
+    bool ReturnVal = false;
+    uint8_t CurrentButtonState = PORTAbits.RA3;
+    if(CurrentButtonState != LastButtonState){
+        if (CurrentButtonState){
+            ES_Event_t ButtonEvent;
+            ButtonEvent.EventType = ES_BUTTON_PRESSED;
+            puts("#######");
+            PostMorseElementsService(ButtonEvent);
+            ReturnVal = true;
+        }
+        LastButtonState = CurrentButtonState;
+    }
+    return ReturnVal;
+}

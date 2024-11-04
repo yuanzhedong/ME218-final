@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 4
+#define NUM_SERVICES 2
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -59,11 +59,11 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "TestHarnessService1.h"
+#define SERV_1_HEADER "MorseElementsService.h"
 // the name of the Init function
-#define SERV_1_INIT InitTestHarnessService1
+#define SERV_1_INIT InitMorseElementsService
 // the name of the run function
-#define SERV_1_RUN RunTestHarnessService1
+#define SERV_1_RUN RunMorseElementsService
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -264,10 +264,12 @@ typedef enum
   ES_NEW_KEY,               /* signals a new key received from terminal */
   ES_LOCK,
   ES_UNLOCK,
-  ES_PRESS_A,
-  ES_PRESS_B,
-  ES_START_LED_WRITE,
-  ES_LED_WRITE_ROW
+  ES_CALIBRATION_COMPLETE,
+  ES_INIT_MORSE,
+  ES_MORSE_RISE,
+  ES_MORSE_FALL,
+  ES_BUTTON_PRESSED,
+          EOC_WAIT_RISE,
 }ES_EventType_t;
 
 /****************************************************************************/
@@ -302,7 +304,7 @@ typedef enum
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check4Keystroke
+#define EVENT_CHECK_LIST Check4Keystroke, CheckForMorseSignal, CheckButtonState
 
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the
@@ -325,7 +327,7 @@ typedef enum
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC PostSendStringService
+#define TIMER14_RESP_FUNC TIMER_UNUSED
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
 /****************************************************************************/
@@ -336,7 +338,7 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
-#define SERVICE0_TIMER 14
+//#define SERVICE0_TIMER 14
 
 
 #endif /* ES_CONFIGURE_H */

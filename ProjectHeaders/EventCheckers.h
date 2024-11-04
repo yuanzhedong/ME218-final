@@ -22,5 +22,8 @@
 // prototypes for event checkers
 
 bool Check4Keystroke(void);
+bool CheckButtonState(void);
+bool CheckForMorseSignal(void);
+
 
 #endif /* EventCheckers_H */

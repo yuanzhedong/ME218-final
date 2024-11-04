@@ -50,6 +50,8 @@
       <itemPath>ProjectHeaders/FontStuff.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_SPI_HAL.h</itemPath>
       <itemPath>FrameworkHeaders/SendStringService.h</itemPath>
+      <itemPath>ProjectHeaders/TemplateFSM.h</itemPath>
+      <itemPath>ProjectHeaders/MorseElementsService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -67,6 +69,8 @@
       <itemPath>ProjectSource/PIC32_SPI_HAL_Starter.c</itemPath>
       <itemPath>ProjectSource/FontStuff.c</itemPath>
       <itemPath>FrameworkHeaders/SendStringService.c</itemPath>
+      <itemPath>ProjectSource/TemplateFSM.c</itemPath>
+      <itemPath>ProjectSource/MorseElementsService.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -260,6 +264,18 @@
         <property key="stack-smashing" value=""/>
         <property key="wpo-lto" value="false"/>
       </C32Global>
+      <item path="FrameworkHeaders/SendStringService.c" ex="true" overriding="false">
+      </item>
+      <item path="FrameworkHeaders/SendStringService.h" ex="true" overriding="false">
+      </item>
+      <item path="ProjectHeaders/LEDService.h" ex="true" overriding="false">
+      </item>
+      <item path="ProjectHeaders/TestHarnessService1.h" ex="true" overriding="false">
+      </item>
+      <item path="ProjectSource/LEDService.c" ex="true" overriding="false">
+      </item>
+      <item path="ProjectSource/TestHarnessService1.c" ex="true" overriding="false">
+      </item>
       <item path="ProjectSource/main.c" ex="false" overriding="false">
         <C32>
         </C32>
