@@ -181,7 +181,7 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
         case CalWaitForRise:
             switch (ThisEvent.EventType) {
                 case ES_MORSE_RISE:
-                    puts("\rR");  // Indicate rising edge
+                    //puts("\rR");  // Indicate rising edge
                     TimeOfLastRise = ThisEvent.EventParam;
                     CurrentState = CalWaitForFall;
                 break;
@@ -196,7 +196,7 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
         case CalWaitForFall:
             switch (ThisEvent.EventType) {
                 case ES_MORSE_FALL:
-                    puts("\rF");  // Indicate falling edge
+                    //puts("\rF");  // Indicate falling edge
                     TimeOfLastFall = ThisEvent.EventParam;
                     CurrentState = CalWaitForRise;
                     TestCalibration();
@@ -205,7 +205,7 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
         break;
 
         case EOC_WaitRise:
-            DB_printf("we are in the eoc state");
+            //DB_printf("we are in the eoc state");
             switch (ThisEvent.EventType) {
                 case ES_BUTTON_PRESSED:
                     DB_printf("Re-calibrate initiated!");

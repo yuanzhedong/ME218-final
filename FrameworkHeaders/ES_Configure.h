@@ -275,7 +275,9 @@ typedef enum
           BadPulseEvent,
           BadSpace,
           EOCDetected,
-          EOWDetected
+          EOWDetected,
+          DecodeWaitRise,
+          DecodeWaitFall
 }ES_EventType_t;
 
 /****************************************************************************/
