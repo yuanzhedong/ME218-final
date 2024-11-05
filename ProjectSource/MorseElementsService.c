@@ -216,6 +216,7 @@ ES_Event_t RunMorseElementsService(ES_Event_t ThisEvent)
                 break;  
                 case ES_MORSE_RISE:
                     TimeOfLastRise = ThisEvent.EventParam;
+                    //puts("*****");
                     CharacterizeSpace();
                     CurrentState = EOC_WaitFall;
                  break;
@@ -440,6 +441,7 @@ void CharacterizePulse(void) {
     ES_Event_t Event2Post;
 
     // Determine if the pulse is a dot
+    //DB_printf("%d", LastPulseWidth);
     if (LastPulseWidth >= LengthOfDot - TOLERANCE && LastPulseWidth <= LengthOfDot + TOLERANCE) {
         //DB_printf(".");
         Event2Post.EventType = DotDetectedEvent;
