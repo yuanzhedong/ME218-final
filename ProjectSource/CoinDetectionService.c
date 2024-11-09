@@ -1,4 +1,4 @@
-#include "../ProjectHeaders/CoinLEDService.h"
+#include "../ProjectHeaders/CoinDetectionService.h"
 
 // Hardware
 #include <xc.h>
@@ -17,13 +17,9 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-#define LED1 LATAbits.LATA3
-#define LED2 LATAbits.LATA4
+#define DETECTOR LATBbits.LATB4
 
-static uint8_t total_coins = 0;
-static CoinLEDServiceState_t currentState = InitPState;
-
-bool InitCoinLEDService(uint8_t Priority)
+bool InitCoinDetectionService(uint8_t Priority)
 {
     ES_Event_t ThisEvent;
 
@@ -32,30 +28,13 @@ bool InitCoinLEDService(uint8_t Priority)
     // When doing testing, it is useful to announce just which program
     // is running.
     clrScrn();
-    puts("\rStarting CoinLEDService\r");
+    puts("\rStarting CoinDetectionService\r");
     DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
     DB_printf("\n\r\n");
-
-    TRISAbits.TRISA3 = 0; // coin led output for LED1
-    TRISAbits.TRISA4 = 0; // coin led output for LED2
-    TRISBbits.TRISB4 = 1; // coin detector input
 
     /********************************************
      in here you write your initialization code
      *******************************************/
-    SPISetup_BasicConfig(SPI_SPI1);
-    SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
-    SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
-    SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
-
-    SPI1BUF;
-    SPISetEnhancedBuffer(SPI_SPI1, 1);
-    SPISetup_SetBitTime(SPI_SPI1, 10000);
-    SPISetup_SetXferWidth(SPI_SPI1, SPI_16BIT);
-    SPISetup_SetActiveEdge(SPI_SPI1, SPI_SECOND_EDGE);
-    SPISetup_SetClockIdleState(SPI_SPI1, SPI_CLK_HI);
-    SPI1CONbits.FRMPOL = 0;
-    SPISetup_EnableSPI(SPI_SPI1);
 
     // post the initial transition event
     ThisEvent.EventType = ES_INIT;

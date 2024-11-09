@@ -40,7 +40,6 @@
 // actual functionsdefinition
 #include "EventCheckers.h"
 
-
 // This is the event checking function sample. It is not intended to be
 // included in the module. It is only here as a sample to guide you in writing
 // your own event checkers
@@ -109,13 +108,36 @@ bool Check4Lock(void)
 ****************************************************************************/
 bool Check4Keystroke(void)
 {
-  if (IsNewKeyReady())   // new key waiting?
+  if (IsNewKeyReady()) // new key waiting?
   {
     ES_Event_t ThisEvent;
-    ThisEvent.EventType   = ES_NEW_KEY;
-    ThisEvent.EventParam  = GetNewKey();
+    ThisEvent.EventType = ES_NEW_KEY;
+    ThisEvent.EventParam = GetNewKey();
     ES_PostAll(ThisEvent);
     return true;
   }
   return false;
 }
+
+// Get a low sigal when coin drop is detected
+bool CheckCoinSignal(void)
+{
+  static uint8_t LastPinState = 1; // Last state of RA4
+  uint8_t CurrentPinState;
+  bool ReturnVal = false;
+
+  CurrentPinState = PORTBbits.RB4; // Read the current state of RB2
+
+  // Check for a falling edge
+  if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
+  {
+    // Falling edge detected
+    ES_Event_t ThisEvent;
+    ThisEvent.EventType = ES_NEW_COIN;
+    ReturnVal = true;
+  }
+
+  return ReturnVal;
+}
+
+bool
