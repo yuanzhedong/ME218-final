@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 4
+#define NUM_SERVICES 1
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -41,11 +41,11 @@
 // services are added in numeric sequence (1,2,3,...) with increasing
 // priorities
 // the header file with the public function prototypes
-#define SERV_0_HEADER "TestHarnessService1.h"
+#define SERV_0_HEADER "CoinLEDService.h"
 // the name of the Init function
-#define SERV_0_INIT InitTestHarnessService1
+#define SERV_0_INIT InitCoinLEDService
 // the name of the run function
-#define SERV_0_RUN RunTestHarnessService1
+#define SERV_0_RUN RunCoinLEDService
 // How big should this services Queue be?
 #define SERV_0_QUEUE_SIZE 5
 
