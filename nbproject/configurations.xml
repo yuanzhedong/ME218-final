@@ -53,6 +53,7 @@
       <itemPath>ProjectHeaders/TemplateFSM.h</itemPath>
       <itemPath>ProjectHeaders/MorseElementsService.h</itemPath>
       <itemPath>ProjectHeaders/DecodeMorseService.h</itemPath>
+      <itemPath>ProjectHeaders/CoinLEDService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -73,6 +74,7 @@
       <itemPath>ProjectSource/TemplateFSM.c</itemPath>
       <itemPath>ProjectSource/MorseElementsService.c</itemPath>
       <itemPath>ProjectSource/DecodeMorseService.c</itemPath>
+      <itemPath>ProjectSource/CoinLEDService.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -298,7 +300,11 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectHeaders/LEDService.h" ex="false" overriding="false">
+      <item path="ProjectHeaders/DM_Display.h" ex="true" overriding="false">
+      </item>
+      <item path="ProjectHeaders/DecodeMorseService.h" ex="true" overriding="false">
+      </item>
+      <item path="ProjectHeaders/LEDService.h" ex="true" overriding="false">
         <C32>
         </C32>
         <C32-AR>
@@ -314,7 +320,9 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectHeaders/TestHarnessService1.h" ex="false" overriding="false">
+      <item path="ProjectHeaders/MorseElementsService.h" ex="true" overriding="false">
+      </item>
+      <item path="ProjectHeaders/TestHarnessService1.h" ex="true" overriding="false">
         <C32>
         </C32>
         <C32-AR>
@@ -330,7 +338,11 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectSource/LEDService.c" ex="false" overriding="false">
+      <item path="ProjectSource/DM_DisplayStarter.c" ex="true" overriding="false">
+      </item>
+      <item path="ProjectSource/DecodeMorseService.c" ex="true" overriding="false">
+      </item>
+      <item path="ProjectSource/LEDService.c" ex="true" overriding="false">
         <C32>
         </C32>
         <C32-AR>
@@ -346,7 +358,9 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectSource/TestHarnessService1.c" ex="false" overriding="false">
+      <item path="ProjectSource/MorseElementsService.c" ex="true" overriding="false">
+      </item>
+      <item path="ProjectSource/TestHarnessService1.c" ex="true" overriding="false">
         <C32>
         </C32>
         <C32-AR>

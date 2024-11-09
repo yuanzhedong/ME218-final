@@ -11,6 +11,7 @@
 #include "ES_Port.h"
 #include "terminal.h"
 #include "dbprintf.h"
+#include "../ProjectHeaders/PIC32_SPI_HAL.h"
 
 /*---------------------------- Module Variables ---------------------------*/
 // with the introduction of Gen2, we need a module level Priority variable
@@ -20,7 +21,7 @@ static uint8_t MyPriority;
 #define LED2 LATAbits.LATA4
 
 static uint8_t total_coins = 0;
-static CoinLEDServiceState_t currentState = WaitForCoin;
+static CoinLEDServiceState_t currentState = InitPState;
 
 bool InitCoinLEDService(uint8_t Priority)
 {
@@ -42,8 +43,8 @@ bool InitCoinLEDService(uint8_t Priority)
     SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
     SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
     SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
-    SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA3); // coin LED 1
-    SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA4); // coin LED 2
+    TRISAbits.TRISA3 = 0;   //output for LED1
+    TRISAbits.TRISA4 = 0;   //output for LED2
 
     SPI1BUF;
     SPISetEnhancedBuffer(SPI_SPI1, 1);
@@ -76,7 +77,7 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
-    switch (CurrentState)
+    switch (currentState)
     {
     case InitPState: // If current state is initial Psedudo State
     {
@@ -84,13 +85,15 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
         {
             LED1 = 0;
             LED2 = 0;
-            CurrentState = WaitForCoin;
+            currentState = WaitForCoin;
         }
     }
     break;
 
     case WaitForCoin: // If current state is state one
     {
+        puts("###dfsd##");
+
         switch (ThisEvent.EventType)
         {
         case ES_NEW_COIN:
@@ -109,10 +112,10 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
         break;
         case ES_NEW_KEY:
         {
-            if ('c' == ThisEvent.EventParam)
+            if ('a' == ThisEvent.EventParam)
             {
                 puts("Insert new coin...");
-                ES_Event_t EventNewCoin = {ES_NEW_KEY, ThisEvent.EventParam};
+                ES_Event_t EventNewCoin = {ES_NEW_COIN, ThisEvent.EventParam};
                 PostCoinLEDService(EventNewCoin);
             }
         }

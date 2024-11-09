@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 1
+#define NUM_SERVICES 2
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -57,11 +57,11 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "MorseElementsService.h"
+#define SERV_1_HEADER "TestHarnessService0.h"
 // the name of the Init function
-#define SERV_1_INIT InitMorseElementsService
+#define SERV_1_INIT InitTestHarnessService0
 // the name of the run function
-#define SERV_1_RUN RunMorseElementsService
+#define SERV_1_RUN RunTestHarnessService0
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -304,8 +304,7 @@ typedef enum
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check4Keystroke, CheckForMorseSignal, CheckButtonState
-
+#define EVENT_CHECK_LIST Check4Keystroke
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the
 // corresponding timer expires. All 16 must be defined. If you are not using
@@ -337,7 +336,7 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-// #define SERVICE0_TIMER 15
+#define SERVICE0_TIMER 15
 // #define SERVICE0_TIMER 14
 
 #endif /* ES_CONFIGURE_H */
