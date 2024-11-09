@@ -120,7 +120,7 @@ bool Check4Keystroke(void)
 }
 
 // Get a low sigal when coin drop is detected
-bool CheckCoinSignal(void)
+bool Check4CoinSignal(void)
 {
   static uint8_t LastPinState = 1; // Last state of RA4
   uint8_t CurrentPinState;
