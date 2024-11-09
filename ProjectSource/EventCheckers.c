@@ -119,18 +119,19 @@ bool Check4Keystroke(void)
   return false;
 }
 
-// Get a low sigal when coin drop is detected
+// Get a low signal when coin drop is detected
 bool Check4CoinSignal(void)
 {
   static uint8_t LastPinState = 1; // Last state of RA4
   uint8_t CurrentPinState;
   bool ReturnVal = false;
 
-  CurrentPinState = PORTBbits.RB4; // Read the current state of RB2
-
+  CurrentPinState = PORTBbits.RB4; // Read the current state of RB4
+  
   // Check for a falling edge
   if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
   {
+    DB_printf("%d\n", CurrentPinState);
     // Falling edge detected
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_NEW_COIN;
@@ -139,5 +140,3 @@ bool Check4CoinSignal(void)
 
   return ReturnVal;
 }
-
-bool
