@@ -107,6 +107,16 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
             }
         }
         break;
+        case ES_NEW_KEY:
+        {
+            if ('c' == ThisEvent.EventParam)
+            {
+                puts("Insert new coin...");
+                ES_Event_t EventNewCoin = {ES_NEW_KEY, ThisEvent.EventParam};
+                PostCoinLEDService(EventNewCoin);
+            }
+        }
+        break;
         // repeat cases as required for relevant events
         default:;
         } // end switch on CurrentEvent
