@@ -49,8 +49,6 @@
 // How big should this services Queue be?
 #define SERV_0_QUEUE_SIZE 5
 
-
-
 /****************************************************************************/
 // The following sections are used to define the parameters for each of the
 // services. You only need to fill out as many as the number of services
@@ -255,32 +253,24 @@
 // Universal events occupy the lowest entries, followed by user-defined events
 typedef enum
 {
-  ES_NO_EVENT = 0,
-  ES_ERROR,                 /* used to indicate an error from the service */
-  ES_INIT,                  /* used to transition from initial pseudo-state */
-  ES_TIMEOUT,               /* signals that the timer has expired */
-  ES_SHORT_TIMEOUT,         /* signals that a short timer has expired */
-  /* User-defined events start here */
-  ES_NEW_KEY,               /* signals a new key received from terminal */
-  ES_LOCK,
-  ES_UNLOCK,
-  ES_CALIBRATION_COMPLETE,
-  ES_INIT_MORSE,
-  ES_MORSE_RISE,
-  ES_MORSE_FALL,
-  ES_BUTTON_PRESSED,
-          EOC_WAIT_RISE,
-          DotDetectedEvent,
-          DashDetectedEvent,
-          BadPulseEvent,
-          BadSpace,
-          EOCDetected,
-          EOWDetected,
-          DecodeWaitRise,
-          DecodeWaitFall,
-          ES_LED_WRITE_ROW,
-          ES_START_LED_WRITE,
-}ES_EventType_t;
+    ES_NO_EVENT = 0,
+    ES_ERROR,         /* used to indicate an error from the service */
+    ES_INIT,          /* used to transition from initial pseudo-state */
+    ES_TIMEOUT,       /* signals that the timer has expired */
+    ES_SHORT_TIMEOUT, /* signals that a short timer has expired */
+    /* User-defined events start here */
+    ES_NEW_KEY, /* signals a new key received from terminal */
+    ES_LOCK,
+    ES_UNLOCK,
+    ES_CALIBRATION_COMPLETE,
+    ES_INIT_MORSE,
+    ES_MORSE_RISE,
+    ES_MORSE_FALL,
+    ES_BUTTON_PRESSED,
+    ES_NEW_COIN,
+    ES_START_GAME,
+    ES_END_GAME
+} ES_EventType_t;
 
 /****************************************************************************/
 // These are the definitions for the Distribution lists. Each definition
@@ -347,8 +337,7 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-//#define SERVICE0_TIMER 15
-//#define SERVICE0_TIMER 14
-
+// #define SERVICE0_TIMER 15
+// #define SERVICE0_TIMER 14
 
 #endif /* ES_CONFIGURE_H */
