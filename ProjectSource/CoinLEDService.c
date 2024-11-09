@@ -22,6 +22,8 @@ static uint8_t MyPriority;
 
 static uint8_t total_coins = 0;
 static CoinLEDServiceState_t currentState = InitPState;
+static uint16_t TimeOfLastRise;
+static uint16_t TimeOfLastFall;
 
 bool InitCoinLEDService(uint8_t Priority)
 {
@@ -96,20 +98,46 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
     {
         switch (ThisEvent.EventType)
         {
-        case ES_NEW_COIN:
+        case ES_NEW_COIN_RISING:
         {
-            LED1 = 1;
-            total_coins += 1;
-            if (total_coins == 2)
+            TimeOfLastRise = ThisEvent.EventParam;
+            // LED1 = 1;
+            // total_coins += 1;
+            // if (total_coins == 2)
+            // {
+            //     LED2 = 1;
+            //     currentState = GameStart;
+            //     ES_Event_t StartGameEvent;
+            //     StartGameEvent.EventType = ES_START_GAME;
+            //     ES_PostAll(StartGameEvent);
+            // }
+        }
+
+        case ES_NEW_COIN_FALLING:
+        {
+            TimeOfLastFall = ThisEvent.EventParam;
+            // need to tune this condition
+            if (TimeOfLastFall > TimeOfLastRise)
             {
-                LED2 = 1;
-                currentState = GameStart;
-                ES_Event_t StartGameEvent;
-                StartGameEvent.EventType = ES_START_GAME;
-                ES_PostAll(StartGameEvent);
+                // one coin detected.
+                total_coins += 1;
+                if (total_coins == 1)
+                {
+                    LED1 = 1
+                }
+                if (total_coins == 2)
+                {
+                    LED1 = 1;
+                    LED2 = 1;
+                    currentState = GameStart;
+                    StartGameEvent.EventType = ES_START_GAME;
+                    ES_PostAll(StartGameEvent);
+                }
             }
         }
+
         break;
+
         case ES_NEW_KEY:
         {
             if ('a' == ThisEvent.EventParam)
@@ -135,6 +163,8 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
             total_coins = 0;
             LED1 = 0;
             LED2 = 0;
+            TimeOfLastFall = 0;
+            TimeOfLastRise = 0;
         }
 
         break;

@@ -267,7 +267,8 @@ typedef enum
     ES_MORSE_RISE,
     ES_MORSE_FALL,
     ES_BUTTON_PRESSED,
-    ES_NEW_COIN,
+    ES_NEW_COIN_RISING,
+    ES_NEW_COIN_FALLING,
     ES_START_GAME,
     ES_END_GAME
 } ES_EventType_t;
