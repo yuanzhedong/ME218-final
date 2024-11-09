@@ -22,6 +22,8 @@ static uint8_t MyPriority;
 
 static uint8_t total_coins = 0;
 static CoinLEDServiceState_t currentState = InitPState;
+static uint16_t TimeOfLastRise;
+static uint16_t TimeOfLastFall;
 
 bool InitCoinLEDService(uint8_t Priority)
 {
@@ -36,6 +38,10 @@ bool InitCoinLEDService(uint8_t Priority)
     DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
     DB_printf("\n\r\n");
 
+    TRISAbits.TRISA3 = 0; // coin led output for LED1
+    TRISAbits.TRISA4 = 0; // coin led output for LED2
+    TRISBbits.TRISB4 = 1; // coin detector input
+
     /********************************************
      in here you write your initialization code
      *******************************************/
@@ -43,8 +49,6 @@ bool InitCoinLEDService(uint8_t Priority)
     SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
     SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
     SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
-    TRISAbits.TRISA3 = 0;   //output for LED1
-    TRISAbits.TRISA4 = 0;   //output for LED2
 
     SPI1BUF;
     SPISetEnhancedBuffer(SPI_SPI1, 1);
@@ -92,30 +96,60 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
 
     case WaitForCoin: // If current state is state one
     {
-        puts("###dfsd##");
-
         switch (ThisEvent.EventType)
         {
-        case ES_NEW_COIN:
+        case ES_NEW_COIN_RISING:
         {
-            LED1 = 1;
-            total_coins += 1;
-            if (total_coins == 2)
+            TimeOfLastRise = ThisEvent.EventParam;
+            // LED1 = 1;
+            // total_coins += 1;
+            // if (total_coins == 2)
+            // {
+            //     LED2 = 1;
+            //     currentState = GameStart;
+            //     ES_Event_t StartGameEvent;
+            //     StartGameEvent.EventType = ES_START_GAME;
+            //     ES_PostAll(StartGameEvent);
+            // }
+        }
+
+        case ES_NEW_COIN_FALLING:
+        {
+            TimeOfLastFall = ThisEvent.EventParam;
+            // need to tune this condition
+            if (TimeOfLastFall > TimeOfLastRise)
             {
-                LED2 = 1;
-                currentState = GameStart;
-                ES_Event_t StartGameEvent;
-                StartGameEvent.EventType = ES_START_GAME;
-                ES_PostAll(StartGameEvent);
+                // one coin detected.
+                total_coins += 1;
+                if (total_coins == 1)
+                {
+                    LED1 = 1;
+                }
+                if (total_coins == 2)
+                {
+                    LED1 = 1;
+                    LED2 = 1;
+                    currentState = GameStart;
+                    ES_Event_t StartGameEvent;
+                    StartGameEvent.EventType = ES_START_GAME;
+                    ES_PostAll(StartGameEvent);
+                    puts("Two coins are ready, start game...");
+                }
             }
         }
+
         break;
+
         case ES_NEW_KEY:
         {
             if ('a' == ThisEvent.EventParam)
             {
                 puts("Insert new coin...");
-                ES_Event_t EventNewCoin = {ES_NEW_COIN, ThisEvent.EventParam};
+                ThisEvent.EventParam = ES_Timer_GetTime();
+                ES_Event_t EventNewCoin = {ES_NEW_COIN_RISING, ThisEvent.EventParam};
+                PostCoinLEDService(EventNewCoin);
+                EventNewCoin.EventParam = ES_Timer_GetTime();
+                EventNewCoin.EventType = ES_NEW_COIN_FALLING;
                 PostCoinLEDService(EventNewCoin);
             }
         }
@@ -135,6 +169,8 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
             total_coins = 0;
             LED1 = 0;
             LED2 = 0;
+            TimeOfLastFall = 0;
+            TimeOfLastRise = 0;
         }
 
         break;

@@ -40,7 +40,6 @@
 // actual functionsdefinition
 #include "EventCheckers.h"
 
-
 // This is the event checking function sample. It is not intended to be
 // included in the module. It is only here as a sample to guide you in writing
 // your own event checkers
@@ -109,13 +108,80 @@ bool Check4Lock(void)
 ****************************************************************************/
 bool Check4Keystroke(void)
 {
-  if (IsNewKeyReady())   // new key waiting?
+  if (IsNewKeyReady()) // new key waiting?
   {
     ES_Event_t ThisEvent;
-    ThisEvent.EventType   = ES_NEW_KEY;
-    ThisEvent.EventParam  = GetNewKey();
+    ThisEvent.EventType = ES_NEW_KEY;
+    ThisEvent.EventParam = GetNewKey();
     ES_PostAll(ThisEvent);
     return true;
   }
   return false;
 }
+
+bool Check4CoinSignal(void)
+{
+  static uint8_t LastPinState = 1; // Last state of RB4, default HIGH
+  uint8_t CurrentPinState;
+  bool ReturnVal = false;
+
+  CurrentPinState = PORTBbits.RB4; // Read the current state of RB4
+
+  // Check for a falling edge
+  if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
+  {
+    // Rising edge detected
+    ES_Event_t ThisEvent;
+    ThisEvent.EventType = ES_NEW_COIN_RISING;
+    ThisEvent.EventParam = ES_Timer_GetTime();
+    PostCoinLEDService(ThisEvent);
+    ReturnVal = false; // have to set to false, otherwise code will stuch, why???
+  }
+  // Check for a rising edge
+  else if ((CurrentPinState != LastPinState) && (CurrentPinState == 1))
+  {
+    // Falling edge detected
+    ES_Event_t ThisEvent;
+    ThisEvent.EventType = ES_NEW_COIN_FALLING;
+    ThisEvent.EventParam = ES_Timer_GetTime();
+    PostCoinLEDService(ThisEvent);
+    ReturnVal = true;
+  }
+
+  LastPinState = CurrentPinState; // Update last state for the next check
+
+  return ReturnVal;
+}
+
+// // Get a low signal when coin drop is detected
+// bool Check4CoinSignal(void)
+// {
+//   uint8_t CurrentPinState;
+//   bool ReturnVal = false;
+
+//   CurrentPinState = PORTBbits.RB4; // Read the current state of RB4
+//   //DB_printf("%d\n", CurrentPinState);
+
+//   //Check for a falling edge
+// //  if (true) {
+// //      ReturnVal = true;
+// //  }
+//   //{
+//     //DB_printf("%d\n", CurrentPinState);
+//     // Falling edge detected
+// //    ES_Event_t ThisEvent;
+// //    ThisEvent.EventType = ES_NEW_COIN;
+// //    ES_PostAll(ThisEvent);
+//    // ReturnVal = true;
+//   //}
+//   if (CurrentPinState == 0) {
+//       //puts("Detect New Coin...\n");
+//       ES_Event_t ThisEvent;
+//       ThisEvent.EventType = ES_NEW_COIN;
+//       ThisEvent.EventParam = ES_Timer_GetTime()
+//       PostCoinLEDService(ThisEvent);
+//       ReturnVal = false; // can't return true, otherwise program will stuck, why????
+//     }
+
+//   return ReturnVal;
+// }
