@@ -94,8 +94,6 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
 
     case WaitForCoin: // If current state is state one
     {
-        puts("###dfsd##");
-
         switch (ThisEvent.EventType)
         {
         case ES_NEW_COIN:

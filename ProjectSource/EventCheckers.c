@@ -122,21 +122,32 @@ bool Check4Keystroke(void)
 // Get a low signal when coin drop is detected
 bool Check4CoinSignal(void)
 {
-  static uint8_t LastPinState = 1; // Last state of RA4
   uint8_t CurrentPinState;
   bool ReturnVal = false;
 
   CurrentPinState = PORTBbits.RB4; // Read the current state of RB4
+  //DB_printf("%d\n", CurrentPinState);
   
-  // Check for a falling edge
-  if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
-  {
-    DB_printf("%d\n", CurrentPinState);
+  //Check for a falling edge
+//  if (true) {
+//      ReturnVal = true;
+//  }
+  //{
+    //DB_printf("%d\n", CurrentPinState);
     // Falling edge detected
-    ES_Event_t ThisEvent;
-    ThisEvent.EventType = ES_NEW_COIN;
-    ReturnVal = true;
-  }
+//    ES_Event_t ThisEvent;
+//    ThisEvent.EventType = ES_NEW_COIN;
+//    ES_PostAll(ThisEvent);
+   // ReturnVal = true;
+  //}
+  if (CurrentPinState == 0) {
+      //puts("Detect New Coin...\n");
+      ES_Event_t ThisEvent;
+      ThisEvent.EventType = ES_NEW_COIN;
+      ThisEvent.EventParam = ES_Timer_GetTime()
+      PostCoinLEDService(ThisEvent);
+      ReturnVal = false; // can't return true, otherwise program will stuck, why????
+    }
 
   return ReturnVal;
 }
