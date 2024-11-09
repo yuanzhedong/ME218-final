@@ -123,15 +123,17 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
                 total_coins += 1;
                 if (total_coins == 1)
                 {
-                    LED1 = 1
+                    LED1 = 1;
                 }
                 if (total_coins == 2)
                 {
                     LED1 = 1;
                     LED2 = 1;
                     currentState = GameStart;
+                    ES_Event_t StartGameEvent;
                     StartGameEvent.EventType = ES_START_GAME;
                     ES_PostAll(StartGameEvent);
+                    puts("Two coins are ready, start game...");
                 }
             }
         }
@@ -143,7 +145,11 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
             if ('a' == ThisEvent.EventParam)
             {
                 puts("Insert new coin...");
-                ES_Event_t EventNewCoin = {ES_NEW_COIN, ThisEvent.EventParam};
+                ThisEvent.EventParam = ES_Timer_GetTime();
+                ES_Event_t EventNewCoin = {ES_NEW_COIN_RISING, ThisEvent.EventParam};
+                PostCoinLEDService(EventNewCoin);
+                EventNewCoin.EventParam = ES_Timer_GetTime();
+                EventNewCoin.EventType = ES_NEW_COIN_FALLING;
                 PostCoinLEDService(EventNewCoin);
             }
         }
