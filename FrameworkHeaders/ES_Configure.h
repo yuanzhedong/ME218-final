@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 4
+#define NUM_SERVICES 2
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -41,15 +41,13 @@
 // services are added in numeric sequence (1,2,3,...) with increasing
 // priorities
 // the header file with the public function prototypes
-#define SERV_0_HEADER "TestHarnessService1.h"
+#define SERV_0_HEADER "CoinLEDService.h"
 // the name of the Init function
-#define SERV_0_INIT InitTestHarnessService1
+#define SERV_0_INIT InitCoinLEDService
 // the name of the run function
-#define SERV_0_RUN RunTestHarnessService1
+#define SERV_0_RUN RunCoinLEDService
 // How big should this services Queue be?
 #define SERV_0_QUEUE_SIZE 5
-
-
 
 /****************************************************************************/
 // The following sections are used to define the parameters for each of the
@@ -59,11 +57,11 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "MorseElementsService.h"
+#define SERV_1_HEADER "TestHarnessService0.h"
 // the name of the Init function
-#define SERV_1_INIT InitMorseElementsService
+#define SERV_1_INIT InitTestHarnessService0
 // the name of the run function
-#define SERV_1_RUN RunMorseElementsService
+#define SERV_1_RUN RunTestHarnessService0
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -255,32 +253,24 @@
 // Universal events occupy the lowest entries, followed by user-defined events
 typedef enum
 {
-  ES_NO_EVENT = 0,
-  ES_ERROR,                 /* used to indicate an error from the service */
-  ES_INIT,                  /* used to transition from initial pseudo-state */
-  ES_TIMEOUT,               /* signals that the timer has expired */
-  ES_SHORT_TIMEOUT,         /* signals that a short timer has expired */
-  /* User-defined events start here */
-  ES_NEW_KEY,               /* signals a new key received from terminal */
-  ES_LOCK,
-  ES_UNLOCK,
-  ES_CALIBRATION_COMPLETE,
-  ES_INIT_MORSE,
-  ES_MORSE_RISE,
-  ES_MORSE_FALL,
-  ES_BUTTON_PRESSED,
-          EOC_WAIT_RISE,
-          DotDetectedEvent,
-          DashDetectedEvent,
-          BadPulseEvent,
-          BadSpace,
-          EOCDetected,
-          EOWDetected,
-          DecodeWaitRise,
-          DecodeWaitFall,
-          ES_LED_WRITE_ROW,
-          ES_START_LED_WRITE,
-}ES_EventType_t;
+    ES_NO_EVENT = 0,
+    ES_ERROR,         /* used to indicate an error from the service */
+    ES_INIT,          /* used to transition from initial pseudo-state */
+    ES_TIMEOUT,       /* signals that the timer has expired */
+    ES_SHORT_TIMEOUT, /* signals that a short timer has expired */
+    /* User-defined events start here */
+    ES_NEW_KEY, /* signals a new key received from terminal */
+    ES_LOCK,
+    ES_UNLOCK,
+    ES_CALIBRATION_COMPLETE,
+    ES_INIT_MORSE,
+    ES_MORSE_RISE,
+    ES_MORSE_FALL,
+    ES_BUTTON_PRESSED,
+    ES_NEW_COIN,
+    ES_START_GAME,
+    ES_END_GAME
+} ES_EventType_t;
 
 /****************************************************************************/
 // These are the definitions for the Distribution lists. Each definition
@@ -314,8 +304,7 @@ typedef enum
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check4Keystroke, CheckForMorseSignal, CheckButtonState
-
+#define EVENT_CHECK_LIST Check4Keystroke
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the
 // corresponding timer expires. All 16 must be defined. If you are not using
@@ -347,8 +336,7 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-//#define SERVICE0_TIMER 15
-//#define SERVICE0_TIMER 14
-
+#define SERVICE0_TIMER 15
+// #define SERVICE0_TIMER 14
 
 #endif /* ES_CONFIGURE_H */
