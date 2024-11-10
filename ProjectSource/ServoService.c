@@ -20,7 +20,7 @@ static uint8_t MyPriority;
 
 #define PWM_OUTPUT LATBbits.LATB9
 
-static ServoServiceState_t currentState = InitPState;
+static ServoServiceState_t currentState = InitServoState;
 
 bool InitServoService(uint8_t Priority)
 {
@@ -42,8 +42,8 @@ bool InitServoService(uint8_t Priority)
     // Step 2: Assign Channel 3 to Timer 2
     PWMSetup_AssignChannelToTimer(3, _Timer2_); // Assuming Timer2 is suitable for this application
 
-    // Step 3: Set PWM Period (for a frequency of 1 kHz, example value)
-    PWMSetup_SetPeriodOnTimer(40000, _Timer2_); // Adjust period based on desired frequency and TICS_PER_MS
+    // Step 3: Set PWM Period
+    PWMSetup_SetPeriodOnTimer(50000, _Timer2_); // Adjust period based on desired frequency and TICS_PER_MS
 
     // Step 4: Map PWM Channel 3 to PWM_RPB9
     PWMSetup_MapChannelToOutputPin(3, PWM_RPB9);
@@ -72,13 +72,53 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
 
     switch (currentState)
     {
-    case InitPState: // If current state is initial Psedudo State
+    case InitServoState: // If current state is initial Psedudo State
     {
         if (ThisEvent.EventType == ES_INIT) // only respond to ES_Init
         {
-            puts("generating puls");
+            puts("generating pules");
             // Step 5: Set Duty Cycle for Channel 3 to 50%
-            PWMOperate_SetDutyOnChannel(50, 3); // 50% duty cycle
+            //PWMOperate_SetDutyOnChannel(20, 3); // 50% duty cycle
+            PWMOperate_SetPulseWidthOnChannel(3750, 3); // 0 degree 1ms
+                        for (volatile long i = 0; i < 5000000; ++i){;}
+
+            PWMOperate_SetPulseWidthOnChannel(5000, 3); // 45 degree/2ms
+
+            
+            for (volatile long i = 0; i < 5000000; ++i){;}
+//            
+            PWMOperate_SetPulseWidthOnChannel(6250, 3); // 90 degree/2.5ms
+            
+            //for (volatile long i = 0; i < 5000000; ++i){;}
+//            
+             //PWMOperate_SetPulseWidthOnChannel(2500, 3);
+            for (volatile long i = 0; i < 5000000; ++i){;}
+            
+              PWMOperate_SetPulseWidthOnChannel(2500, 3); // -45 degree 1.5ms
+            
+            //for (volatile long i = 0; i < 5000000; ++i){;}
+//            
+             //PWMOperate_SetPulseWidthOnChannel(2500, 3);
+            for (volatile long i = 0; i < 5000000; ++i){;}
+              
+                            PWMOperate_SetPulseWidthOnChannel(1250, 3); // -90 degree 1ms
+                            
+                                     for (volatile long i = 0; i < 5000000; ++i){;}
+   
+                                                        PWMOperate_SetPulseWidthOnChannel(2000, 3); // -90 degree 1ms
+
+
+
+//            
+//            for (volatile long i = 0; i < 5000000; ++i){;}
+//            
+//                        PWMOperate_SetPulseWidthOnChannel(5000, 3);
+
+            
+            
+            
+
+            //PWMOperate_SetPulseWidthOnChannel(4000, 3);
         }
     }
 
@@ -89,7 +129,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
     return ReturnEvent;
 }
 
-CoinLEDServiceState_t QueryCoinLEDService(void)
+ServoServiceState_t QueryServoService(void)
 {
     return currentState;
 }
