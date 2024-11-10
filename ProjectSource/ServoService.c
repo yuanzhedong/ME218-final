@@ -22,9 +22,9 @@ static uint8_t MyPriority;
 
 static ServoServiceState_t currentState = InitServoState;
 
-static u_int16_t currnetPulseTicks = 3750;
-static u_int16_t maxPulseTicks = 6250; // +90
-static u_int16_t minPulseTicks = 1250; // -90
+static uint16_t currnetPulseTicks = 3750;
+static uint16_t maxPulseTicks = 6250; // +90
+static uint16_t minPulseTicks = 1250; // -90
 
 bool InitServoService(uint8_t Priority)
 {
