@@ -22,6 +22,10 @@ static uint8_t MyPriority;
 
 static ServoServiceState_t currentState = InitServoState;
 
+static u_int16_t currnetPulseTicks = 3750;
+static u_int16_t maxPulseTicks = 6250; // +90
+static u_int16_t minPulseTicks = 1250; // -90
+
 bool InitServoService(uint8_t Priority)
 {
     ES_Event_t ThisEvent;
@@ -78,48 +82,84 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
         {
             puts("generating pules");
             // Step 5: Set Duty Cycle for Channel 3 to 50%
-            //PWMOperate_SetDutyOnChannel(20, 3); // 50% duty cycle
+            // PWMOperate_SetDutyOnChannel(20, 3); // 50% duty cycle
             PWMOperate_SetPulseWidthOnChannel(3750, 3); // 0 degree 1ms
-                        for (volatile long i = 0; i < 5000000; ++i){;}
+            for (volatile long i = 0; i < 5000000; ++i)
+            {
+                ;
+            }
 
             PWMOperate_SetPulseWidthOnChannel(5000, 3); // 45 degree/2ms
 
-            
-            for (volatile long i = 0; i < 5000000; ++i){;}
-//            
+            for (volatile long i = 0; i < 5000000; ++i)
+            {
+                ;
+            }
+            //
             PWMOperate_SetPulseWidthOnChannel(6250, 3); // 90 degree/2.5ms
-            
-            //for (volatile long i = 0; i < 5000000; ++i){;}
-//            
-             //PWMOperate_SetPulseWidthOnChannel(2500, 3);
-            for (volatile long i = 0; i < 5000000; ++i){;}
-            
-              PWMOperate_SetPulseWidthOnChannel(2500, 3); // -45 degree 1.5ms
-            
-            //for (volatile long i = 0; i < 5000000; ++i){;}
-//            
-             //PWMOperate_SetPulseWidthOnChannel(2500, 3);
-            for (volatile long i = 0; i < 5000000; ++i){;}
-              
-                            PWMOperate_SetPulseWidthOnChannel(1250, 3); // -90 degree 1ms
-                            
-                                     for (volatile long i = 0; i < 5000000; ++i){;}
-   
-                                                        PWMOperate_SetPulseWidthOnChannel(2000, 3); // -90 degree 1ms
 
+            // for (volatile long i = 0; i < 5000000; ++i){;}
+            //
+            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
+            for (volatile long i = 0; i < 5000000; ++i)
+            {
+                ;
+            }
 
+            PWMOperate_SetPulseWidthOnChannel(2500, 3); // -45 degree 1.5ms
 
-//            
-//            for (volatile long i = 0; i < 5000000; ++i){;}
-//            
-//                        PWMOperate_SetPulseWidthOnChannel(5000, 3);
+            // for (volatile long i = 0; i < 5000000; ++i){;}
+            //
+            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
+            for (volatile long i = 0; i < 5000000; ++i)
+            {
+                ;
+            }
 
-            
-            
-            
+            PWMOperate_SetPulseWidthOnChannel(1250, 3); // -90 degree 1ms
 
-            //PWMOperate_SetPulseWidthOnChannel(4000, 3);
+            for (volatile long i = 0; i < 5000000; ++i)
+            {
+                ;
+            }
+
+            PWMOperate_SetPulseWidthOnChannel(2000, 3); // -90 degree 1ms
+            for (volatile long i = 0; i < 5000000; ++i)
+            {
+                ;
+            }
+            PWMOperate_SetPulseWidthOnChannel(3750, 3);
         }
+
+        currentState = WaitForTarget;
+    }
+
+    case WaitForTarget:
+    {
+    case ES_NEW_KEY:
+    {
+        if ('w' == ThisEvent.EventParam)
+        {
+            if (currnetPulseTicks < maxPulseTicks)
+            {
+                currnetPulseTicks += 100;
+                puts("Moving forward");
+                PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
+            }
+        }
+        else
+        {
+            if ('s' == ThisEvent.EventParam)
+            {
+                if (currnetPulseTicks > minPulseTicks)
+                {
+                    currnetPulseTicks -= 50;
+                    puts("Moving backward");
+                    PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
+                }
+            }
+        }
+    }
     }
 
     break;
