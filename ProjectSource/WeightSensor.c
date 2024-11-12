@@ -41,7 +41,7 @@ bool InitWeightSensor(uint8_t Priority)
     DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
     DB_printf("\n\r\n");
 
-    if (!ADC_ConfigAutoScan(BIT12HI))
+    if (!ADC_ConfigAutoScan(BIT5HI))
     {
         return false; // Return false if ADC configuration fails
     }
@@ -83,6 +83,8 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
         ES_Timer_InitTimer(WEIGHT_SENSOR_TIMER, ONE_SEC);
         ADC_MultiRead(adcResults);
         CurrentWeightValue = (uint16_t)adcResults[0];
+                    DB_printf("Current Weight: %d\n", CurrentWeightValue);
+
         if (abs(LastWeightValue - CurrentWeightValue) > WeightValueThreshold)
         {
             LastWeightValue = CurrentWeightValue;

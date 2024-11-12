@@ -328,7 +328,7 @@ typedef enum
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
 #define TIMER14_RESP_FUNC TIMER_UNUSED
-#define TIMER15_RESP_FUNC PostWeightSensor
+#define TIMER15_RESP_FUNC PostWeightSensor //PostWeightSensor
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
