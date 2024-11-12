@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 3
+#define NUM_SERVICES 4
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -83,11 +83,11 @@
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
 // the header file with the public function prototypes
-#define SERV_3_HEADER "DecodeMorseService.h"
+#define SERV_3_HEADER "WeightSensor.h"
 // the name of the Init function
-#define SERV_3_INIT InitDecodeMorseService
+#define SERV_3_INIT InitWeightSensor
 // the name of the run function
-#define SERV_3_RUN RunDecodeMorseService
+#define SERV_3_RUN RunWeightSensor
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 3
 #endif
@@ -328,7 +328,7 @@ typedef enum
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
 #define TIMER14_RESP_FUNC TIMER_UNUSED
-#define TIMER15_RESP_FUNC TIMER_UNUSED
+#define TIMER15_RESP_FUNC PostWeightSensor
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
@@ -337,7 +337,7 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-#define SERVICE0_TIMER 15
+#define WEIGHT_SENSOR_TIMER 15
 // #define SERVICE0_TIMER 14
 
 #endif /* ES_CONFIGURE_H */
