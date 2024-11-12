@@ -56,6 +56,7 @@
       <itemPath>ProjectHeaders/CoinLEDService.h</itemPath>
       <itemPath>ProjectHeaders/ServoService.h</itemPath>
       <itemPath>ProjectHeaders/PWM_PIC32.h</itemPath>
+      <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -79,6 +80,7 @@
       <itemPath>ProjectSource/CoinLEDService.c</itemPath>
       <itemPath>ProjectSource/ServoService.c</itemPath>
       <itemPath>ProjectSource/PWM_PIC32.c</itemPath>
+      <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

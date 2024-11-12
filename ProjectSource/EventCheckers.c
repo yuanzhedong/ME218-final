@@ -185,3 +185,46 @@ bool Check4CoinSignal(void)
 
 //   return ReturnVal;
 // }
+
+
+
+
+#define JOYSTICK_ADC_CHANNEL BIT12HI // Define joystick input channel as AN12 (RB12)
+#define JOYSTICK_THRESHOLD 10        // Define threshold for joystick signal change
+#define MAX_CHANNELS 8
+
+bool CheckForJoystickSignal(void)
+{
+    static uint16_t LastJoystickValue = 0; // Store the last joystick ADC value
+    uint32_t adcResults[MAX_CHANNELS];     // Array to store ADC results
+    uint16_t CurrentJoystickValue;
+    bool SignalDetected = false;
+    
+    // Configure the ADC for joystick input (AN12 / RB12)
+    if (!ADC_ConfigAutoScan(JOYSTICK_ADC_CHANNEL))
+    {
+        return false; // Return false if ADC configuration fails
+    }
+
+    // Read the current ADC values for all configured channels
+    ADC_MultiRead(adcResults);
+
+    // Get the joystick ADC value from the results (assuming AN12 is the first configured channel)
+    CurrentJoystickValue = (uint16_t)adcResults[0];
+
+    // Check if the joystick ADC value has significantly changed (threshold-based detection)
+    if (abs(CurrentJoystickValue - LastJoystickValue) > JOYSTICK_THRESHOLD)
+    {
+        ES_Event_t JoystickEvent;
+        JoystickEvent.EventType = ES_JoystickUpdate;
+        JoystickEvent.EventParam = CurrentJoystickValue;
+        PostJoyStickService(JoystickEvent);
+        SignalDetected = true;
+        LastJoystickValue = CurrentJoystickValue;
+    }
+
+    // Update the last joystick value
+    
+
+    return SignalDetected;
+}
