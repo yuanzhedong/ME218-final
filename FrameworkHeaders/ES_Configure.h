@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 4
+#define NUM_SERVICES 4      
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -41,13 +41,6 @@
 // services are added in numeric sequence (1,2,3,...) with increasing
 // priorities
 // the header file with the public function prototypes
-#define SERV_0_HEADER "CoinLEDService.h"
-// the name of the Init function
-#define SERV_0_INIT InitCoinLEDService
-// the name of the run function
-#define SERV_0_RUN RunCoinLEDService
-// How big should this services Queue be?
-#define SERV_0_QUEUE_SIZE 5
 
 /****************************************************************************/
 // The following sections are used to define the parameters for each of the
@@ -55,13 +48,24 @@
 // defined by NUM_SERVICES
 /****************************************************************************/
 // These are the definitions for Service 1
+
+#define SERV_0_HEADER "TestHarnessService0.h"
+// the name of the Init function
+#define SERV_0_INIT InitTestHarnessService0
+// the name of the run function
+#define SERV_0_RUN RunTestHarnessService0
+// How big should this services Queue be?
+#define SERV_0_QUEUE_SIZE 3
+
+
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "TestHarnessService0.h"
+// the header file with the public function prototypes
+#define SERV_1_HEADER "WeightSensor.h"
 // the name of the Init function
-#define SERV_1_INIT InitTestHarnessService0
+#define SERV_1_INIT InitWeightSensor
 // the name of the run function
-#define SERV_1_RUN RunTestHarnessService0
+#define SERV_1_RUN RunWeightSensor
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -82,14 +86,13 @@
 /****************************************************************************/
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
-// the header file with the public function prototypes
-#define SERV_3_HEADER "WeightSensor.h"
+#define SERV_3_HEADER "CoinLEDService.h"
 // the name of the Init function
-#define SERV_3_INIT InitWeightSensor
+#define SERV_3_INIT InitCoinLEDService
 // the name of the run function
-#define SERV_3_RUN RunWeightSensor
+#define SERV_3_RUN RunCoinLEDService
 // How big should this services Queue be?
-#define SERV_3_QUEUE_SIZE 3
+#define SERV_3_QUEUE_SIZE 5
 #endif
 
 /****************************************************************************/
@@ -328,7 +331,7 @@ typedef enum
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
 #define TIMER14_RESP_FUNC TIMER_UNUSED
-#define TIMER15_RESP_FUNC PostWeightSensor //PostWeightSensor
+#define TIMER15_RESP_FUNC PostWeightSensor //PostWeightSensor //PostWeightSensor //PostWeightSensor
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them

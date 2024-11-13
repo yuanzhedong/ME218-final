@@ -84,51 +84,51 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
             // Step 5: Set Duty Cycle for Channel 3 to 50%
             // PWMOperate_SetDutyOnChannel(20, 3); // 50% duty cycle
             PWMOperate_SetPulseWidthOnChannel(3750, 3); // 0 degree 1ms
-            for (volatile long i = 0; i < 5000000; ++i)
-            {
-                ;
-            }
-
-            PWMOperate_SetPulseWidthOnChannel(5000, 3); // 45 degree/2ms
-
-            for (volatile long i = 0; i < 5000000; ++i)
-            {
-                ;
-            }
-            //
-            PWMOperate_SetPulseWidthOnChannel(6250, 3); // 90 degree/2.5ms
-
-            // for (volatile long i = 0; i < 5000000; ++i){;}
-            //
-            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
-            for (volatile long i = 0; i < 5000000; ++i)
-            {
-                ;
-            }
-
-            PWMOperate_SetPulseWidthOnChannel(2500, 3); // -45 degree 1.5ms
-
-            // for (volatile long i = 0; i < 5000000; ++i){;}
-            //
-            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
-            for (volatile long i = 0; i < 5000000; ++i)
-            {
-                ;
-            }
-
-            PWMOperate_SetPulseWidthOnChannel(1250, 3); // -90 degree 1ms
-
-            for (volatile long i = 0; i < 5000000; ++i)
-            {
-                ;
-            }
-
-            PWMOperate_SetPulseWidthOnChannel(2000, 3); // -90 degree 1ms
-            for (volatile long i = 0; i < 5000000; ++i)
-            {
-                ;
-            }
-            PWMOperate_SetPulseWidthOnChannel(3750, 3);
+//            for (volatile long i = 0; i < 5000000; ++i)
+//            {
+//                ;
+//            }
+//
+//            PWMOperate_SetPulseWidthOnChannel(5000, 3); // 45 degree/2ms
+//
+//            for (volatile long i = 0; i < 5000000; ++i)
+//            {
+//                ;
+//            }
+//            //
+//            PWMOperate_SetPulseWidthOnChannel(6250, 3); // 90 degree/2.5ms
+//
+//            // for (volatile long i = 0; i < 5000000; ++i){;}
+//            //
+//            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
+//            for (volatile long i = 0; i < 5000000; ++i)
+//            {
+//                ;
+//            }
+//
+//            PWMOperate_SetPulseWidthOnChannel(2500, 3); // -45 degree 1.5ms
+//
+//            // for (volatile long i = 0; i < 5000000; ++i){;}
+//            //
+//            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
+//            for (volatile long i = 0; i < 5000000; ++i)
+//            {
+//                ;
+//            }
+//
+//            PWMOperate_SetPulseWidthOnChannel(1250, 3); // -90 degree 1ms
+//
+//            for (volatile long i = 0; i < 5000000; ++i)
+//            {
+//                ;
+//            }
+//
+//            PWMOperate_SetPulseWidthOnChannel(2000, 3); // -90 degree 1ms
+//            for (volatile long i = 0; i < 5000000; ++i)
+//            {
+//                ;
+//            }
+//            PWMOperate_SetPulseWidthOnChannel(3750, 3);
         }
 
         currentState = WaitForTarget;
@@ -136,7 +136,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
 
     case WaitForTarget:
     {
-    case ES_NEW_KEY:
+    if (ThisEvent.EventType == ES_NEW_KEY)
     {
         if ('w' == ThisEvent.EventParam)
         {
@@ -153,7 +153,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
             {
                 if (currnetPulseTicks > minPulseTicks)
                 {
-                    currnetPulseTicks -= 50;
+                    currnetPulseTicks -= 100;
                     puts("Moving backward");
                     PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
                 }
