@@ -80,9 +80,9 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
     case ES_TOUCH_BOUNDARY:
     {
 
-            ES_Event_t ThisEvent;
-            ThisEvent.EventType = ES_START_VIBRATION;
-            PostLiveService(ThisEvent);
+        ES_Event_t ThisEvent;
+        ThisEvent.EventType = ES_START_VIBRATION;
+        PostLiveService(ThisEvent);
     }
     break;
     case ES_START_GAME:
