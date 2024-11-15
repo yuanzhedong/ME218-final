@@ -152,3 +152,34 @@ bool Check4CoinSignal(void)
 
   return ReturnVal;
 }
+
+bool Check4Touch(void)
+{
+  static uint8_t LastPinState = 1; // Last state of RB4, default HIGH
+  uint8_t CurrentPinState;
+  bool ReturnVal = false;
+
+  CurrentPinState = PORTAbits.RA2; // Read the current state of RB4
+  // Check for a falling edge
+  if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
+  {
+    // Falling edge detected
+    DB_printf("Touch");
+      LATBbits.LATB6 = 1;
+    ReturnVal = false; // have to set to false, otherwise code will stuch, why???
+  }
+  // Check for a rising edge
+  else if ((CurrentPinState != LastPinState) && (CurrentPinState == 1))
+  {
+    // Falling edge detected
+//    ES_Event_t ThisEvent;
+//    ThisEvent.EventType = ES_NEW_COIN_FALLING;
+//    ThisEvent.EventParam = ES_Timer_GetTime();
+//    PostCoinLEDService(ThisEvent);
+//    ReturnVal = true;
+  }
+
+  LastPinState = CurrentPinState; // Update last state for the next check
+
+  return ReturnVal;
+}
