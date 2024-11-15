@@ -83,7 +83,7 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
         ES_Timer_InitTimer(WEIGHT_SENSOR_TIMER, ONE_SEC);
         ADC_MultiRead(adcResults);
         CurrentWeightValue = (uint16_t)adcResults[0];
-                    DB_printf("Current Weight: %d\n", CurrentWeightValue);
+        DB_printf("Current Weight: %d\n", CurrentWeightValue);
 
         if (abs(LastWeightValue - CurrentWeightValue) > WeightValueThreshold)
         {

@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 4      
+#define NUM_SERVICES 5
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -56,7 +56,6 @@
 #define SERV_0_RUN RunTestHarnessService0
 // How big should this services Queue be?
 #define SERV_0_QUEUE_SIZE 3
-
 
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
@@ -99,11 +98,11 @@
 // These are the definitions for Service 4
 #if NUM_SERVICES > 4
 // the header file with the public function prototypes
-#define SERV_4_HEADER "TestHarnessService1.h"
+#define SERV_4_HEADER "LiveService.h"
 // the name of the Init function
-#define SERV_4_INIT InitTestHarnessService1
+#define SERV_4_INIT InitLiveService
 // the name of the run function
-#define SERV_4_RUN RunTestHarnessService1
+#define SERV_4_RUN RunLiveService
 // How big should this services Queue be?
 #define SERV_4_QUEUE_SIZE 3
 #endif
@@ -112,11 +111,11 @@
 // These are the definitions for Service 5
 #if NUM_SERVICES > 5
 // the header file with the public function prototypes
-#define SERV_5_HEADER "TestHarnessService5.h"
+#define SERV_5_HEADER "VibrationMotorService.h"
 // the name of the Init function
-#define SERV_5_INIT InitTestHarnessService5
+#define SERV_5_INIT InitLiveService
 // the name of the run function
-#define SERV_5_RUN RunTestHarnessService5
+#define SERV_5_RUN RunLiveService
 // How big should this services Queue be?
 #define SERV_5_QUEUE_SIZE 3
 #endif
@@ -273,7 +272,9 @@ typedef enum
     ES_NEW_COIN_RISING,
     ES_NEW_COIN_FALLING,
     ES_START_GAME,
-    ES_END_GAME
+    ES_END_GAME,
+    ES_TOUCH_BOUNDARY,
+    ES_START_VIBRATION
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -330,8 +331,8 @@ typedef enum
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC TIMER_UNUSED
-#define TIMER15_RESP_FUNC PostWeightSensor //PostWeightSensor //PostWeightSensor //PostWeightSensor
+#define TIMER14_RESP_FUNC PostLiveService
+#define TIMER15_RESP_FUNC PostWeightSensor
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
@@ -341,6 +342,6 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define WEIGHT_SENSOR_TIMER 15
-// #define SERVICE0_TIMER 14
+#define LIVE_SERVICE_TIMER 14
 
 #endif /* ES_CONFIGURE_H */

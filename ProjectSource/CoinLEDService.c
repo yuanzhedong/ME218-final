@@ -41,9 +41,7 @@ bool InitCoinLEDService(uint8_t Priority)
     TRISAbits.TRISA3 = 0; // coin led output for LED1
     TRISAbits.TRISA4 = 0; // coin led output for LED2
     TRISBbits.TRISB4 = 1; // coin detector input
-    TRISAbits.TRISA2 = 1; // tweezer input(temp))'
-    
-    TRISBbits.TRISB6 = 0; // test
+    TRISAbits.TRISA2 = 1; // tweezer input(temp))
     /********************************************
      in here you write your initialization code
      *******************************************/
