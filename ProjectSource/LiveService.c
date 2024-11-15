@@ -17,11 +17,12 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint8_t MAX_LIVES = 2;
-static uint8_t currentLives = 2;
+static uint8_t MAX_LIVES = 100000000;
+static uint8_t currentLives = 1000000;
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
+#define QUATER_SEC (HALF_SEC / 2)
 
 bool InitLiveService(uint8_t Priority)
 {
@@ -39,10 +40,13 @@ bool InitLiveService(uint8_t Priority)
     TRISBbits.TRISB5 = 0; // Vibration motor output
     TRISBbits.TRISB6 = 0; // Live LED1 output
     TRISBbits.TRISB7 = 0; // Live LED2 output
+    TRISBbits.TRISB8 = 0; // Buzzer output
 
     LATBbits.LATB5 = 0; // Vibration motor off
     LATBbits.LATB6 = 0; // live LED 1 off
     LATBbits.LATB7 = 0; // live LED 2 off
+    LATBbits.LATB8 = 0; // Buzzer off
+
     // post the initial transition event
     ThisEvent.EventType = ES_INIT;
     if (ES_PostToService(MyPriority, ThisEvent) == true)
@@ -75,38 +79,10 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_TOUCH_BOUNDARY:
     {
-        switch (currentLives)
-        {
-        case 0:
-        {
-            puts("insert coin to start game");
-            break;
-        }
-        break;
-        case 1:
-        {
-            currentLives = 0;
-            LATBbits.LATB7 = 0; // close LED 2
+
             ES_Event_t ThisEvent;
             ThisEvent.EventType = ES_START_VIBRATION;
-            ES_PostLiveService(ThisEvent);
-
-            ThisEvent.EventType = ES_END_GAME;
-            ES_PostAll(ThisEvent);
-        }
-        break;
-        case 2:
-        {
-            ES_Event_t ThisEvent;
-            ThisEvent.EventType = ES_START_VIBRATION;
-            ES_PostLiveService(ThisEvent);
-            --currentLives;
-            LATBbits.LATB6 = 0; // close LED 1
-        }
-
-        default:
-            break;
-        }
+            PostLiveService(ThisEvent);
     }
     break;
     case ES_START_GAME:
@@ -119,14 +95,16 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_START_VIBRATION:
     {
-        ES_Timer_InitTimer(LIVE_SERVICE_TIMER, HALF_SEC);
+        ES_Timer_InitTimer(LIVE_SERVICE_TIMER, QUATER_SEC);
         LATBbits.LATB5 = 1;
+        LATBbits.LATB8 = 1;
     }
     break;
 
     case ES_TIMEOUT:
     {
         LATBbits.LATB5 = 0; // stop vibration
+        LATBbits.LATB8 = 0;
     }
     break;
     default:;

@@ -58,6 +58,7 @@
       <itemPath>ProjectHeaders/PWM_PIC32.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
       <itemPath>ProjectHeaders/WeightSensor.h</itemPath>
+      <itemPath>ProjectHeaders/LiveService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -83,6 +84,7 @@
       <itemPath>ProjectSource/PWM_PIC32.c</itemPath>
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
       <itemPath>ProjectSource/WeightSensor.c</itemPath>
+      <itemPath>ProjectSource/LiveService.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -110,7 +112,7 @@
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC32MX_DFP" vendor="Microchip" version="1.4.243"/>
+        <pack name="PIC32MX_DFP" vendor="Microchip" version="1.5.259"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -139,6 +141,36 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <C32>
+        <property key="additional-warnings" value="false"/>
+        <property key="addresss-attribute-use" value="false"/>
+        <property key="enable-app-io" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="exclude-floating-point" value="false"/>
+        <property key="extra-include-directories" value=""/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="optimization-level" value=""/>
+        <property key="place-data-into-section" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="strict-ansi" value="false"/>
+        <property key="support-ansi" value="false"/>
+        <property key="tentative-definitions" value="-fno-common"/>
+        <property key="toplevel-reordering" value=""/>
+        <property key="unaligned-access" value=""/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+        <property key="use-indirect-calls" value="false"/>
+      </C32>
+      <C32-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C32-AR>
       <C32-AS>
         <property key="assembler-symbols" value=""/>
         <property key="enable-symbols" value="true"/>
@@ -247,6 +279,10 @@
         <property key="wpo-lto" value="false"/>
       </C32Global>
       <item path="FrameworkHeaders/SendStringService.c" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -259,6 +295,10 @@
         </C32Global>
       </item>
       <item path="FrameworkHeaders/SendStringService.h" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -271,6 +311,10 @@
         </C32Global>
       </item>
       <item path="ProjectHeaders/DM_Display.h" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -283,6 +327,10 @@
         </C32Global>
       </item>
       <item path="ProjectHeaders/DecodeMorseService.h" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -295,6 +343,10 @@
         </C32Global>
       </item>
       <item path="ProjectHeaders/LEDService.h" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -307,6 +359,10 @@
         </C32Global>
       </item>
       <item path="ProjectHeaders/MorseElementsService.h" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -319,6 +375,10 @@
         </C32Global>
       </item>
       <item path="ProjectHeaders/TestHarnessService1.h" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -331,6 +391,10 @@
         </C32Global>
       </item>
       <item path="ProjectSource/DM_DisplayStarter.c" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -343,6 +407,10 @@
         </C32Global>
       </item>
       <item path="ProjectSource/DecodeMorseService.c" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -355,6 +423,10 @@
         </C32Global>
       </item>
       <item path="ProjectSource/LEDService.c" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -367,6 +439,10 @@
         </C32Global>
       </item>
       <item path="ProjectSource/MorseElementsService.c" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -379,6 +455,10 @@
         </C32Global>
       </item>
       <item path="ProjectSource/TestHarnessService1.c" ex="true" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -391,6 +471,10 @@
         </C32Global>
       </item>
       <item path="ProjectSource/main.c" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
         <C32-AS>
         </C32-AS>
         <C32-CO>
@@ -1013,6 +1097,8 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d03ffff"/>
+        <property key="programmerToGoFilePath"
+                  value="U:/yzd/space-surgery/debug/default/default_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmentry.voltage" value="low"/>

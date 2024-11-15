@@ -163,6 +163,8 @@ bool Check4Touch(void)
   // Check for a falling edge
   if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
   {
+    puts("Touch!!!!");
+    ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_TOUCH_BOUNDARY;
     ES_PostAll(ThisEvent);
     ReturnVal = false; // have to set to false, otherwise code will stuch, why???
