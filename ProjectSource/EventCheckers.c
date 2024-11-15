@@ -153,35 +153,33 @@ bool Check4CoinSignal(void)
   return ReturnVal;
 }
 
-// // Get a low signal when coin drop is detected
-// bool Check4CoinSignal(void)
-// {
-//   uint8_t CurrentPinState;
-//   bool ReturnVal = false;
+bool Check4Touch(void)
+{
+  static uint8_t LastPinState = 1; // Last state of RB4, default HIGH
+  uint8_t CurrentPinState;
+  bool ReturnVal = false;
 
-//   CurrentPinState = PORTBbits.RB4; // Read the current state of RB4
-//   //DB_printf("%d\n", CurrentPinState);
+  CurrentPinState = PORTAbits.RA2; // Read the current state of RB4
+  // Check for a falling edge
+  if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
+  {
+    // Falling edge detected
+    DB_printf("Touch");
+      LATBbits.LATB6 = 1;
+    ReturnVal = false; // have to set to false, otherwise code will stuch, why???
+  }
+  // Check for a rising edge
+  else if ((CurrentPinState != LastPinState) && (CurrentPinState == 1))
+  {
+    // Falling edge detected
+//    ES_Event_t ThisEvent;
+//    ThisEvent.EventType = ES_NEW_COIN_FALLING;
+//    ThisEvent.EventParam = ES_Timer_GetTime();
+//    PostCoinLEDService(ThisEvent);
+//    ReturnVal = true;
+  }
 
-//   //Check for a falling edge
-// //  if (true) {
-// //      ReturnVal = true;
-// //  }
-//   //{
-//     //DB_printf("%d\n", CurrentPinState);
-//     // Falling edge detected
-// //    ES_Event_t ThisEvent;
-// //    ThisEvent.EventType = ES_NEW_COIN;
-// //    ES_PostAll(ThisEvent);
-//    // ReturnVal = true;
-//   //}
-//   if (CurrentPinState == 0) {
-//       //puts("Detect New Coin...\n");
-//       ES_Event_t ThisEvent;
-//       ThisEvent.EventType = ES_NEW_COIN;
-//       ThisEvent.EventParam = ES_Timer_GetTime()
-//       PostCoinLEDService(ThisEvent);
-//       ReturnVal = false; // can't return true, otherwise program will stuck, why????
-//     }
+  LastPinState = CurrentPinState; // Update last state for the next check
 
-//   return ReturnVal;
-// }
+  return ReturnVal;
+}
