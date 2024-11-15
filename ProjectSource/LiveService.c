@@ -1,4 +1,4 @@
-#include "../ProjectHeaders/ServoService.h"
+#include "../ProjectHeaders/LiveService.h"
 
 // Hardware
 #include <xc.h>
@@ -12,23 +12,19 @@
 #include "terminal.h"
 #include "dbprintf.h"
 #include "../ProjectHeaders/PIC32_SPI_HAL.h"
-#include "../ProjectHeaders/PIC32_AD_Lib.h"
 
 /*---------------------------- Module Variables ---------------------------*/
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
-static uint32_t adcResults[1];
 
-static uint16_t LastWeightValue = 0;
-uint16_t CurrentWeightValue = 0;
-uint16_t WeightValueThreshold = 10; // need to tune
+static uint8_t MAX_LIVES = 100000000;
+static uint8_t currentLives = 1000000;
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
-#define TWO_SEC (ONE_SEC * 2)
-#define FIVE_SEC (ONE_SEC * 5)
+#define QUATER_SEC (HALF_SEC / 2)
 
-bool InitWeightSensor(uint8_t Priority)
+bool InitLiveService(uint8_t Priority)
 {
     ES_Event_t ThisEvent;
 
@@ -37,14 +33,19 @@ bool InitWeightSensor(uint8_t Priority)
     // When doing testing, it is useful to announce just which program
     // is running.
     clrScrn();
-    puts("\rStarting WeightSensor\r");
+    puts("\rStarting LiveService\r");
     DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
     DB_printf("\n\r\n");
 
-    if (!ADC_ConfigAutoScan(BIT5HI))
-    {
-        return false; // Return false if ADC configuration fails
-    }
+    TRISBbits.TRISB5 = 0; // Vibration motor output
+    TRISBbits.TRISB6 = 0; // Live LED1 output
+    TRISBbits.TRISB7 = 0; // Live LED2 output
+    TRISBbits.TRISB8 = 0; // Buzzer output
+
+    LATBbits.LATB5 = 0; // Vibration motor off
+    LATBbits.LATB6 = 0; // live LED 1 off
+    LATBbits.LATB7 = 0; // live LED 2 off
+    LATBbits.LATB8 = 0; // Buzzer off
 
     // post the initial transition event
     ThisEvent.EventType = ES_INIT;
@@ -58,12 +59,12 @@ bool InitWeightSensor(uint8_t Priority)
     }
 }
 
-bool PostWeightSensor(ES_Event_t ThisEvent)
+bool PostLiveService(ES_Event_t ThisEvent)
 {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
-ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
+ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 {
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
@@ -72,25 +73,38 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
     {
     case ES_INIT:
     {
-        // We don't need to sample the weight that frequently
-        ES_Timer_InitTimer(WEIGHT_SENSOR_TIMER, ONE_SEC);
-        puts("Start sampling weight...");
+        ;
+    }
+    break;
+
+    case ES_TOUCH_BOUNDARY:
+    {
+
+        ES_Event_t ThisEvent;
+        ThisEvent.EventType = ES_START_VIBRATION;
+        PostLiveService(ThisEvent);
+    }
+    break;
+    case ES_START_GAME:
+    {
+        LATBbits.LATB6 = 1;
+        LATBbits.LATB7 = 1;
+        currentLives = MAX_LIVES;
+    }
+    break;
+
+    case ES_START_VIBRATION:
+    {
+        ES_Timer_InitTimer(LIVE_SERVICE_TIMER, QUATER_SEC);
+        LATBbits.LATB5 = 1;
+        LATBbits.LATB8 = 1;
     }
     break;
 
     case ES_TIMEOUT:
     {
-        ES_Timer_InitTimer(WEIGHT_SENSOR_TIMER, ONE_SEC);
-        ADC_MultiRead(adcResults);
-        CurrentWeightValue = (uint16_t)adcResults[0];
-        DB_printf("Current Weight: %d\n", CurrentWeightValue);
-
-        if (abs(LastWeightValue - CurrentWeightValue) > WeightValueThreshold)
-        {
-            LastWeightValue = CurrentWeightValue;
-            DB_printf("Current Weight: %d\n", CurrentWeightValue);
-            // TODO: post weight value to LED
-        }
+        LATBbits.LATB5 = 0; // stop vibration
+        LATBbits.LATB8 = 0;
     }
     break;
     default:;
