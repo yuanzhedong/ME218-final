@@ -37,15 +37,15 @@ bool InitLiveService(uint8_t Priority)
     DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
     DB_printf("\n\r\n");
 
-//    TRISBbits.TRISB5 = 0; // Vibration motor output
-//     TRISBbits.TRISB10 = 0; // Live LED1 output
-//     TRISBbits.TRISB11 = 0; // Live LED2 output
-//     TRISBbits.TRISB8 = 0; // Buzzer output
+    TRISBbits.TRISB5 = 0;  // Vibration motor output
+    TRISBbits.TRISB10 = 0; // Live LED1 output
+    TRISBbits.TRISB11 = 0; // Live LED2 output
+    TRISBbits.TRISB8 = 0;  // Buzzer output
 
-//     LATBbits.LATB5 = 0; // Vibration motor off
-//     LATBbits.LATB10 = 0; // live LED 1 off
-//     LATBbits.LATB11 = 0; // live LED 2 off
-//     LATBbits.LATB8 = 0; // Buzzer off
+    LATBbits.LATB5 = 0;  // Vibration motor off
+    LATBbits.LATB10 = 0; // live LED 1 off
+    LATBbits.LATB11 = 0; // live LED 2 off
+    LATBbits.LATB8 = 0;  // Buzzer off
 
     // post the initial transition event
     ThisEvent.EventType = ES_INIT;
@@ -67,49 +67,49 @@ bool PostLiveService(ES_Event_t ThisEvent)
 ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 {
     ;
-    // ES_Event_t ReturnEvent;
-    // ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
+    ES_Event_t ReturnEvent;
+    ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
-    // switch (ThisEvent.EventType)
-    // {
-    // case ES_INIT:
-    // {
-    //     ;
-    // }
-    // break;
+    switch (ThisEvent.EventType)
+    {
+    case ES_INIT:
+    {
+        ;
+    }
+    break;
 
-    // case ES_TOUCH_BOUNDARY:
-    // {
+    case ES_TOUCH_BOUNDARY:
+    {
 
-    //     ES_Event_t ThisEvent;
-    //     ThisEvent.EventType = ES_START_VIBRATION;
-    //     ThisEvent.EventParam = QUATER_SEC;
-    //     PostLiveService(ThisEvent);
-    // }
-    // break;
-    // case ES_START_GAME:
-    // {
-    //     LATBbits.LATB10 = 1;
-    //     LATBbits.LATB11 = 1;
-    //     currentLives = MAX_LIVES;
-    // }
-    // break;
+        ES_Event_t ThisEvent;
+        ThisEvent.EventType = ES_START_VIBRATION;
+        ThisEvent.EventParam = QUATER_SEC;
+        PostLiveService(ThisEvent);
+    }
+    break;
+    case ES_START_GAME:
+    {
+        LATBbits.LATB10 = 1;
+        LATBbits.LATB11 = 1;
+        currentLives = MAX_LIVES;
+    }
+    break;
 
-    // case ES_START_VIBRATION:
-    // {
-    //     uint16_t vibration_time = ThisEvent.EventParam;
-    //     ES_Timer_InitTimer(LIVE_SERVICE_TIMER, vibration_time);
-    //     LATBbits.LATB5 = 1;
-    //     LATBbits.LATB8 = 1;
-    // }
-    // break;
+    case ES_START_VIBRATION:
+    {
+        uint16_t vibration_time = ThisEvent.EventParam;
+        ES_Timer_InitTimer(LIVE_SERVICE_TIMER, vibration_time);
+        LATBbits.LATB5 = 1;
+        LATBbits.LATB8 = 1;
+    }
+    break;
 
-    // case ES_TIMEOUT:
-    // {
-    //     LATBbits.LATB5 = 0; // stop vibration
-    //     LATBbits.LATB8 = 0;
-    // }
-    // break;
-    // default:;
-    // }
- }
+    case ES_TIMEOUT:
+    {
+        LATBbits.LATB5 = 0; // stop vibration
+        LATBbits.LATB8 = 0; // stop buzz
+    }
+    break;
+    default:;
+    }
+}

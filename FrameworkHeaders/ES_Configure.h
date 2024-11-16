@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 1
+#define NUM_SERVICES 5
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -331,13 +331,13 @@ typedef enum
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 
-#define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC TIMER_UNUSED
-#define TIMER15_RESP_FUNC TIMER_UNUSED
+// #define TIMER13_RESP_FUNC TIMER_UNUSED
+// #define TIMER14_RESP_FUNC TIMER_UNUSED
+// #define TIMER15_RESP_FUNC TIMER_UNUSED
 
-// #define TIMER13_RESP_FUNC PostServoService
-// #define TIMER14_RESP_FUNC PostLiveService
-// #define TIMER15_RESP_FUNC PostWeightSensor
+#define TIMER13_RESP_FUNC PostServoService
+#define TIMER14_RESP_FUNC PostLiveService
+#define TIMER15_RESP_FUNC PostWeightSensor
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
