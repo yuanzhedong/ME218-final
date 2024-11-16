@@ -18,13 +18,26 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
+#define ONE_SEC 1000
+#define HALF_SEC (ONE_SEC / 2)
+#define QUATER_SEC (HALF_SEC / 2)
+
+#define GAME_TIME 60 * ONE_SEC
+
 #define PWM_OUTPUT LATBbits.LATB9
 
 static ServoServiceState_t currentState = InitServoState;
 
-static uint16_t currnetPulseTicks = 3750;
 static uint16_t maxPulseTicks = 6250; // +90
 static uint16_t minPulseTicks = 1250; // -90
+static uint16_t currnetPulseTicks = maxPulseTicks;
+static uint8_t currentStep = 0;
+static uint8_t maxStep = 20; // (6250 - 1250) / (QUATER_SEC)
+
+uint16_t step2Pulsetick(u_int16_t currentStep)
+{
+    return currentStep * QUATER_SEC + 1250;
+}
 
 bool InitServoService(uint8_t Priority)
 {
@@ -83,52 +96,13 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
             puts("generating pules");
             // Step 5: Set Duty Cycle for Channel 3 to 50%
             // PWMOperate_SetDutyOnChannel(20, 3); // 50% duty cycle
-            PWMOperate_SetPulseWidthOnChannel(3750, 3); // 0 degree 1ms
-//            for (volatile long i = 0; i < 5000000; ++i)
-//            {
-//                ;
-//            }
-//
-//            PWMOperate_SetPulseWidthOnChannel(5000, 3); // 45 degree/2ms
-//
-//            for (volatile long i = 0; i < 5000000; ++i)
-//            {
-//                ;
-//            }
-//            //
-//            PWMOperate_SetPulseWidthOnChannel(6250, 3); // 90 degree/2.5ms
-//
-//            // for (volatile long i = 0; i < 5000000; ++i){;}
-//            //
-//            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
-//            for (volatile long i = 0; i < 5000000; ++i)
-//            {
-//                ;
-//            }
-//
-//            PWMOperate_SetPulseWidthOnChannel(2500, 3); // -45 degree 1.5ms
-//
-//            // for (volatile long i = 0; i < 5000000; ++i){;}
-//            //
-//            // PWMOperate_SetPulseWidthOnChannel(2500, 3);
-//            for (volatile long i = 0; i < 5000000; ++i)
-//            {
-//                ;
-//            }
-//
-//            PWMOperate_SetPulseWidthOnChannel(1250, 3); // -90 degree 1ms
-//
-//            for (volatile long i = 0; i < 5000000; ++i)
-//            {
-//                ;
-//            }
-//
-//            PWMOperate_SetPulseWidthOnChannel(2000, 3); // -90 degree 1ms
-//            for (volatile long i = 0; i < 5000000; ++i)
-//            {
-//                ;
-//            }
-//            PWMOperate_SetPulseWidthOnChannel(3750, 3);
+            PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // -90 degree
+            //            for (volatile long i = 0; i < 5000000; ++i)
+            //            {
+            //                ;
+            //            }
+            //
+            //            PWMOperate_SetPulseWidthOnChannel(5000, 3); // 45 degree/2ms
         }
 
         currentState = WaitForTarget;
@@ -136,30 +110,66 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
 
     case WaitForTarget:
     {
-    if (ThisEvent.EventType == ES_NEW_KEY)
-    {
-        if ('w' == ThisEvent.EventParam)
+        if (ThisEvent.EventType == ES_NEW_KEY)
         {
-            if (currnetPulseTicks < maxPulseTicks)
+            if ('w' == ThisEvent.EventParam)
             {
-                currnetPulseTicks += 100;
-                puts("Moving forward");
-                PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
-            }
-        }
-        else
-        {
-            if ('s' == ThisEvent.EventParam)
-            {
-                if (currnetPulseTicks > minPulseTicks)
+                if (currnetPulseTicks < maxPulseTicks)
                 {
-                    currnetPulseTicks -= 100;
-                    puts("Moving backward");
+                    currnetPulseTicks += 100;
+                    puts("Moving forward");
                     PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
                 }
             }
+            else
+            {
+                if ('s' == ThisEvent.EventParam)
+                {
+                    if (currnetPulseTicks > minPulseTicks)
+                    {
+                        currnetPulseTicks -= 100;
+                        puts("Moving backward");
+                        PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
+                    }
+                }
+            }
         }
-    }
+        else if (ThisEvent.EventType == ES_START_GAME)
+        {
+            PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // 90 degree
+            ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
+            currentStep = 0;
+        }
+        else if (ThisEvent.EventType == ES_TIMEOUT)
+        {
+            ++currentStep;
+            currnetPulseTicks = step2Pulsetick(currentStep);
+            PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
+
+            // for debug
+            if (currentStep == maxStep / 4)
+            {
+                puts("15 seconds passed\n");
+            }
+
+            // end of game
+            if (currentStep == maxStep)
+            {
+                puts("1 min reached, End Game!!\n");
+                ES_Event_t ThisEvent;
+                ThisEvent.EventType = ES_END_GAME;
+                ES_PostAll(ThisEvent);
+            }
+            else
+            { // restert the step timer
+                ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
+            }
+            /* code */
+        }
+        else if (ThisEvent.EventType == ES_END_GAME)
+        {
+            ; // do I need to something here?
+        }
     }
 
     break;

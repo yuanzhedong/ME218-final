@@ -82,6 +82,7 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
         ES_Event_t ThisEvent;
         ThisEvent.EventType = ES_START_VIBRATION;
+        ThisEvent.EventParam = QUATER_SEC;
         PostLiveService(ThisEvent);
     }
     break;
@@ -95,7 +96,8 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_START_VIBRATION:
     {
-        ES_Timer_InitTimer(LIVE_SERVICE_TIMER, QUATER_SEC);
+        uint16_t vibration_time = ThisEvent.EventParam;
+        ES_Timer_InitTimer(LIVE_SERVICE_TIMER, vibration_time);
         LATBbits.LATB5 = 1;
         LATBbits.LATB8 = 1;
     }

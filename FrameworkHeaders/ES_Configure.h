@@ -330,7 +330,7 @@ typedef enum
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
-#define TIMER13_RESP_FUNC TIMER_UNUSED
+#define TIMER13_RESP_FUNC PostServoService
 #define TIMER14_RESP_FUNC PostLiveService
 #define TIMER15_RESP_FUNC PostWeightSensor
 
@@ -343,5 +343,5 @@ typedef enum
 
 #define WEIGHT_SENSOR_TIMER 15
 #define LIVE_SERVICE_TIMER 14
-
+#define SERVO_SERVICE_TIMER 13
 #endif /* ES_CONFIGURE_H */
