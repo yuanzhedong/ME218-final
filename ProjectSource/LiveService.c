@@ -17,8 +17,8 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint8_t MAX_LIVES = 100000000;
-static uint8_t currentLives = 1000000;
+static uint8_t MAX_LIVES = 10;
+static uint8_t currentLives = 10;
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
@@ -37,13 +37,13 @@ bool InitLiveService(uint8_t Priority)
     DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
     DB_printf("\n\r\n");
 
-    TRISBbits.TRISB5 = 0; // Vibration motor output
-    TRISBbits.TRISB6 = 0; // Live LED1 output
+   TRISBbits.TRISB5 = 0; // Vibration motor output
+    TRISBbits.TRISB10 = 0; // Live LED1 output
     TRISBbits.TRISB7 = 0; // Live LED2 output
     TRISBbits.TRISB8 = 0; // Buzzer output
 
     LATBbits.LATB5 = 0; // Vibration motor off
-    LATBbits.LATB6 = 0; // live LED 1 off
+    LATBbits.LATB10 = 0; // live LED 1 off
     LATBbits.LATB7 = 0; // live LED 2 off
     LATBbits.LATB8 = 0; // Buzzer off
 
@@ -66,6 +66,7 @@ bool PostLiveService(ES_Event_t ThisEvent)
 
 ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 {
+    ;
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
@@ -87,7 +88,7 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
     break;
     case ES_START_GAME:
     {
-        LATBbits.LATB6 = 1;
+        LATBbits.LATB10 = 1;
         LATBbits.LATB7 = 1;
         currentLives = MAX_LIVES;
     }
@@ -109,4 +110,4 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
     break;
     default:;
     }
-}
+ }
