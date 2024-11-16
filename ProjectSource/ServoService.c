@@ -134,38 +134,38 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
                 }
             }
         }
-        else if (ThisEvent.EventType == ES_START_GAME)
-        {
-            PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // 90 degree
-            ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
-            currentStep = 0;
-        }
-        else if (ThisEvent.EventType == ES_TIMEOUT)
-        {
-            ++currentStep;
-            currnetPulseTicks = step2Pulsetick(currentStep);
-            PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
+        // else if (ThisEvent.EventType == ES_START_GAME)
+        // {
+        //     PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // 90 degree
+        //     ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
+        //     currentStep = 0;
+        // }
+        // else if (ThisEvent.EventType == ES_TIMEOUT)
+        // {
+        //     ++currentStep;
+        //     currnetPulseTicks = step2Pulsetick(currentStep);
+        //     PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
 
-            // for debug
-            if (currentStep == maxStep / 4)
-            {
-                puts("15 seconds passed\n");
-            }
+        //     // for debug
+        //     if (currentStep == maxStep / 4)
+        //     {
+        //         puts("15 seconds passed\n");
+        //     }
 
-            // end of game
-            if (currentStep == maxStep)
-            {
-                puts("1 min reached, End Game!!\n");
-                ES_Event_t ThisEvent;
-                ThisEvent.EventType = ES_END_GAME;
-                ES_PostAll(ThisEvent);
-            }
-            else
-            { // restert the step timer
-                ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
-            }
-            /* code */
-        }
+        //     // end of game
+        //     if (currentStep == maxStep)
+        //     {
+        //         puts("1 min reached, End Game!!\n");
+        //         ES_Event_t ThisEvent;
+        //         ThisEvent.EventType = ES_END_GAME;
+        //         ES_PostAll(ThisEvent);
+        //     }
+        //     else
+        //     { // restert the step timer
+        //         ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
+        //     }
+        //     /* code */
+        // }
         else if (ThisEvent.EventType == ES_END_GAME)
         {
             ; // do I need to something here?
