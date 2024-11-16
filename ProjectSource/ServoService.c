@@ -134,38 +134,47 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
                 }
             }
         }
-        // else if (ThisEvent.EventType == ES_START_GAME)
-        // {
-        //     PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // 90 degree
-        //     ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
-        //     currentStep = 0;
-        // }
-        // else if (ThisEvent.EventType == ES_TIMEOUT)
-        // {
-        //     ++currentStep;
-        //     currnetPulseTicks = step2Pulsetick(currentStep);
-        //     PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
+        else if (ThisEvent.EventType == ES_START_GAME)
+        {
+            PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // 90 degree
+            ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
+            currentStep = 0;
+        }
 
-        //     // for debug
-        //     if (currentStep == maxStep / 4)
-        //     {
-        //         puts("15 seconds passed\n");
-        //     }
+        // count down
+        else if (ThisEvent.EventType == ES_TIMEOUT)
+        {
+            ++currentStep;
+            currnetPulseTicks = step2Pulsetick(currentStep);
+            PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
 
-        //     // end of game
-        //     if (currentStep == maxStep)
-        //     {
-        //         puts("1 min reached, End Game!!\n");
-        //         ES_Event_t ThisEvent;
-        //         ThisEvent.EventType = ES_END_GAME;
-        //         ES_PostAll(ThisEvent);
-        //     }
-        //     else
-        //     { // restert the step timer
-        //         ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
-        //     }
-        //     /* code */
-        // }
+            // for debug
+            if (currentStep == maxStep / 4)
+            {
+                puts("15 seconds passed\n");
+                DB_printf("Current time: %d\n", ES_Timer_GetTime());
+            }
+
+            if (currentStep == maxStep / 2)
+            {
+                puts("30 seconds passed\n");
+                DB_printf("Current time: %d\n", ES_Timer_GetTime());
+            }
+
+            // end of game
+            if (currentStep == maxStep)
+            {
+                puts("1 min reached, End Game!!\n");
+                ES_Event_t ThisEvent;
+                ThisEvent.EventType = ES_END_GAME;
+                ES_PostAll(ThisEvent);
+            }
+            else
+            { // restert the step timer
+                ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
+            }
+            /* code */
+        }
         else if (ThisEvent.EventType == ES_END_GAME)
         {
             ; // do I need to something here?
