@@ -30,11 +30,11 @@ static ServoServiceState_t currentState = InitServoState;
 
 static uint16_t maxPulseTicks = 6250; // +90
 static uint16_t minPulseTicks = 1250; // -90
-static uint16_t currnetPulseTicks = maxPulseTicks;
-static uint8_t currentStep = 0;
+uint16_t currnetPulseTicks = 6250;
+uint8_t currentStep = 0;
 static uint8_t maxStep = 20; // (6250 - 1250) / (QUATER_SEC)
 
-uint16_t step2Pulsetick(u_int16_t currentStep)
+uint16_t step2Pulsetick(uint16_t currentStep)
 {
     return currentStep * QUATER_SEC + 1250;
 }

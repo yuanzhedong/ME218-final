@@ -114,6 +114,7 @@ bool Check4Keystroke(void)
     ThisEvent.EventType = ES_NEW_KEY;
     ThisEvent.EventParam = GetNewKey();
     ES_PostAll(ThisEvent);
+    DB_printf("%s\n", ThisEvent.EventParam);
     return true;
   }
   return false;
