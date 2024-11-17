@@ -32,11 +32,13 @@ static uint16_t maxPulseTicks = 6250; // +90
 static uint16_t minPulseTicks = 1250; // -90
 uint16_t currnetPulseTicks = 6250;
 uint8_t currentStep = 0;
-static uint8_t maxStep = 20; // (6250 - 1250) / (QUATER_SEC)
+static uint8_t maxStep = 60*1000 / QUATER_SEC ;
 
 uint16_t step2Pulsetick(uint16_t currentStep)
 {
-    return currentStep * QUATER_SEC + 1250;
+    uint16_t currnetPulseTicks = (maxPulseTicks - minPulseTicks) * 1.0 / maxStep * currentStep  + 1250;
+    DB_printf("Current Pulse: %d\n", currnetPulseTicks);
+    return currnetPulseTicks;
 }
 
 bool InitServoService(uint8_t Priority)
@@ -105,8 +107,15 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
             //            PWMOperate_SetPulseWidthOnChannel(5000, 3); // 45 degree/2ms
         }
 
-        currentState = WaitForTarget;
+        if (ThisEvent.EventType == ES_START_GAME)
+        {
+            PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // 90 degree
+            ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
+            currentState = WaitForTarget;
+            currentStep = 0;
+        }
     }
+    break;
 
     case WaitForTarget:
     {
@@ -134,16 +143,12 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
                 }
             }
         }
-        else if (ThisEvent.EventType == ES_START_GAME)
-        {
-            PWMOperate_SetPulseWidthOnChannel(maxPulseTicks, 3); // 90 degree
-            ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
-            currentStep = 0;
-        }
 
         // count down
         else if (ThisEvent.EventType == ES_TIMEOUT)
         {
+            // restart timer
+            ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
             ++currentStep;
             currnetPulseTicks = step2Pulsetick(currentStep);
             PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
@@ -177,7 +182,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
         }
         else if (ThisEvent.EventType == ES_END_GAME)
         {
-            ; // do I need to something here?
+            currentState = InitServoState; // do I need to something here?
         }
     }
 
