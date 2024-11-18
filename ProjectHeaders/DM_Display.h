@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   DM_Display.h
  * Author: Ed
  *
@@ -7,7 +7,7 @@
  */
 
 #ifndef DM_DISPLAY_H
-#define	DM_DISPLAY_H
+#define DM_DISPLAY_H
 
 /****************************************************************************
  Function
@@ -29,13 +29,12 @@
     The next setup step is to set the brightness to minimum, return false
     Copy our display buffer to the display, return false
     Finally, bring it out of shutdown and return true
-   
+
 Example
    while ( false == DM_TakeInitDisplayStep() )
    {} // note this example is for non-event-driven code
 ****************************************************************************/
-bool DM_TakeInitDisplayStep( void );
-
+bool DM_TakeInitDisplayStep(void);
 
 /****************************************************************************
  Function
@@ -49,11 +48,11 @@ bool DM_TakeInitDisplayStep( void );
 
  Description
   Clears the contents of the display buffer.
-   
+
 Example
    BDM_ClearDisplayBuffer();
 ****************************************************************************/
-void DM_ClearDisplayBuffer( void );
+void DM_ClearDisplayBuffer(void);
 
 /****************************************************************************
  Function
@@ -66,13 +65,13 @@ void DM_ClearDisplayBuffer( void );
  Nothing (void)
 
  Description
-  Scrolls the contents of the display buffer by the indicated number of 
+  Scrolls the contents of the display buffer by the indicated number of
   columns.
-   
+
 Example
    DM_ScrollDisplayBuffer(4);
 ****************************************************************************/
-void DM_ScrollDisplayBuffer( uint8_t NumCols2Scroll);
+void DM_ScrollDisplayBuffer(uint8_t NumCols2Scroll);
 
 /****************************************************************************
  Function
@@ -87,13 +86,12 @@ void DM_ScrollDisplayBuffer( uint8_t NumCols2Scroll);
  Description
   Copies the contents of the display buffer to the MAX7219 controllers 1 row
   per call.
-   
+
 Example
    while (false == DM_TakeDisplayUpdateStep())
    {} // note this example is for non-event-driven code
 ****************************************************************************/
-bool DM_TakeDisplayUpdateStep( void );
-
+bool DM_TakeDisplayUpdateStep(void);
 
 /****************************************************************************
  Function
@@ -101,18 +99,18 @@ bool DM_TakeDisplayUpdateStep( void );
 
  Parameter
   unsigned char: The character to be added to the display
-  
+
  Returns
   Nothing (void)
 
  Description
   Copies the bitmap data from the font file into the rows of the frame buffer
-  at the right-most character position in the buffer  
-   
+  at the right-most character position in the buffer
+
 Example
    DM_AddChar2DisplayBuffer('A');
 ****************************************************************************/
-void DM_AddChar2DisplayBuffer( unsigned char Char2Display);
+void DM_AddChar2DisplayBuffer(unsigned char Char2Display);
 
 /****************************************************************************
  Function
@@ -121,18 +119,18 @@ void DM_AddChar2DisplayBuffer( unsigned char Char2Display);
  Parameter
   uint32_t: The new row data to be stored in the display buffer
   uint8_t:  The row (0->7) into which the data will be stored.
-  
+
  Returns
   bool: true for a legal row number; false otherwise
 
  Description
-  Copies the raw data from the Data2Insert parameter into the specified row 
-  of the frame buffer 
-   
+  Copies the raw data from the Data2Insert parameter into the specified row
+  of the frame buffer
+
 Example
    DM_PutDataInBufferRow(0x00000001, 0);
 ****************************************************************************/
-bool DM_PutDataIntoBufferRow( uint32_t Data2Insert, uint8_t WhichRow);
+bool DM_PutDataIntoBufferRow(uint32_t Data2Insert, uint8_t WhichRow);
 
 /****************************************************************************
  Function
@@ -140,23 +138,24 @@ bool DM_PutDataIntoBufferRow( uint32_t Data2Insert, uint8_t WhichRow);
 
  Parameter
   uint8_t: The row of the display buffer to be queried
-  uint32_t *: pointer to variable to hold the data from the buffer 
-  
+  uint32_t *: pointer to variable to hold the data from the buffer
+
  Returns
   bool: true for a legal row number; false otherwise
 
  Description
   copies the contents of the specified row of the frame buffer into the
  location pointed to by pReturnValue
-   
+
 Example
    DM_QueryRowData(0,&ReturnedValue);
 ****************************************************************************/
-bool DM_QueryRowData( uint8_t RowToQuery, uint32_t * pReturnValue);
+bool DM_QueryRowData(uint8_t RowToQuery, uint32_t *pReturnValue);
 
 void SPI_SendToAllModules(uint16_t data1, uint16_t data2, uint16_t data3, uint16_t data4);
 
 bool DM_test(void);
 
-#endif	/* DM_DISPLAY_H */
+void DM_AddLive2DisplayBuffer(uint8_t liveLevel);
 
+#endif /* DM_DISPLAY_H */

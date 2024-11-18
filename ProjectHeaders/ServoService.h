@@ -6,14 +6,12 @@
 #include "ES_Types.h"     /* gets bool type for returns */
 #include "ES_Events.h"
 
-
 // typedefs for the states
 // State definitions for use with the query function
 typedef enum
 {
     InitServoState,
     WaitForTarget,
-    Moving
 } ServoServiceState_t;
 
 // Public Function Prototypes

@@ -36,7 +36,7 @@
 #include <xc.h>
 #include <xc.h>
 #include "PIC32_SPI_HAL.h"
-//#include <proc/p32mx170f256b.h>
+// #include <proc/p32mx170f256b.h>
 
 // Event & Services Framework
 #include "ES_Configure.h"
@@ -46,7 +46,6 @@
 #include "terminal.h"
 #include "dbprintf.h"
 
-
 /*----------------------------- Module Defines ----------------------------*/
 // these times assume a 10.000mS/tick timing
 #define ONE_SEC 1000
@@ -54,12 +53,12 @@
 #define TWO_SEC (ONE_SEC * 2)
 #define FIVE_SEC (ONE_SEC * 5)
 
-#define ENTER_POST     ((MyPriority<<3)|0)
-#define ENTER_RUN      ((MyPriority<<3)|1)
-#define ENTER_TIMEOUT  ((MyPriority<<3)|2)
+#define ENTER_POST ((MyPriority << 3) | 0)
+#define ENTER_RUN ((MyPriority << 3) | 1)
+#define ENTER_TIMEOUT ((MyPriority << 3) | 2)
 
-//#define TEST_INT_POST
-//#define BLINK LED
+// #define TEST_INT_POST
+// #define BLINK LED
 /*---------------------------- Module Functions ---------------------------*/
 /* prototypes for private functions for this service.They should be functions
    relevant to the behavior of this service
@@ -101,25 +100,23 @@ static ES_Event_t DeferralQueue[3 + 1];
      J. Edward Carryer, 01/16/12, 10:00
 ****************************************************************************/
 
-
-
 bool InitLEDService(uint8_t Priority)
 {
-    SPISetup_BasicConfig(SPI_SPI1);
-    SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
-    SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
-    SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
-    SPI1BUF;
-    SPISetEnhancedBuffer(SPI_SPI1, 1);
-    SPISetup_SetBitTime(SPI_SPI1, 10000);
-    SPISetup_SetXferWidth(SPI_SPI1, SPI_16BIT);
-    SPISetup_SetActiveEdge(SPI_SPI1, SPI_SECOND_EDGE);
-    SPISetup_SetClockIdleState(SPI_SPI1, SPI_CLK_HI);
-    SPI1CONbits.FRMPOL = 0;
-    SPISetup_EnableSPI(SPI_SPI1);
+  SPISetup_BasicConfig(SPI_SPI1);
+  SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
+  SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
+  SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
+  SPI1BUF;
+  SPISetEnhancedBuffer(SPI_SPI1, 1);
+  SPISetup_SetBitTime(SPI_SPI1, 10000);
+  SPISetup_SetXferWidth(SPI_SPI1, SPI_16BIT);
+  SPISetup_SetActiveEdge(SPI_SPI1, SPI_SECOND_EDGE);
+  SPISetup_SetClockIdleState(SPI_SPI1, SPI_CLK_HI);
+  SPI1CONbits.FRMPOL = 0;
+  SPISetup_EnableSPI(SPI_SPI1);
   ES_Event_t ThisEvent;
-  
-   ES_InitDeferralQueueWith(DeferralQueue, ARRAY_SIZE(DeferralQueue));
+
+  ES_InitDeferralQueueWith(DeferralQueue, ARRAY_SIZE(DeferralQueue));
 
   MyPriority = Priority;
 
@@ -127,12 +124,12 @@ bool InitLEDService(uint8_t Priority)
   // is running.
   clrScrn();
   puts("\rStarting LED SERVICE for \r");
-  DB_printf( "compiled at %s on %s\n", __TIME__, __DATE__);  
-  while (false == DM_TakeInitDisplayStep()) {
-        // Continue calling to fully initialize the display
-
+  DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
+  while (false == DM_TakeInitDisplayStep())
+  {
+    // Continue calling to fully initialize the display
   }
-  DB_printf( "Finish init LED\n");
+  DB_printf("Finish init LED\n");
 
   ThisEvent.EventType = ES_INIT;
   if (ES_PostToService(MyPriority, ThisEvent) == true)
@@ -188,88 +185,111 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
 {
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
-  //return ReturnEvent;
-  
+  // return ReturnEvent;
+
 #ifdef _INCLUDE_BYTE_DEBUG_
-  _HW_ByteDebug_SetValueWithStrobe( ENTER_RUN );
-#endif  
+  _HW_ByteDebug_SetValueWithStrobe(ENTER_RUN);
+#endif
   switch (ThisEvent.EventType)
   {
-    case ES_INIT:
-    {
-//      ES_Timer_InitTimer(SERVICE0_TIMER, HALF_SEC);
-      puts("Service LED:");
-      DB_printf("\rES_INIT received in LED Service %d\r\n", MyPriority);
-    }
-    break;
-//    case ES_TIMEOUT:   // re-start timer & announce
-//    {
-//      ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
-//      DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
-//          ThisEvent.EventParam, MyPriority);
-//    }
-//    break;
+  case ES_INIT:
+  {
+    //      ES_Timer_InitTimer(SERVICE0_TIMER, HALF_SEC);
+    puts("Service LED:");
+    DB_printf("\rES_INIT received in LED Service %d\r\n", MyPriority);
+  }
+  break;
+    //    case ES_TIMEOUT:   // re-start timer & announce
+    //    {
+    //      ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
+    //      DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
+    //          ThisEvent.EventParam, MyPriority);
+    //    }
+    //    break;
 
-   case ES_NEW_KEY:   // announce
-   {
+  case ES_NEW_KEY: // announce
+  {
     // DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
     //     (char)ThisEvent.EventParam);
-     if (UpdatingLED) {
-         DB_printf("Ignore input due to updating LED buffer....");
-         break;
-     }
-     ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
-
-     PostLEDService(START_LED_WRITE);
-   }
-    break;
-
-    case ES_UPDATE_LIVE: {
-      uint8_t currentLives = ThisEvent.EventParam;
-      //map range 100 to range 32
-      DB_printf("Current Lives level: %d\n", currentLives);
-      uint8_t level = currentLives * 1.0 / 100 * 32;
-      DB_printf("Current LED level: %d\n", level);
+    if (UpdatingLED)
+    {
+      DB_printf("Ignore input due to updating LED buffer....");
+      break;
     }
-    
-    case ES_START_LED_WRITE: {
-        //DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
-        if (UpdatingLED == 1) {
-            //puts("xxxxxx\r");
+    ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
 
-            if (ES_DeferEvent(DeferralQueue, ThisEvent)==true)
-            {
-              //puts("ES_START_LED_WRITE deferred in LED Service\r");
-                ;
-            }
-            //DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
-            break;
-        }
-        UpdatingLED = 1;
-        DM_ScrollDisplayBuffer(4);
-        DM_AddChar2DisplayBuffer((char)ThisEvent.EventParam);
-        ES_Event_t LED_WRITE_ROW = {ES_LED_WRITE_ROW, ThisEvent.EventParam};
-        PostLEDService(LED_WRITE_ROW);
+    PostLEDService(START_LED_WRITE);
+  }
+  break;
+
+  case ES_START_LED_WRITE:
+  {
+    // DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+    if (UpdatingLED == 1)
+    {
+      // puts("xxxxxx\r");
+
+      if (ES_DeferEvent(DeferralQueue, ThisEvent) == true)
+      {
+        // puts("ES_START_LED_WRITE deferred in LED Service\r");
+        ;
+      }
+      // DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+      break;
     }
-    break;
-    case ES_LED_WRITE_ROW: {
-        //DB_printf("ES_LED_WRITE_ROW received in Service %d\r\n", MyPriority);
-        if (false == DM_TakeDisplayUpdateStep()) {
-            PostLEDService(ThisEvent);
-        }
-        else {
-           UpdatingLED = 0;
-           //dequeue if needed
-           if (true == ES_RecallEvents(MyPriority, DeferralQueue)) {
-            //puts("writing recalled in LEDService \r");
-               ;
-           }
-        }
+    UpdatingLED = 1;
+    DM_ScrollDisplayBuffer(4);
+    DM_AddChar2DisplayBuffer((char)ThisEvent.EventParam);
+    ES_Event_t LED_WRITE_ROW = {ES_LED_WRITE_ROW, ThisEvent.EventParam};
+    PostLEDService(LED_WRITE_ROW);
+  }
+
+  break;
+
+  case ES_START_LED_WRITE_LIVE:
+  {
+    // DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+    if (UpdatingLED == 1)
+    {
+      // puts("xxxxxx\r");
+
+      if (ES_DeferEvent(DeferralQueue, ThisEvent) == true)
+      {
+        // puts("ES_START_LED_WRITE deferred in LED Service\r");
+        ;
+      }
+      // DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+      break;
     }
-    break;
-    default:
-    {}
-     break;
+    UpdatingLED = 1;
+    DM_AddLive2DisplayBuffer(ThisEvent.EventParam);
+    ES_Event_t LED_WRITE_ROW = {ES_LED_WRITE_ROW, 0};
+    PostLEDService(LED_WRITE_ROW);
+  }
+  break;
+  case ES_LED_WRITE_ROW:
+  {
+    // DB_printf("ES_LED_WRITE_ROW received in Service %d\r\n", MyPriority);
+    if (false == DM_TakeDisplayUpdateStep())
+    {
+      PostLEDService(ThisEvent);
+    }
+    else
+    {
+      UpdatingLED = 0;
+      // dequeue if needed
+      if (true == ES_RecallEvents(MyPriority, DeferralQueue))
+      {
+        // puts("writing recalled in LEDService \r");
+        ;
+      }
+    }
+  }
+  break;
+  default:
+  {
+  }
+  break;
   }
 
   return ReturnEvent;
@@ -282,7 +302,7 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
 #define LED LATBbits.LATB6
 static void InitLED(void)
 {
-  LED = 0; //start with it off
+  LED = 0;              // start with it off
   TRISBbits.TRISB6 = 0; // set RB6 as an output
 }
 
@@ -309,7 +329,7 @@ static void InitTMR2(void)
   // set prescale to 1:1
   T2CONbits.TCKPS = 0;
   // load period value
-  PR2 = 2000-1; // creates a 100ms period with a 20MHz peripheral clock
+  PR2 = 2000 - 1; // creates a 100ms period with a 20MHz peripheral clock
   // set priority
   IPC2bits.T2IP = 2;
   // clear interrupt flag
@@ -324,7 +344,7 @@ static void StartTMR2(void)
   // clear timer
   TMR2 = 0;
   // start timer
-  //LATBbits.LATB14 = 0;
+  // LATBbits.LATB14 = 0;
   T2CONbits.ON = 1;
 }
 
@@ -335,7 +355,7 @@ void __ISR(_TIMER_2_VECTOR, IPL2AUTO) Timer2ISR(void)
   // post event
   static ES_Event_t interruptEvent = {ES_SHORT_TIMEOUT, 0};
   PostTestHarnessService1(interruptEvent);
-  
+
   // stop timer
   T2CONbits.ON = 0;
   return;
@@ -343,4 +363,3 @@ void __ISR(_TIMER_2_VECTOR, IPL2AUTO) Timer2ISR(void)
 #endif
 /*------------------------------- Footnotes -------------------------------*/
 /*------------------------------ End of file ------------------------------*/
-
