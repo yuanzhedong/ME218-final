@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 5
+#define NUM_SERVICES 6
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -111,11 +111,11 @@
 // These are the definitions for Service 5
 #if NUM_SERVICES > 5
 // the header file with the public function prototypes
-#define SERV_5_HEADER "VibrationMotorService.h"
+#define SERV_5_HEADER "LEDService.h"
 // the name of the Init function
-#define SERV_5_INIT InitLiveService
+#define SERV_5_INIT InitLEDService
 // the name of the run function
-#define SERV_5_RUN RunLiveService
+#define SERV_5_RUN RunLEDService
 // How big should this services Queue be?
 #define SERV_5_QUEUE_SIZE 3
 #endif
@@ -274,7 +274,11 @@ typedef enum
     ES_START_GAME,
     ES_END_GAME,
     ES_TOUCH_BOUNDARY,
-    ES_START_VIBRATION
+    ES_START_VIBRATION,
+    ES_START_LED_WRITE,
+    ES_LED_WRITE_ROW,
+    ES_MINUS_LIVE,
+    ES_UPDATE_LIVE
 } ES_EventType_t;
 
 /****************************************************************************/

@@ -210,19 +210,27 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
 //    }
 //    break;
 
-//    case ES_NEW_KEY:   // announce
-//    {
-//     // DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
-//     //     (char)ThisEvent.EventParam);
-//      if (UpdatingLED) aaaacacabaacabaacbbbd{
-//          DB_printf("Ignore input due to updating LED buffer....");
-//          break;
-//      }
-//      ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
-//
-//      PostLEDService(START_LED_WRITE);
-//    }
+   case ES_NEW_KEY:   // announce
+   {
+    // DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
+    //     (char)ThisEvent.EventParam);
+     if (UpdatingLED) {
+         DB_printf("Ignore input due to updating LED buffer....");
+         break;
+     }
+     ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, ThisEvent.EventParam};
+
+     PostLEDService(START_LED_WRITE);
+   }
     break;
+
+    case ES_UPDATE_LIVE: {
+      uint8_t currentLives = ThisEvent.EventParam;
+      //map range 100 to range 32
+      DB_printf("Current Lives level: %d\n", currentLives);
+      uint8_t level = currentLives * 1.0 / 100 * 32;
+      DB_printf("Current LED level: %d\n", level);
+    }
     
     case ES_START_LED_WRITE: {
         //DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);

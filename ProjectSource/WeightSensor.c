@@ -88,7 +88,7 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
         if (abs(LastWeightValue - CurrentWeightValue) > WeightValueThreshold)
         {
             LastWeightValue = CurrentWeightValue;
-            //DB_printf("Current Weight: %d\n", CurrentWeightValue);
+            DB_printf("Current Weight: %d\n", CurrentWeightValue);
             // TODO: post weight value to LED
         }
     }

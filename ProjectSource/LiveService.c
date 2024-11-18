@@ -17,8 +17,8 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint8_t MAX_LIVES = 10;
-static uint8_t currentLives = 10;
+static uint8_t MAX_LIVES = 100;
+static uint8_t currentLives = 100;
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
@@ -85,6 +85,10 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
         ThisEvent.EventType = ES_START_VIBRATION;
         ThisEvent.EventParam = QUATER_SEC;
         PostLiveService(ThisEvent);
+        ES_Event_t liveEvent;
+        liveEvent.EventType = ES_MINUS_LIVE;
+        liveEvent.EventParam = 10; // minus live when touch boundary
+        PostLiveService(liveEvent);
     }
     break;
     case ES_START_GAME:
@@ -109,7 +113,36 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
         LATBbits.LATB5 = 0; // stop vibration
         LATBbits.LATB8 = 0; // stop buzz
     }
+
+    case ES_MINUS_LIVE:
+    {
+        if (currentLives <= ThisEvent.EventParam) {
+            ES_Event_t endGame;
+            endGame.EventType = ES_END_GAME;
+            ES_PostAll(endGame);
+            puts("game ends\n");
+            break;
+        }
+        currentLives -= ThisEvent.EventParam;
+        
+        ES_Event_t liveUpdateEvent;
+        liveUpdateEvent.EventType = ES_UPDATE_LIVE;
+        liveUpdateEvent.EventParam = currentLives;
+        PostLEDService(liveUpdateEvent);
+    }
+
+    break;
+    case ES_NEW_KEY:
+        {
+            if ('t' == ThisEvent.EventParam)
+            {
+                puts("Touch...");
+                ES_Event_t EventTouch = {ES_TOUCH_BOUNDARY, ThisEvent.EventParam};
+                PostLiveService(EventTouch);
+            }
+        }
     break;
     default:;
     }
 }
+
