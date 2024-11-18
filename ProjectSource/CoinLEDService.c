@@ -117,8 +117,11 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
         {
             TimeOfLastFall = ThisEvent.EventParam;
             // need to tune this condition
+            DB_printf("raise %d\n", TimeOfLastRise);
+            DB_printf("fall %d\n", TimeOfLastFall);
             if (TimeOfLastFall > TimeOfLastRise)
             {
+                puts("detected...");
                 // one coin detected.
                 total_coins += 1;
                 if (total_coins == 1)
@@ -133,7 +136,7 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
                     ES_Event_t StartGameEvent;
                     StartGameEvent.EventType = ES_START_GAME;
                     ES_PostAll(StartGameEvent);
-                    puts("Two coins are ready, start game...");
+                    puts("Two coins are ready, start game...\n");
                 }
             }
         }
@@ -148,7 +151,7 @@ ES_Event_t RunCoinLEDService(ES_Event_t ThisEvent)
                 ThisEvent.EventParam = ES_Timer_GetTime();
                 ES_Event_t EventNewCoin = {ES_NEW_COIN_RISING, ThisEvent.EventParam};
                 PostCoinLEDService(EventNewCoin);
-                EventNewCoin.EventParam = ES_Timer_GetTime();
+                EventNewCoin.EventParam = ES_Timer_GetTime() + 100;
                 EventNewCoin.EventType = ES_NEW_COIN_FALLING;
                 PostCoinLEDService(EventNewCoin);
             }
