@@ -280,7 +280,7 @@ void DM_AddChar2DisplayBuffer(unsigned char Char2Display)
     }
 }
 
-void DM_AddLive2DisplayBuffer(uint_8 liveLevel)
+void DM_AddLive2DisplayBuffer(uint8_t liveLevel)
 {
     if (liveLevel > 32)
     {
@@ -290,8 +290,8 @@ void DM_AddLive2DisplayBuffer(uint_8 liveLevel)
     // Your code to loop for every row in the character font
     for (WhichRow = 0; WhichRow < 8; WhichRow++)
     {
-        uint32_t shiftedValue = 0xFF << (32 - liveLevel); // convert level to bits
-        DM_PutDataIntoBufferRow(uint32_t live, uint8_t WhichRow)
+        uint32_t shiftedValue = 0xFFFFFFFF << (32 - liveLevel); // convert level to bits
+        DM_PutDataIntoBufferRow_v2(shiftedValue, WhichRow);
     }
 }
 
@@ -331,10 +331,30 @@ bool DM_PutDataIntoBufferRow(uint32_t Data2Insert, uint8_t WhichRow)
     if (WhichRow < 8)
     {
         // The row is valid, so split the 32-bit data across the 4 cascaded modules
-        DM_Display[WhichRow].ByBytes[0] = (uint8_t)((Data2Insert >> 24) & 0xFF); // First module (MSB)
-        DM_Display[WhichRow].ByBytes[1] = (uint8_t)((Data2Insert >> 16) & 0xFF); // Second module
-        DM_Display[WhichRow].ByBytes[2] = (uint8_t)((Data2Insert >> 8) & 0xFF);  // Third module
-        DM_Display[WhichRow].ByBytes[3] = (uint8_t)(Data2Insert & 0xFF);         // Fourth module (LSB)
+        DM_Display[WhichRow].ByBytes[0] = (uint8_t)((Data2Insert >> 24) & 0xFF); // Fourth module (LSB)
+        DM_Display[WhichRow].ByBytes[1] = (uint8_t)((Data2Insert >> 16) & 0xFF); // Third module
+        DM_Display[WhichRow].ByBytes[2] = (uint8_t)((Data2Insert >> 8) & 0xFF);  // Second module
+        DM_Display[WhichRow].ByBytes[3] = (uint8_t)(Data2Insert & 0xFF);         // First module (MSB)
+
+        // Indicate success
+        ReturnVal = true;
+    }
+
+    return ReturnVal;
+}
+
+bool DM_PutDataIntoBufferRow_v2(uint32_t Data2Insert, uint8_t WhichRow)
+{
+    bool ReturnVal = false;
+
+    // Check if the specified row is valid (valid rows are from 0 to 7)
+    if (WhichRow < 8)
+    {
+        // The row is valid, so split the 32-bit data across the 4 cascaded modules
+        DM_Display[WhichRow].ByBytes[3] = (uint8_t)((Data2Insert >> 24) & 0xFF); // Fourth module (LSB)
+        DM_Display[WhichRow].ByBytes[2] = (uint8_t)((Data2Insert >> 16) & 0xFF); // Third module
+        DM_Display[WhichRow].ByBytes[1] = (uint8_t)((Data2Insert >> 8) & 0xFF);  // Second module
+        DM_Display[WhichRow].ByBytes[0] = (uint8_t)(Data2Insert & 0xFF);         // First module (MSB)
 
         // Indicate success
         ReturnVal = true;
@@ -361,7 +381,7 @@ bool DM_QueryRowData(uint8_t RowToQuery, uint32_t *pReturnValue)
         *pReturnValue = ((uint32_t)DM_Display[RowToQuery].ByBytes[0] << 24 |
                          (uint32_t)DM_Display[RowToQuery].ByBytes[1] << 16 |
                          (uint32_t)DM_Display[RowToQuery].ByBytes[2] << 8 |
-                         (uint32_t)DM_Display[RowToQuery].ByBytes[3] << 24);
+                         (uint32_t)DM_Display[RowToQuery].ByBytes[3] << 0);
 
         // Indicate success
         ReturnVal = true;

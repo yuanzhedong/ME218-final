@@ -131,6 +131,7 @@ Example
    DM_PutDataInBufferRow(0x00000001, 0);
 ****************************************************************************/
 bool DM_PutDataIntoBufferRow(uint32_t Data2Insert, uint8_t WhichRow);
+bool DM_PutDataIntoBufferRow_v2(uint32_t Data2Insert, uint8_t WhichRow);
 
 /****************************************************************************
  Function

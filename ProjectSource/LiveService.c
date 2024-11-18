@@ -19,6 +19,7 @@ static uint8_t MyPriority;
 
 static uint8_t MAX_LIVES = 100;
 static uint8_t currentLives = 100;
+static uint8_t justTouched = 0;
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
@@ -80,6 +81,9 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_TOUCH_BOUNDARY:
     {
+        // if (ES_Timer_GetTime() - justTouched < 1000) { // ignore another touch within 1 sec
+        //     break;
+        // }
 
         ES_Event_t ThisEvent;
         ThisEvent.EventType = ES_START_VIBRATION;
@@ -87,8 +91,9 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
         PostLiveService(ThisEvent);
         ES_Event_t liveEvent;
         liveEvent.EventType = ES_MINUS_LIVE;
-        liveEvent.EventParam = 10; // minus live when touch boundary
+        liveEvent.EventParam = 1; // minus live when touch boundary
         PostLiveService(liveEvent);
+        justTouched = ES_Timer_GetTime();
     }
     break;
     case ES_START_GAME:
@@ -116,6 +121,14 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_MINUS_LIVE:
     {
+        //DB_printf("Current live: %d\n", currentLives);
+        
+        if (ThisEvent.EventParam == 14) {
+            ThisEvent.EventParam = 0;
+        }
+        if (ThisEvent.EventParam != 0) {
+        DB_printf("minus live: %d\n", ThisEvent.EventParam);
+        }
         if (currentLives <= ThisEvent.EventParam) {
             ES_Event_t endGame;
             endGame.EventType = ES_END_GAME;
@@ -125,10 +138,10 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
         }
         currentLives -= ThisEvent.EventParam;
         
-        ES_Event_t liveUpdateEvent;
-        liveUpdateEvent.EventType = ES_UPDATE_LIVE;
-        liveUpdateEvent.EventParam = currentLives;
-        PostLEDService(liveUpdateEvent);
+        ES_Event_t event;
+        event.EventType = ES_UPDATE_LIVE;
+        event.EventParam = currentLives;
+        PostDisplayService(event);
     }
 
     break;
@@ -137,7 +150,7 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
             if ('t' == ThisEvent.EventParam)
             {
                 puts("Touch...");
-                ES_Event_t EventTouch = {ES_TOUCH_BOUNDARY, ThisEvent.EventParam};
+                ES_Event_t EventTouch = {ES_TOUCH_BOUNDARY, 0};
                 PostLiveService(EventTouch);
             }
         }

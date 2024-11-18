@@ -32,12 +32,13 @@ static uint16_t maxPulseTicks = 6250; // +90
 static uint16_t minPulseTicks = 1250; // -90
 uint16_t currnetPulseTicks = 6250;
 uint8_t currentStep = 0;
+uint8_t lastPostLiveStep = 0;
 static uint8_t maxStep = 60*1000 / QUATER_SEC ;
 
 uint16_t step2Pulsetick(uint16_t currentStep)
 {
     uint16_t currnetPulseTicks = (maxPulseTicks - minPulseTicks) * 1.0 / maxStep * currentStep  + 1250;
-    DB_printf("Current Pulse: %d\n", currnetPulseTicks);
+    //DB_printf("Current Pulse: %d\n", currnetPulseTicks);
     return currnetPulseTicks;
 }
 
@@ -113,6 +114,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
             ES_Timer_InitTimer(SERVO_SERVICE_TIMER, QUATER_SEC);
             currentState = WaitForTarget;
             currentStep = 0;
+            lastPostLiveStep = 0;
         }
     }
     break;
@@ -152,7 +154,14 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
             ++currentStep;
             currnetPulseTicks = step2Pulsetick(currentStep);
             PWMOperate_SetPulseWidthOnChannel(currnetPulseTicks, 3);
-
+            if (currentStep - lastPostLiveStep == 8) {
+                ES_Event_t event = {ES_MINUS_LIVE, 1.0/32 * 100};
+                PostLiveService(event);
+                lastPostLiveStep = currentStep;
+            }
+            
+            
+            
             // for debug
             if (currentStep == maxStep / 4)
             {

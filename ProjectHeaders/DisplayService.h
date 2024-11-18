@@ -12,7 +12,7 @@
 typedef enum
 {
     InitDisplayState,
-    GameStart,
+    DisplayLive,
 } DisplayServiceState_t;
 
 // Public Function Prototypes

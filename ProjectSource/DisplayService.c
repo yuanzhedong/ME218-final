@@ -1,3 +1,6 @@
+#include "../ProjectHeaders/LEDService.h"
+#include "../ProjectHeaders/DM_Display.h"
+#include <string.h>
 #include "../ProjectHeaders/DisplayService.h"
 
 // Hardware
@@ -17,13 +20,13 @@
 static uint8_t MyPriority;
 
 static uint8_t CurIdx = 0;
-static char MESSAGE[] = "Collect mineral and deliver to earch. Try not to touch the boundary";
+static char MESSAGE[] = "Collect mineral and deliver to earth. Try not to touch the boundary...";
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
 #define QUATER_SEC (HALF_SEC / 2)
 
-static DisplayServiceState_t currentState = InitServoState;
+static DisplayServiceState_t currentState = InitDisplayState;
 
 bool InitDisplayService(uint8_t Priority)
 {
@@ -34,7 +37,7 @@ bool InitDisplayService(uint8_t Priority)
     // When doing testing, it is useful to announce just which program
     // is running.
     clrScrn();
-    puts("\rStarting ServoService\r");
+    puts("\rStarting DisplayService\r");
     DB_printf("compiled at %s on %s\n", __TIME__, __DATE__);
     DB_printf("\n\r\n");
     // post the initial transition event
@@ -72,7 +75,7 @@ ES_Event_t RunDisplayService(ES_Event_t ThisEvent)
         break;
         case ES_TIMEOUT:
         {
-            ES_Timer_InitTimer(DISPLAY_SERVICE_TIMER, ONE_SEC);
+            ES_Timer_InitTimer(DISPLAY_SERVICE_TIMER, HALF_SEC);
             ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, MESSAGE[CurIdx]};
             CurIdx += 1;
             if (CurIdx >= strlen(MESSAGE))
@@ -84,7 +87,9 @@ ES_Event_t RunDisplayService(ES_Event_t ThisEvent)
         break;
         case ES_START_GAME:
         {
-            currentState = GAME_START;
+            currentState = DisplayLive;
+            ES_Event_t event = {ES_START_LED_WRITE_LIVE, 32};
+            PostLEDService(event);
         }
         break;
         default:;
@@ -92,7 +97,7 @@ ES_Event_t RunDisplayService(ES_Event_t ThisEvent)
     }
     break;
 
-    case GAME_START:
+    case DisplayLive:
     {
         switch (ThisEvent.EventType)
         {
@@ -102,15 +107,16 @@ ES_Event_t RunDisplayService(ES_Event_t ThisEvent)
             // map range 100 to range 32
             DB_printf("Current Lives level: %d\n", currentLives);
             uint8_t currentlevel = currentLives * 1.0 / 100 * 32;
-            DB_printf("Current LED level: %d\n", level);
-            // TODO(yzd): translate to LED matrix value
-            // 32 bit row with currentlevel 1's
+            DB_printf("Current LED level: %d\n", currentlevel);
+            ES_Event_t event = {ES_START_LED_WRITE_LIVE, currentlevel};
+            PostLEDService(event);
         }
         break;
         case ES_END_GAME: // go back to init state to display README
         {
             currentState = InitDisplayState;
-            PostDisplayService({ES_INIT, 0});
+            ES_Event_t event = {ES_INIT, 0};
+            PostDisplayService(event);
         }
         break;
         default:;
@@ -124,7 +130,7 @@ ES_Event_t RunDisplayService(ES_Event_t ThisEvent)
     return ReturnEvent;
 }
 
-ServoServiceState_t QueryDisplayService(void)
+DisplayServiceState_t QueryDisplayService(void)
 {
     return currentState;
 }
