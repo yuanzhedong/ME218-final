@@ -59,6 +59,7 @@
       <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
       <itemPath>ProjectHeaders/WeightSensor.h</itemPath>
       <itemPath>ProjectHeaders/LiveService.h</itemPath>
+      <itemPath>ProjectHeaders/DisplayService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -85,6 +86,7 @@
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
       <itemPath>ProjectSource/WeightSensor.c</itemPath>
       <itemPath>ProjectSource/LiveService.c</itemPath>
+      <itemPath>ProjectSource/DisplayService.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -310,7 +312,7 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectHeaders/DM_Display.h" ex="true" overriding="false">
+      <item path="ProjectHeaders/DM_Display.h" ex="false" overriding="false">
         <C32>
         </C32>
         <C32-AR>
@@ -342,7 +344,7 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectHeaders/LEDService.h" ex="true" overriding="false">
+      <item path="ProjectHeaders/LEDService.h" ex="false" overriding="false">
         <C32>
         </C32>
         <C32-AR>
@@ -390,7 +392,7 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectSource/DM_DisplayStarter.c" ex="true" overriding="false">
+      <item path="ProjectSource/DM_DisplayStarter.c" ex="false" overriding="false">
         <C32>
         </C32>
         <C32-AR>
@@ -422,7 +424,7 @@
         <C32Global>
         </C32Global>
       </item>
-      <item path="ProjectSource/LEDService.c" ex="true" overriding="false">
+      <item path="ProjectSource/LEDService.c" ex="false" overriding="false">
         <C32>
         </C32>
         <C32-AR>
@@ -1014,6 +1016,8 @@
                   value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="1d000000-1d03ffff"/>
+        <property key="programmerToGoFilePath"
+                  value="U:/yzd/space-surgery/debug/default/default_ptg"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.pgmentry.voltage" value="low"/>

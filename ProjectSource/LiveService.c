@@ -17,8 +17,9 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint8_t MAX_LIVES = 10;
-static uint8_t currentLives = 10;
+static uint8_t MAX_LIVES = 100;
+static uint8_t currentLives = 100;
+static uint8_t justTouched = 0;
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
@@ -80,11 +81,19 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_TOUCH_BOUNDARY:
     {
+        // if (ES_Timer_GetTime() - justTouched < 1000) { // ignore another touch within 1 sec
+        //     break;
+        // }
 
         ES_Event_t ThisEvent;
         ThisEvent.EventType = ES_START_VIBRATION;
         ThisEvent.EventParam = QUATER_SEC;
         PostLiveService(ThisEvent);
+        ES_Event_t liveEvent;
+        liveEvent.EventType = ES_MINUS_LIVE;
+        liveEvent.EventParam = 1; // minus live when touch boundary
+        PostLiveService(liveEvent);
+        justTouched = ES_Timer_GetTime();
     }
     break;
     case ES_START_GAME:
@@ -109,7 +118,44 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
         LATBbits.LATB5 = 0; // stop vibration
         LATBbits.LATB8 = 0; // stop buzz
     }
+
+    case ES_MINUS_LIVE:
+    {
+        //DB_printf("Current live: %d\n", currentLives);
+        
+        if (ThisEvent.EventParam == 14) {
+            ThisEvent.EventParam = 0;
+        }
+        if (ThisEvent.EventParam != 0) {
+        DB_printf("minus live: %d\n", ThisEvent.EventParam);
+        }
+        if (currentLives <= ThisEvent.EventParam) {
+            ES_Event_t endGame;
+            endGame.EventType = ES_END_GAME;
+            ES_PostAll(endGame);
+            puts("game ends\n");
+            break;
+        }
+        currentLives -= ThisEvent.EventParam;
+        
+        ES_Event_t event;
+        event.EventType = ES_UPDATE_LIVE;
+        event.EventParam = currentLives;
+        PostDisplayService(event);
+    }
+
+    break;
+    case ES_NEW_KEY:
+        {
+            if ('t' == ThisEvent.EventParam)
+            {
+                puts("Touch...");
+                ES_Event_t EventTouch = {ES_TOUCH_BOUNDARY, 0};
+                PostLiveService(EventTouch);
+            }
+        }
     break;
     default:;
     }
 }
+
