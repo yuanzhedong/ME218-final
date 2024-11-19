@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 7
+#define NUM_SERVICES 8
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -137,11 +137,11 @@
 // These are the definitions for Service 7
 #if NUM_SERVICES > 7
 // the header file with the public function prototypes
-#define SERV_7_HEADER "TestHarnessService7.h"
+#define SERV_7_HEADER "GameMonitorService.h"
 // the name of the Init function
-#define SERV_7_INIT InitTestHarnessService7
+#define SERV_7_INIT InitGameMonitorService
 // the name of the run function
-#define SERV_7_RUN RunTestHarnessService7
+#define SERV_7_RUN RunGameMonitorService
 // How big should this services Queue be?
 #define SERV_7_QUEUE_SIZE 3
 #endif
@@ -279,7 +279,8 @@ typedef enum
     ES_LED_WRITE_ROW,
     ES_MINUS_LIVE,
     ES_UPDATE_LIVE,
-    ES_START_LED_WRITE_LIVE
+    ES_START_LED_WRITE_LIVE,
+    ES_RESET_GAME_MONITOR,
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -332,14 +333,15 @@ typedef enum
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
 #define TIMER9_RESP_FUNC TIMER_UNUSED
-#define TIMER10_RESP_FUNC TIMER_UNUSED
-#define TIMER11_RESP_FUNC TIMER_UNUSED
-
+//#define TIMER10_RESP_FUNC TIMER_UNUSED
+// #define TIMER11_RESP_FUNC TIMER_UNUSED
 // #define TIMER12_RESP_FUNC TIMER_UNUSED
 // #define TIMER13_RESP_FUNC TIMER_UNUSED
 // #define TIMER14_RESP_FUNC TIMER_UNUSED
 // #define TIMER15_RESP_FUNC TIMER_UNUSED
 
+#define TIMER10_RESP_FUNC PostLiveService
+#define TIMER11_RESP_FUNC PostGameMonitorService
 #define TIMER12_RESP_FUNC PostDisplayService
 #define TIMER13_RESP_FUNC PostServoService
 #define TIMER14_RESP_FUNC PostLiveService
@@ -356,4 +358,6 @@ typedef enum
 #define LIVE_SERVICE_TIMER 14
 #define SERVO_SERVICE_TIMER 13
 #define DISPLAY_SERVICE_TIMER 12
+#define GAME_MONITOR_SERVICE_TIMER 11
+#define TOUCH_BOUNDARY_TIMER 10
 #endif /* ES_CONFIGURE_H */

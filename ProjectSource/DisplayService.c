@@ -114,6 +114,7 @@ ES_Event_t RunDisplayService(ES_Event_t ThisEvent)
         break;
         case ES_END_GAME: // go back to init state to display README
         {
+            //puts("xxxxxx\n");
             currentState = InitDisplayState;
             ES_Event_t event = {ES_INIT, 0};
             PostDisplayService(event);
