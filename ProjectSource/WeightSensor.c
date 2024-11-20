@@ -22,7 +22,7 @@ static uint32_t adcResults[1];
 static uint16_t LastWeightValue = 0;
 uint16_t CurrentWeightValue = 0;
 uint16_t WeightValueThreshold = 10; // need to tune
-uint16_t TotalScore = 0;
+int16_t TotalScore = 0;
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
 #define TWO_SEC (ONE_SEC * 2)
@@ -78,6 +78,10 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
     }
     break;
 
+    case ES_START_GAME:
+    {
+        TotalScore = 0;
+    }
     case ES_TIMEOUT:
     {
         ES_Timer_InitTimer(WEIGHT_SENSOR_TIMER, ONE_SEC);
@@ -88,9 +92,13 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
         if (abs(LastWeightValue - CurrentWeightValue) < 5)
         {
             TotalScore = TotalScore + CurrentWeightValue - LastWeightValue;
+            if (TotalScore < 0) {
+                TotalScore = 0;
+            }
             DB_printf("Current Total Score: %d\n", TotalScore);
             // TODO: post weight value to LED
         }
+        LastWeightValue = CurrentWeightValue;
     }
     break;
     default:;

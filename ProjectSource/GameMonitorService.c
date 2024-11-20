@@ -69,6 +69,9 @@ ES_Event_t RunGameMonitorService(ES_Event_t ThisEvent)
     break;
     case GMonitor:
     {
+        if (ThisEvent.EventType == ES_START_GAME) { //reset the time when game start
+            ES_Timer_InitTimer(GAME_MONITOR_SERVICE_TIMER, TWENTY_SEC);
+        }
         if (ThisEvent.EventType == ES_TIMEOUT)
         {
             puts("*******");
