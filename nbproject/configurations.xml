@@ -60,6 +60,7 @@
       <itemPath>ProjectHeaders/WeightSensor.h</itemPath>
       <itemPath>ProjectHeaders/LiveService.h</itemPath>
       <itemPath>ProjectHeaders/DisplayService.h</itemPath>
+      <itemPath>ProjectHeaders/GameMonitorService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -87,6 +88,7 @@
       <itemPath>ProjectSource/WeightSensor.c</itemPath>
       <itemPath>ProjectSource/LiveService.c</itemPath>
       <itemPath>ProjectSource/DisplayService.c</itemPath>
+      <itemPath>ProjectSource/GameMonitorService.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

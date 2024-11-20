@@ -161,9 +161,10 @@ bool Check4Touch(void)
 
   CurrentPinState = PORTAbits.RA2; // Read the current state of RB4
   // Check for a falling edge
-  if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
+  //if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
+  if (CurrentPinState == 0)
   {
-    puts("Touch!!!!");
+    //puts("Touch!!!!\n");
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_TOUCH_BOUNDARY;
     ES_PostAll(ThisEvent);

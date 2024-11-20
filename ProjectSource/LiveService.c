@@ -81,20 +81,29 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_TOUCH_BOUNDARY:
     {
-        // if (ES_Timer_GetTime() - justTouched < 1000) { // ignore another touch within 1 sec
-        //     break;
-        // }
-
+        if (justTouched) {
+            //puts("ignore touch...\n");
+            justTouched += 1;
+        } else {
+        justTouched = 1;
+        ES_Timer_InitTimer(TOUCH_BOUNDARY_TIMER, ONE_SEC); 
         ES_Event_t ThisEvent;
         ThisEvent.EventType = ES_START_VIBRATION;
         ThisEvent.EventParam = QUATER_SEC;
         PostLiveService(ThisEvent);
+
         ES_Event_t liveEvent;
         liveEvent.EventType = ES_MINUS_LIVE;
         liveEvent.EventParam = 1; // minus live when touch boundary
         PostLiveService(liveEvent);
-        justTouched = ES_Timer_GetTime();
+        
+        ES_Event_t event;
+        event.EventType = ES_RESET_GAME_MONITOR;
+
+        PostGameMonitorService(event);
+        }
     }
+
     break;
     case ES_START_GAME:
     {
@@ -115,28 +124,30 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
 
     case ES_TIMEOUT:
     {
-        LATBbits.LATB5 = 0; // stop vibration
-        LATBbits.LATB8 = 0; // stop buzz
+        uint16_t t_idx = ThisEvent.EventParam;
+        if (t_idx == 14) {
+            LATBbits.LATB5 = 0; // stop vibration
+            LATBbits.LATB8 = 0; // stop buzz
+        }
+        else {
+            justTouched = 0;
+        }
     }
 
     case ES_MINUS_LIVE:
     {
-        //DB_printf("Current live: %d\n", currentLives);
+        DB_printf("Current live: %d\n", currentLives);
         
-        if (ThisEvent.EventParam == 14) {
-            ThisEvent.EventParam = 0;
-        }
-        if (ThisEvent.EventParam != 0) {
-        DB_printf("minus live: %d\n", ThisEvent.EventParam);
-        }
-        if (currentLives <= ThisEvent.EventParam) {
+        
+        if (currentLives <= 1) {
+
             ES_Event_t endGame;
             endGame.EventType = ES_END_GAME;
             ES_PostAll(endGame);
             puts("game ends\n");
             break;
         }
-        currentLives -= ThisEvent.EventParam;
+        currentLives -= 1;
         
         ES_Event_t event;
         event.EventType = ES_UPDATE_LIVE;
