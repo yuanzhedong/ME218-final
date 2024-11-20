@@ -166,13 +166,13 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
             if (currentStep == maxStep / 4)
             {
                 puts("15 seconds passed\n");
-                DB_printf("Current time: %d\n", ES_Timer_GetTime());
+                //DB_printf("Current time: %d\n", ES_Timer_GetTime());
             }
 
             if (currentStep == maxStep / 2)
             {
                 puts("30 seconds passed\n");
-                DB_printf("Current time: %d\n", ES_Timer_GetTime());
+                //DB_printf("Current time: %d\n", ES_Timer_GetTime());
             }
 
             // end of game

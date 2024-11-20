@@ -101,6 +101,11 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
         LastWeightValue = CurrentWeightValue;
     }
     break;
+    case ES_END_GAME: {
+        ES_Event_t event = {ES_UPDATE_SCORE, TotalScore};
+        PostDisplayService(event); // display score to LED
+    }
+    break;
     default:;
     }
 }
