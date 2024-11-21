@@ -89,11 +89,14 @@ ES_Event_t RunWeightSensor(ES_Event_t ThisEvent)
         CurrentWeightValue = (uint16_t)adcResults[0];
         DB_printf("Current Weight: %d\n", CurrentWeightValue);
 
-        if (abs(LastWeightValue - CurrentWeightValue) < 5)
+        if (abs(LastWeightValue - CurrentWeightValue) < 10)
         {
             TotalScore = TotalScore + CurrentWeightValue - LastWeightValue;
-            if (TotalScore < 0) {
+            if (TotalScore <= 0) {
                 TotalScore = 0;
+            }
+            if (TotalScore >=10) {
+                TotalScore = 9;
             }
             DB_printf("Current Total Score: %d\n", TotalScore);
             // TODO: post weight value to LED

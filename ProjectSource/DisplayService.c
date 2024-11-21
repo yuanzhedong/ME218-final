@@ -20,7 +20,7 @@
 static uint8_t MyPriority;
 
 static uint8_t CurIdx = 0;
-static char MESSAGE[] = "Bring the fuel back to the station, don't hit the debris !!!";
+static char MESSAGE[] = "Bring the objects back to the station, don't hit the debris !!!";
 static uint8_t ScoreIdx = 0;
 char SCORE[] = "SCORE: ";
 static uint8_t FinalScore = 0;
