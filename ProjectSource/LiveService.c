@@ -137,9 +137,13 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
     case ES_MINUS_LIVE:
     {
         DB_printf("Current live: %d\n", currentLives);
+        DB_printf("Minus live: %d\n", ThisEvent.EventParam);
+
+        if (ThisEvent.EventParam != 3) {
+            ThisEvent.EventParam = 1;
+        }
         
-        
-        if (currentLives <= 1) {
+        if (currentLives <= ThisEvent.EventParam) {
 
             ES_Event_t endGame;
             endGame.EventType = ES_END_GAME;
@@ -147,7 +151,7 @@ ES_Event_t RunLiveService(ES_Event_t ThisEvent)
             puts("game ends\n");
             break;
         }
-        currentLives -= 1;
+        currentLives -= ThisEvent.EventParam;
         
         ES_Event_t event;
         event.EventType = ES_UPDATE_LIVE;

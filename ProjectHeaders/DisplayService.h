@@ -13,6 +13,7 @@ typedef enum
 {
     InitDisplayState,
     DisplayLive,
+    DisplayScore
 } DisplayServiceState_t;
 
 // Public Function Prototypes

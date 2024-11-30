@@ -223,7 +223,6 @@ bool DM_TakeDisplayUpdateStep(void)
 {
     bool ReturnVal = false;
     static int8_t WhichRow = 0;
-
     sendRow(WhichRow, DM_Display[WhichRow]);
     WhichRow++;
     if (WhichRow >= 8)
@@ -294,6 +293,26 @@ void DM_AddLive2DisplayBuffer(uint8_t liveLevel)
         DM_PutDataIntoBufferRow_v2(shiftedValue, WhichRow);
     }
 }
+
+void DM_CenterDisplayText(const char *text, uint8_t textLength)
+{
+    uint8_t rowIndex;
+    
+    // Clear the display buffer before adding new text
+    DM_ClearDisplayBuffer();
+
+    for (int charIndex = textLength - 1; charIndex >= 0; charIndex--) {
+        // Loop through each row of the character font
+        for (rowIndex = 0; rowIndex < NUM_ROWS; rowIndex++) {
+            // Add the character bitmap to the display buffer at the correct position
+            uint32_t fontLineData = getFontLine(text[charIndex], rowIndex);
+            DM_Display[rowIndex].FullRow = 0xFF0000FF;; //fontLineData;
+        }
+    }
+
+    while (!DM_TakeDisplayUpdateStep());
+}
+
 
 /****************************************************************************
  Function

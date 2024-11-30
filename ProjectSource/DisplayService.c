@@ -20,7 +20,10 @@
 static uint8_t MyPriority;
 
 static uint8_t CurIdx = 0;
-static char MESSAGE[] = "Collect mineral and deliver to earth. Try not to touch the boundary...";
+static char MESSAGE[] = "Bring the objects back to the station, don't hit the debris !!!";
+static uint8_t ScoreIdx = 0;
+char SCORE[] = "SCORE: ";
+static uint8_t FinalScore = 0;
 
 #define ONE_SEC 1000
 #define HALF_SEC (ONE_SEC / 2)
@@ -112,12 +115,50 @@ ES_Event_t RunDisplayService(ES_Event_t ThisEvent)
             PostLEDService(event);
         }
         break;
-        case ES_END_GAME: // go back to init state to display README
+        case ES_UPDATE_SCORE: // go back to init state to display README
         {
-            //puts("xxxxxx\n");
-            currentState = InitDisplayState;
-            ES_Event_t event = {ES_INIT, 0};
-            PostDisplayService(event);
+            puts("update score...\n");
+            currentState = DisplayScore;
+            FinalScore = ThisEvent.EventParam;
+            ES_Timer_InitTimer(DISPLAY_SERVICE_TIMER, QUATER_SEC);
+            //ES_Event_t event = {ES_TIMEOUT, 0};
+            //PostDisplayService(event);
+        }
+        break;
+        default:;
+        }
+    }
+    break;
+
+    case DisplayScore:
+    {
+        switch (ThisEvent.EventType)
+        {
+        case ES_TIMEOUT: 
+        {
+            DB_printf("timer id %d\n", ThisEvent.EventParam);
+            if (ThisEvent.EventParam == 12) {
+                ES_Timer_InitTimer(DISPLAY_SERVICE_TIMER, QUATER_SEC);
+                ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, SCORE[ScoreIdx]};
+                PostLEDService(START_LED_WRITE);
+                ScoreIdx += 1;
+                puts("########\n");
+                if (ScoreIdx >= strlen(SCORE))
+                {
+                    puts("########\n");
+                    ES_Event_t START_LED_WRITE = {ES_START_LED_WRITE, FinalScore + '0'};
+                    PostLEDService(START_LED_WRITE);
+                    ES_Timer_InitTimer(DISPLAY_SERVICE_TIMER, ONE_SEC * 60);
+                    ES_Timer_InitTimer(DISPLAY_SCORE_TIMER, ONE_SEC * 5);
+                }
+            }
+            if (ThisEvent.EventParam == 9) {
+                currentState = InitDisplayState;
+                ES_Event_t event = {ES_INIT, 0};
+                PostDisplayService(event);
+                ScoreIdx = 0;                
+            }
+                        
         }
         break;
         default:;

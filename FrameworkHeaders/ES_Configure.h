@@ -281,6 +281,8 @@ typedef enum
     ES_UPDATE_LIVE,
     ES_START_LED_WRITE_LIVE,
     ES_RESET_GAME_MONITOR,
+    ES_UPDATE_SCORE,
+    ES_START_LED_WRITE_SCORE,
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -332,7 +334,7 @@ typedef enum
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
-#define TIMER9_RESP_FUNC TIMER_UNUSED
+//#define TIMER9_RESP_FUNC TIMER_UNUSED
 //#define TIMER10_RESP_FUNC TIMER_UNUSED
 // #define TIMER11_RESP_FUNC TIMER_UNUSED
 // #define TIMER12_RESP_FUNC TIMER_UNUSED
@@ -340,6 +342,7 @@ typedef enum
 // #define TIMER14_RESP_FUNC TIMER_UNUSED
 // #define TIMER15_RESP_FUNC TIMER_UNUSED
 
+#define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
 #define TIMER10_RESP_FUNC PostLiveService
 #define TIMER11_RESP_FUNC PostGameMonitorService
 #define TIMER12_RESP_FUNC PostDisplayService
@@ -360,4 +363,5 @@ typedef enum
 #define DISPLAY_SERVICE_TIMER 12
 #define GAME_MONITOR_SERVICE_TIMER 11
 #define TOUCH_BOUNDARY_TIMER 10
+#define DISPLAY_SCORE_TIMER 9
 #endif /* ES_CONFIGURE_H */

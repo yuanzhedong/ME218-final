@@ -159,4 +159,6 @@ bool DM_test(void);
 
 void DM_AddLive2DisplayBuffer(uint8_t liveLevel);
 
+void DM_CenterDisplayText(const char *text, uint8_t textLength);
+
 #endif /* DM_DISPLAY_H */

@@ -246,6 +246,27 @@ ES_Event_t RunLEDService(ES_Event_t ThisEvent)
 
   break;
 
+  case ES_START_LED_WRITE_SCORE:
+  {
+    if (UpdatingLED == 1)
+    {
+      // puts("xxxxxx\r");
+
+      if (ES_DeferEvent(DeferralQueue, ThisEvent) == true)
+      {
+        // puts("ES_START_LED_WRITE deferred in LED Service\r");
+        ;
+      }
+      // DB_printf("Still updating LED. SKIP ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
+      break;
+    }
+    char message[] = "SCORE: %d";
+    char output[50];
+    sprintf(output, message, ThisEvent.EventParam);
+    puts("$$$$$$$$$$$$$$$$$$\n");
+    DM_CenterDisplayText(output, 8);
+  }
+
   case ES_START_LED_WRITE_LIVE:
   {
     // DB_printf("ES_START_LED_WRITE received in Service %d\r\n", MyPriority);
