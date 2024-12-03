@@ -386,7 +386,7 @@
       "version": 1
     },
     "net_format_name": "",
-    "page_layout_descr_file": "C:\\Users\\Elvy\\Documents\\ME218\\218AFinal\\Circuits\\blank.kicad_wks",
+    "page_layout_descr_file": "C:\\Users\\Elvy\\Documents\\Classes\\Fall 2024\\ME 218A\\SpaceSurgery\\Circuits\\blank.kicad_wks",
     "plot_directory": "",
     "spice_current_sheet_as_root": false,
     "spice_external_command": "spice \"%I\"",
