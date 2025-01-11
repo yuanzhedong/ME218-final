@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 8
+#define NUM_SERVICES 2
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -58,15 +58,14 @@
 #define SERV_0_QUEUE_SIZE 3
 
 #if NUM_SERVICES > 1
-// the header file with the public function prototypes
-// the header file with the public function prototypes
-#define SERV_1_HEADER "WeightSensor.h"
+
+#define SERV_1_HEADER "StepMotorService.h"
 // the name of the Init function
-#define SERV_1_INIT InitWeightSensor
+#define SERV_1_INIT InitStepMotorService
 // the name of the run function
-#define SERV_1_RUN RunWeightSensor
+#define SERV_1_RUN RunStepMotorService
 // How big should this services Queue be?
-#define SERV_1_QUEUE_SIZE 3
+#define SERV_1_QUEUE_SIZE 5
 #endif
 
 /****************************************************************************/
@@ -85,11 +84,11 @@
 /****************************************************************************/
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
-#define SERV_3_HEADER "CoinLEDService.h"
+#define SERV_3_HEADER "StepMotorService.h"
 // the name of the Init function
-#define SERV_3_INIT InitCoinLEDService
+#define SERV_3_INIT InitStepMotorService
 // the name of the run function
-#define SERV_3_RUN RunCoinLEDService
+#define SERV_3_RUN RunStepMotorService
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 5
 #endif
@@ -317,7 +316,7 @@ typedef enum
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check4Keystroke, Check4CoinSignal, Check4Touch
+#define EVENT_CHECK_LIST Check4Keystroke
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the
 // corresponding timer expires. All 16 must be defined. If you are not using
@@ -334,21 +333,21 @@ typedef enum
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
-//#define TIMER9_RESP_FUNC TIMER_UNUSED
-//#define TIMER10_RESP_FUNC TIMER_UNUSED
-// #define TIMER11_RESP_FUNC TIMER_UNUSED
-// #define TIMER12_RESP_FUNC TIMER_UNUSED
-// #define TIMER13_RESP_FUNC TIMER_UNUSED
-// #define TIMER14_RESP_FUNC TIMER_UNUSED
-// #define TIMER15_RESP_FUNC TIMER_UNUSED
+#define TIMER9_RESP_FUNC TIMER_UNUSED
+#define TIMER10_RESP_FUNC TIMER_UNUSED
+#define TIMER11_RESP_FUNC TIMER_UNUSED
+#define TIMER12_RESP_FUNC TIMER_UNUSED
+#define TIMER13_RESP_FUNC TIMER_UNUSED
+#define TIMER14_RESP_FUNC TIMER_UNUSED
+//#define TIMER15_RESP_FUNC TIMER_UNUSED
 
-#define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
-#define TIMER10_RESP_FUNC PostLiveService
-#define TIMER11_RESP_FUNC PostGameMonitorService
-#define TIMER12_RESP_FUNC PostDisplayService
-#define TIMER13_RESP_FUNC PostServoService
-#define TIMER14_RESP_FUNC PostLiveService
-#define TIMER15_RESP_FUNC PostWeightSensor
+// #define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
+// #define TIMER10_RESP_FUNC PostLiveService
+// #define TIMER11_RESP_FUNC PostGameMonitorService
+// #define TIMER12_RESP_FUNC PostDisplayService
+// #define TIMER13_RESP_FUNC PostServoService
+// #define TIMER14_RESP_FUNC PostLiveService
+#define TIMER15_RESP_FUNC PostStepMotorService
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
@@ -357,11 +356,6 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-#define WEIGHT_SENSOR_TIMER 15
-#define LIVE_SERVICE_TIMER 14
-#define SERVO_SERVICE_TIMER 13
-#define DISPLAY_SERVICE_TIMER 12
-#define GAME_MONITOR_SERVICE_TIMER 11
-#define TOUCH_BOUNDARY_TIMER 10
-#define DISPLAY_SCORE_TIMER 9
+#define STEP_MOTOR_TIMER 15
+
 #endif /* ES_CONFIGURE_H */
