@@ -45,15 +45,15 @@ bool InitStepMotorService(uint8_t Priority)
     DB_printf("\n\r\n");
 
     TRISAbits.TRISA0 = 0; // PWM output for PWM1
+    ANSELAbits.ANSA0 = 0;
     TRISAbits.TRISA1 = 0; // PWM output for PWM2
     TRISAbits.TRISA2 = 0; // PWM output for PWM3
     TRISAbits.TRISA3 = 0; // PWM output for PWM4
 
     // Configure PWM channels
-    PWMSetup_BasicConfig(1); // Channel 1 for RA0
-    PWMSetup_BasicConfig(2); // Channel 2 for RA1
-    PWMSetup_BasicConfig(3); // Channel 3 for RA2
-    PWMSetup_BasicConfig(4); // Channel 4 for RA3
+    PWMSetup_BasicConfig(4); // Channel 1 for RA0
+    //PWMSetup_BasicConfig(2); // Channel 2 for RA1
+    //PWMSetup_BasicConfig(3); // Channel 3 for RA2
 
     // Assign channels to Timer 2
     PWMSetup_AssignChannelToTimer(1, _Timer2_);
@@ -65,15 +65,15 @@ bool InitStepMotorService(uint8_t Priority)
     PWMSetup_SetPeriodOnTimer(2500, _Timer2_); // Adjust period based on desired frequency and TICS_PER_MS
 
     // Map PWM channels to output pins
-    PWMSetup_MapChannelToOutputPin(1, LATAbits.LATA0);
+    PWMSetup_MapChannelToOutputPin(1, PWM_RPA0);
     PWMSetup_MapChannelToOutputPin(2, PWM_RPA1);
     PWMSetup_MapChannelToOutputPin(3, PWM_RPA3);
     PWMSetup_MapChannelToOutputPin(4, PWM_RPA2);
 
     SPISetup_BasicConfig(SPI_SPI1);
     SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
-    SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
-    SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
+    //SPISetup_MapSSOutput(SPI_SPI1, SPI_RPA0);
+    //SPISetup_MapSDOutput(SPI_SPI1, SPI_RPA1);
 
     SPI1BUF;
     SPISetEnhancedBuffer(SPI_SPI1, 1);
@@ -131,13 +131,13 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
             ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
 
             // Update PWM duty cycles based on the current step
-            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][0], 1);
+            PWMOperate_SetDutyOnChannel(50, 1);
             //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][1], 2);
             //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][2], 3);
             //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][3], 4);
 
 
-            PWMOperate_SetPulseWidthOnChannel(50, 1);
+            //PWMOperate_SetPulseWidthOnChannel(50, 1);
             // Print the current step and duty values
             DB_printf("Current Step: %d\n", currentStep);
             DB_printf("Duty Values: %d, %d, %d, %d\n", 
