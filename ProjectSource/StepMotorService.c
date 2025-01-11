@@ -65,7 +65,7 @@ bool InitStepMotorService(uint8_t Priority)
     PWMSetup_SetPeriodOnTimer(2500, _Timer2_); // Adjust period based on desired frequency and TICS_PER_MS
 
     // Map PWM channels to output pins
-    PWMSetup_MapChannelToOutputPin(1, PWM_RPA0);
+    PWMSetup_MapChannelToOutputPin(1, LATAbits.LATA0);
     PWMSetup_MapChannelToOutputPin(2, PWM_RPA1);
     PWMSetup_MapChannelToOutputPin(3, PWM_RPA3);
     PWMSetup_MapChannelToOutputPin(4, PWM_RPA2);
@@ -112,8 +112,8 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
     {
         if (ThisEvent.EventType == ES_INIT) // only respond to ES_Init
         {
-            PWMOperate_SetDutyOnChannel(100, 1); // Set duty cycle to 0 for channel 0
-            PWMOperate_SetDutyOnChannel(100, 2); // Set duty cycle to 0 for channel 1
+            PWMOperate_SetDutyOnChannel(50, 1); // Set duty cycle to 0 for channel 0
+            PWMOperate_SetDutyOnChannel(50, 2); // Set duty cycle to 0 for channel 1
             PWMOperate_SetDutyOnChannel(2, 3); // Set duty cycle to 0 for channel 2
             PWMOperate_SetDutyOnChannel(3, 4); // Set duty cycle to 0 for channel 3
             ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
@@ -137,7 +137,7 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
             //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][3], 4);
 
 
-            PWMOperate_SetPulseWidthOnChannel(100, 2);
+            PWMOperate_SetPulseWidthOnChannel(50, 1);
             // Print the current step and duty values
             DB_printf("Current Step: %d\n", currentStep);
             DB_printf("Duty Values: %d, %d, %d, %d\n", 
