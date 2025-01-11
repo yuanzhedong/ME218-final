@@ -17,16 +17,16 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint8_t steps_per_second = 100;
+static uint8_t steps_per_second = 1;
 static StepMotorServiceState_t currentState = InitPState;
 static uint16_t TimeOfLastRise;
 static uint16_t TimeOfLastFall;
 
 const int fullStepSeq[4][4] = {
-    {100, 0, 100, 0},  // Step 1
+    {50, 0, 100, 0},  // Step 1
     {0, 100, 100, 0},  // Step 2
     {0, 100, 0, 100},  // Step 3
-    {100, 0, 0, 100}   // Step 4
+    {50, 0, 0, 100}   // Step 4
 };
 
 static int currentStep = 0;
@@ -50,25 +50,25 @@ bool InitStepMotorService(uint8_t Priority)
     TRISAbits.TRISA3 = 0; // PWM output for PWM4
 
     // Configure PWM channels
-    PWMSetup_BasicConfig(0); // Channel 0 for RA0
-    PWMSetup_BasicConfig(1); // Channel 1 for RA1
-    PWMSetup_BasicConfig(2); // Channel 2 for RA2
-    PWMSetup_BasicConfig(3); // Channel 3 for RA3
+    PWMSetup_BasicConfig(1); // Channel 1 for RA0
+    PWMSetup_BasicConfig(2); // Channel 2 for RA1
+    PWMSetup_BasicConfig(3); // Channel 3 for RA2
+    PWMSetup_BasicConfig(4); // Channel 4 for RA3
 
     // Assign channels to Timer 2
-    PWMSetup_AssignChannelToTimer(0, _Timer2_);
     PWMSetup_AssignChannelToTimer(1, _Timer2_);
     PWMSetup_AssignChannelToTimer(2, _Timer2_);
     PWMSetup_AssignChannelToTimer(3, _Timer2_);
+    PWMSetup_AssignChannelToTimer(4, _Timer2_);
 
     // Set PWM Period
-    PWMSetup_SetPeriodOnTimer(50000, _Timer2_); // Adjust period based on desired frequency and TICS_PER_MS
+    PWMSetup_SetPeriodOnTimer(2500, _Timer2_); // Adjust period based on desired frequency and TICS_PER_MS
 
     // Map PWM channels to output pins
-    PWMSetup_MapChannelToOutputPin(0, PWM_RPA0);
-    PWMSetup_MapChannelToOutputPin(1, PWM_RPA1);
-    PWMSetup_MapChannelToOutputPin(2, PWM_RPA2);
+    PWMSetup_MapChannelToOutputPin(1, PWM_RPA0);
+    PWMSetup_MapChannelToOutputPin(2, PWM_RPA1);
     PWMSetup_MapChannelToOutputPin(3, PWM_RPA3);
+    PWMSetup_MapChannelToOutputPin(4, PWM_RPA2);
 
     SPISetup_BasicConfig(SPI_SPI1);
     SPISetup_SetLeader(SPI_SPI1, SPI_SMP_MID);
@@ -112,10 +112,10 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
     {
         if (ThisEvent.EventType == ES_INIT) // only respond to ES_Init
         {
-            PWMOperate_SetDutyOnChannel(0, 0); // Set duty cycle to 0 for channel 0
-            PWMOperate_SetDutyOnChannel(1, 0); // Set duty cycle to 0 for channel 1
-            PWMOperate_SetDutyOnChannel(2, 0); // Set duty cycle to 0 for channel 2
-            PWMOperate_SetDutyOnChannel(3, 0); // Set duty cycle to 0 for channel 3
+            PWMOperate_SetDutyOnChannel(100, 1); // Set duty cycle to 0 for channel 0
+            PWMOperate_SetDutyOnChannel(100, 2); // Set duty cycle to 0 for channel 1
+            PWMOperate_SetDutyOnChannel(2, 3); // Set duty cycle to 0 for channel 2
+            PWMOperate_SetDutyOnChannel(3, 4); // Set duty cycle to 0 for channel 3
             ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
             currentState = WaitForSpeed;
         }
@@ -131,11 +131,13 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
             ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
 
             // Update PWM duty cycles based on the current step
-            PWMOperate_SetDutyOnChannel(0, fullStepSeq[currentStep][0]);
-            PWMOperate_SetDutyOnChannel(1, fullStepSeq[currentStep][1]);
-            PWMOperate_SetDutyOnChannel(2, fullStepSeq[currentStep][2]);
-            PWMOperate_SetDutyOnChannel(3, fullStepSeq[currentStep][3]);
+            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][0], 1);
+            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][1], 2);
+            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][2], 3);
+            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][3], 4);
 
+
+            PWMOperate_SetPulseWidthOnChannel(100, 2);
             // Print the current step and duty values
             DB_printf("Current Step: %d\n", currentStep);
             DB_printf("Duty Values: %d, %d, %d, %d\n", 
@@ -148,12 +150,6 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
             currentStep = (currentStep + 1) % (sizeof(fullStepSeq) / sizeof(fullStepSeq[0]));
             
         }
-        break;
-
-        case ES_NEW_SPEED: {
-
-        }
-        break;
         // repeat cases as required for relevant events
         default:;
         } // end switch on CurrentEvent
