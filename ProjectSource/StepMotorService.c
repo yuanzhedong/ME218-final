@@ -17,16 +17,15 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint8_t steps_per_second = 1;
+static uint8_t steps_per_second = 100;
 static StepMotorServiceState_t currentState = InitPState;
 static uint16_t TimeOfLastRise;
 static uint16_t TimeOfLastFall;
-
-const int fullStepSeq[4][4] = {
-    {50, 0, 100, 0},  // Step 1
+const int Table[4][4] = {
+    {100, 0, 100, 0},  // Step 1
     {0, 100, 100, 0},  // Step 2
     {0, 100, 0, 100},  // Step 3
-    {50, 0, 0, 100}   // Step 4
+    {100, 0, 0, 100}   // Step 4
 };
 
 static int currentStep = 0;
@@ -114,8 +113,8 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
         {
             PWMOperate_SetDutyOnChannel(50, 1); // Set duty cycle to 0 for channel 0
             PWMOperate_SetDutyOnChannel(50, 2); // Set duty cycle to 0 for channel 1
-            PWMOperate_SetDutyOnChannel(2, 3); // Set duty cycle to 0 for channel 2
-            PWMOperate_SetDutyOnChannel(3, 4); // Set duty cycle to 0 for channel 3
+            PWMOperate_SetDutyOnChannel(50, 3); // Set duty cycle to 0 for channel 2
+            PWMOperate_SetDutyOnChannel(50, 4); // Set duty cycle to 0 for channel 3
             ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
             currentState = WaitForSpeed;
         }
@@ -131,23 +130,23 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
             ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
 
             // Update PWM duty cycles based on the current step
-            PWMOperate_SetDutyOnChannel(50, 1);
-            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][1], 2);
-            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][2], 3);
-            //PWMOperate_SetDutyOnChannel(fullStepSeq[currentStep][3], 4);
+            PWMOperate_SetDutyOnChannel(Table[currentStep][0], 1);
+            PWMOperate_SetDutyOnChannel(Table[currentStep][1], 2);
+            PWMOperate_SetDutyOnChannel(Table[currentStep][2], 3);
+            PWMOperate_SetDutyOnChannel(Table[currentStep][3], 4);
 
 
             //PWMOperate_SetPulseWidthOnChannel(50, 1);
             // Print the current step and duty values
             DB_printf("Current Step: %d\n", currentStep);
             DB_printf("Duty Values: %d, %d, %d, %d\n", 
-                      fullStepSeq[currentStep][0], 
-                      fullStepSeq[currentStep][1], 
-                      fullStepSeq[currentStep][2], 
-                      fullStepSeq[currentStep][3]);
+                      Table[currentStep][0], 
+                      Table[currentStep][1], 
+                      Table[currentStep][2], 
+                      Table[currentStep][3]);
 
             // Move to the next step
-            currentStep = (currentStep + 1) % (sizeof(fullStepSeq) / sizeof(fullStepSeq[0]));
+            currentStep = (currentStep + 1) % (sizeof(Table) / sizeof(Table[0]));
             
         }
         // repeat cases as required for relevant events
