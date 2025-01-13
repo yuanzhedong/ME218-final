@@ -24,11 +24,18 @@ static uint16_t forward = 1;
 static StepMotorServiceState_t currentState = InitPState;
 static uint16_t TimeOfLastRise;
 static uint16_t TimeOfLastFall;
+// const int Table[4][4] = {
+//     {100, 0, 100, 0}, // Step 1
+//     {0, 100, 100, 0}, // Step 2
+//     {0, 100, 0, 100}, // Step 3
+//     {100, 0, 0, 100}  // Step 4
+// };
+
 const int Table[4][4] = {
-    {100, 0, 100, 0}, // Step 1
-    {0, 100, 100, 0}, // Step 2
-    {0, 100, 0, 100}, // Step 3
-    {100, 0, 0, 100}  // Step 4
+    {100, 0, 0, 0}, // Step 1: IN1 HIGH
+    {0, 100, 0, 0}, // Step 2: IN2 HIGH
+    {0, 0, 100, 0}, // Step 3: IN3 HIGH
+    {0, 0, 0, 100}  // Step 4: IN4 HIGH
 };
 
 static int currentStep = 0;
