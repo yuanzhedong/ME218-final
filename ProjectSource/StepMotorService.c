@@ -42,16 +42,21 @@ static uint16_t TimeOfLastFall;
 // };
 
 // half step
-const int Table[8][4] = {
-    {100, 0, 100, 0}, // Step 1: Full Step (A+ and B+)
-    {100, 0, 0, 0},   // Step 2: Half Step (A+ only)
-    {0, 0, 100, 0},   // Step 3: Full Step (B+ only)
-    {0, 100, 100, 0}, // Step 4: Half Step (A- and B+)
-    {0, 100, 0, 0},   // Step 5: Full Step (A- only)
-    {0, 100, 0, 100}, // Step 6: Half Step (A- and B-)
-    {0, 0, 0, 100},   // Step 7: Full Step (B- only)
-    {100, 0, 0, 100}  // Step 8: Half Step (A+ and B-)
-};
+// const int Table[8][4] = {
+//     {100, 0, 100, 0}, // Step 1: Full Step (A+ and B+)
+//     {100, 0, 0, 0},   // Step 2: Half Step (A+ only)
+//     {0, 0, 100, 0},   // Step 3: Full Step (B+ only)
+//     {0, 100, 100, 0}, // Step 4: Half Step (A- and B+)
+//     {0, 100, 0, 0},   // Step 5: Full Step (A- only)
+//     {0, 100, 0, 100}, // Step 6: Half Step (A- and B-)
+//     {0, 0, 0, 100},   // Step 7: Full Step (B- only)
+//     {100, 0, 0, 100}  // Step 8: Half Step (A+ and B-)
+// };
+
+// micro step
+const int Table[16][4] = {
+    {71, 0, 71, 0}, {92, 0, 38, 0}, {100, 0, 0, 0}, {92, 0, 0, 38}, {71, 0, 0, 71}, {38, 0, 0, 92}, {0, 0, 0, 100}, {0, 38, 0, 92}, {0, 71, 0, 71}, {0, 92, 0, 38}, {0, 100, 0, 0}, {38, 92, 0, 0}, {71, 71, 0, 0}, {92, 38, 0, 0}, {100, 0, 0, 0}, {92, 0, 38, 0}};
+
 static int currentStep = 0;
 
 bool InitStepMotorService(uint8_t Priority)
