@@ -17,8 +17,8 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint16_t step_interval = 5;
-static uint16_t max_steps = 1000;
+static uint16_t step_interval = 2;
+static uint16_t max_steps = 5000;
 static uint16_t current_total_steps = 0;
 static uint16_t forward = 1;
 static StepMotorServiceState_t currentState = InitPState;
@@ -55,7 +55,22 @@ static uint16_t TimeOfLastFall;
 
 // micro step
 const int Table[16][4] = {
-    {71, 0, 71, 0}, {92, 0, 38, 0}, {100, 0, 0, 0}, {92, 0, 0, 38}, {71, 0, 0, 71}, {38, 0, 0, 92}, {0, 0, 0, 100}, {0, 38, 0, 92}, {0, 71, 0, 71}, {0, 92, 0, 38}, {0, 100, 0, 0}, {38, 92, 0, 0}, {71, 71, 0, 0}, {92, 38, 0, 0}, {100, 0, 0, 0}, {92, 0, 38, 0}};
+    {71, 0, 71, 0}, 
+    {92, 0, 38, 0}, 
+    {100, 0, 0, 0}, 
+    {92, 0, 0, 38}, 
+    {71, 0, 0, 71}, 
+    {38, 0, 0, 92}, 
+    {0, 0, 0, 100}, 
+    {0, 38, 0, 92}, 
+    {0, 71, 0, 71}, 
+    {0, 92, 0, 38}, 
+    {0, 100, 0, 0}, 
+    {0, 92, 38, 0}, 
+    {0, 71, 71, 0}, 
+    {0, 38, 92, 0}, 
+    {0, 0, 100, 0}, 
+    {38, 0, 92, 0}};
 
 static int currentStep = 0;
 
@@ -157,7 +172,8 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
         case ES_NEW_KEY:
         {
             DB_printf("%d\n", ThisEvent.EventParam);
-            step_interval = 3 + ((float)(ThisEvent.EventParam) / 1024) * (8);
+            float step_per_sec = ((float)(ThisEvent.EventParam) / 921) * (500);
+            step_interval = 1000 / step_per_sec;
             DB_printf("step_interval %d\n", step_interval);
         }
         case ES_TIMEOUT:
@@ -221,7 +237,7 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
                 for (uint16_t delayCounter = 0; delayCounter < 65535; delayCounter++)
                 {
                 }
-                currentState = Pause;
+                //currentState = Pause;
             }
         }
         case Pause:
