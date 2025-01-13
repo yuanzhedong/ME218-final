@@ -17,7 +17,10 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint8_t steps_per_second = 100;
+static uint16_t step_interval=3;
+static uint16_t max_steps = 1000;
+static uint16_t current_total_steps = 0;
+static uint16_t forward = 1;
 static StepMotorServiceState_t currentState = InitPState;
 static uint16_t TimeOfLastRise;
 static uint16_t TimeOfLastFall;
@@ -115,7 +118,7 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
             PWMOperate_SetDutyOnChannel(50, 2); // Set duty cycle to 0 for channel 1
             PWMOperate_SetDutyOnChannel(50, 3); // Set duty cycle to 0 for channel 2
             PWMOperate_SetDutyOnChannel(50, 4); // Set duty cycle to 0 for channel 3
-            ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
+            ES_Timer_InitTimer(STEP_MOTOR_TIMER, step_interval);
             currentState = WaitForSpeed;
         }
     }
@@ -125,11 +128,19 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
     {
         switch (ThisEvent.EventType)
         {
+        case ES_NEW_KEY:
+        {
+            DB_printf("%d\n", ThisEvent.EventParam);
+            step_interval = ThisEvent.EventParam;
+        }
         case ES_TIMEOUT:
         {
-            ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
+            //ES_Timer_InitTimer(STEP_MOTOR_TIMER, 1000 / steps_per_second);
+
+            ES_Timer_InitTimer(STEP_MOTOR_TIMER, step_interval);
 
             // Update PWM duty cycles based on the current step
+
             PWMOperate_SetDutyOnChannel(Table[currentStep][0], 1);
             PWMOperate_SetDutyOnChannel(Table[currentStep][1], 2);
             PWMOperate_SetDutyOnChannel(Table[currentStep][2], 3);
@@ -138,15 +149,49 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
 
             //PWMOperate_SetPulseWidthOnChannel(50, 1);
             // Print the current step and duty values
-            DB_printf("Current Step: %d\n", currentStep);
-            DB_printf("Duty Values: %d, %d, %d, %d\n", 
-                      Table[currentStep][0], 
-                      Table[currentStep][1], 
-                      Table[currentStep][2], 
-                      Table[currentStep][3]);
+            //DB_printf("Current Step: %d\n", currentStep);
+            // DB_printf("Duty Values: %d, %d, %d, %d\n", 
+            //           Table[currentStep][0], 
+            //           Table[currentStep][1], 
+            //           Table[currentStep][2], 
+            //           Table[currentStep][3]);
 
             // Move to the next step
-            currentStep = (currentStep + 1) % (sizeof(Table) / sizeof(Table[0]));
+            if (forward == 1) {
+                currentStep = (currentStep + 1) % (sizeof(Table) / sizeof(Table[0]));
+            }
+            
+            if (forward == 0) {
+                if (currentStep == 0) {
+                    currentStep = (sizeof(Table) / sizeof(Table[0])) -1;
+                }
+                else {
+                    currentStep -= 1;
+                }
+            }
+            
+            // current_total_steps+=1;
+           
+
+            // if (forward == 1 && current_total_steps == max_steps) {
+            //     puts("backward");
+            //     forward = 0;
+            //     current_total_steps = 0;
+            //     currentStep = (sizeof(Table) / sizeof(Table[0])) -1;
+            //     for (uint16_t delayCounter = 0; delayCounter< 65535; delayCounter++){} 
+
+            // }
+            // if (forward == 0 && current_total_steps == max_steps) {
+            //     puts("forward");
+            //     forward = 1;
+            //     current_total_steps = 0;
+            //     currentStep = 0;
+            //     for (uint16_t delayCounter = 0; delayCounter< 65535; delayCounter++){}
+            //     //currentState = Pause;
+            // }
+            
+        }
+        case Pause: {
             
         }
         // repeat cases as required for relevant events

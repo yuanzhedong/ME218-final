@@ -15,6 +15,7 @@ typedef enum
 {
     InitPState,
     WaitForSpeed,
+    Pause,
 } StepMotorServiceState_t;
 
 // Public Function Prototypes
