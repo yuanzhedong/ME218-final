@@ -17,7 +17,7 @@
 // with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
 
-static uint16_t step_interval = 3;
+static uint16_t step_interval = 5;
 static uint16_t max_steps = 1000;
 static uint16_t current_total_steps = 0;
 static uint16_t forward = 1;
@@ -33,8 +33,8 @@ static uint16_t TimeOfLastFall;
 
 const int Table[4][4] = {
     {100, 0, 0, 0}, // Step 1: IN1 HIGH
-    {0, 100, 0, 0}, // Step 2: IN2 HIGH
-    {0, 0, 100, 0}, // Step 3: IN3 HIGH
+    {0, 0, 100, 0}, // Step 2: IN2 HIGH
+    {0, 100, 0, 0}, // Step 3: IN3 HIGH
     {0, 0, 0, 100}  // Step 4: IN4 HIGH
 };
 
