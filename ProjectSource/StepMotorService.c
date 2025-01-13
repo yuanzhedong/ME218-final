@@ -132,6 +132,7 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
         {
             DB_printf("%d\n", ThisEvent.EventParam);
             step_interval = 2 + (ThisEvent.EventParam / 1024) * (8);
+            DB_printf("step_interval %d\n", step_interval);
         }
         case ES_TIMEOUT:
         {
