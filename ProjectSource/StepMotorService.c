@@ -181,24 +181,29 @@ ES_Event_t RunStepMotorService(ES_Event_t ThisEvent)
                 }
             }
 
-            // current_total_steps+=1;
+            current_total_steps += 1;
 
-            // if (forward == 1 && current_total_steps == max_steps) {
-            //     puts("backward");
-            //     forward = 0;
-            //     current_total_steps = 0;
-            //     currentStep = (sizeof(Table) / sizeof(Table[0])) -1;
-            //     for (uint16_t delayCounter = 0; delayCounter< 65535; delayCounter++){}
-
-            // }
-            // if (forward == 0 && current_total_steps == max_steps) {
-            //     puts("forward");
-            //     forward = 1;
-            //     current_total_steps = 0;
-            //     currentStep = 0;
-            //     for (uint16_t delayCounter = 0; delayCounter< 65535; delayCounter++){}
-            //     //currentState = Pause;
-            // }
+            if (forward == 1 && current_total_steps == max_steps)
+            {
+                puts("backward");
+                forward = 0;
+                current_total_steps = 0;
+                currentStep = (sizeof(Table) / sizeof(Table[0])) - 1;
+                for (uint16_t delayCounter = 0; delayCounter < 65535; delayCounter++)
+                {
+                }
+            }
+            if (forward == 0 && current_total_steps == max_steps)
+            {
+                puts("forward");
+                forward = 1;
+                current_total_steps = 0;
+                currentStep = 0;
+                for (uint16_t delayCounter = 0; delayCounter < 65535; delayCounter++)
+                {
+                }
+                currentState = Pause;
+            }
         }
         case Pause:
         {
