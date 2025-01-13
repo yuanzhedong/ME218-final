@@ -43,16 +43,15 @@ static uint16_t TimeOfLastFall;
 
 // half step
 const int Table[8][4] = {
-    {1, 0, 0, 0}, // Step 1: A+ (IN1 HIGH)
-    {1, 1, 0, 0}, // Step 2: A+ & B+
-    {0, 1, 0, 0}, // Step 3: B+
-    {0, 1, 1, 0}, // Step 4: B+ & A-
-    {0, 0, 1, 0}, // Step 5: A-
-    {0, 0, 1, 1}, // Step 6: A- & B-
-    {0, 0, 0, 1}, // Step 7: B-
-    {1, 0, 0, 1}  // Step 8: B- & A+
+    {100, 0, 100, 0}, // Step 1: Full Step (A+ and B+)
+    {100, 0, 0, 0},   // Step 2: Half Step (A+ only)
+    {0, 0, 100, 0},   // Step 3: Full Step (B+ only)
+    {0, 100, 100, 0}, // Step 4: Half Step (A- and B+)
+    {0, 100, 0, 0},   // Step 5: Full Step (A- only)
+    {0, 100, 0, 100}, // Step 6: Half Step (A- and B-)
+    {0, 0, 0, 100},   // Step 7: Full Step (B- only)
+    {100, 0, 0, 100}  // Step 8: Half Step (A+ and B-)
 };
-
 static int currentStep = 0;
 
 bool InitStepMotorService(uint8_t Priority)
