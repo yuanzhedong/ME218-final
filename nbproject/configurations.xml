@@ -54,7 +54,7 @@
       <itemPath>ProjectHeaders/DecodeMorseService.h</itemPath>
       <itemPath>ProjectHeaders/PWM_PIC32.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
-      <itemPath>ProjectHeaders/StepMotorService.h</itemPath>
+      <itemPath>ProjectHeaders/PWMService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -80,7 +80,7 @@
       <itemPath>ProjectSource/DecodeMorseService.c</itemPath>
       <itemPath>ProjectSource/PWM_PIC32.c</itemPath>
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
-      <itemPath>ProjectSource/StepMotorService.c</itemPath>
+      <itemPath>ProjectSource/PWMService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -99,7 +99,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>snap</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.30</languageToolchainVersion>
+        <languageToolchainVersion>4.45</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
