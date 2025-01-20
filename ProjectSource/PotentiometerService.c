@@ -34,7 +34,7 @@ uint8_t PostPotentiometerService(ES_Event ThisEvent)
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
-ES_Event RunPotentiometerService(ES_Event ThisEvent)
+ES_Event_t RunPotentiometerService(ES_Event ThisEvent)
 {
     ES_Event ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT;
