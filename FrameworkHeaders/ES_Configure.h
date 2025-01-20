@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 2
+#define NUM_SERVICES 3
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -72,11 +72,11 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "ServoService.h"
+#define SERV_2_HEADER "PotentiometerService.h"
 // the name of the Init function
-#define SERV_2_INIT InitServoService
+#define SERV_2_INIT InitPotentiometerService
 // the name of the run function
-#define SERV_2_RUN RunServoService
+#define SERV_2_RUN RunPotentiometerService
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -263,25 +263,8 @@ typedef enum
     ES_NEW_KEY, /* signals a new key received from terminal */
     ES_LOCK,
     ES_UNLOCK,
-    ES_CALIBRATION_COMPLETE,
-    ES_INIT_MORSE,
-    ES_MORSE_RISE,
-    ES_MORSE_FALL,
-    ES_BUTTON_PRESSED,
-    ES_NEW_COIN_RISING,
-    ES_NEW_COIN_FALLING,
-    ES_START_GAME,
-    ES_END_GAME,
-    ES_TOUCH_BOUNDARY,
-    ES_START_VIBRATION,
-    ES_START_LED_WRITE,
-    ES_LED_WRITE_ROW,
-    ES_MINUS_LIVE,
-    ES_UPDATE_LIVE,
-    ES_START_LED_WRITE_LIVE,
-    ES_RESET_GAME_MONITOR,
-    ES_UPDATE_SCORE,
-    ES_START_LED_WRITE_SCORE,
+    POTENTIOMETER_CHANGED,
+
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -347,7 +330,7 @@ typedef enum
 // #define TIMER12_RESP_FUNC PostDisplayService
 // #define TIMER13_RESP_FUNC PostServoService
 // #define TIMER14_RESP_FUNC PostLiveService
-//#define TIMER15_RESP_FUNC PostStepMotorService
+#define TIMER15_RESP_FUNC POTENTIOMETER_SERVICE_TIMER
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
@@ -356,6 +339,6 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-//#define STEP_MOTOR_TIMER 15
+#define POTENTIOMETER_SERVICE_TIMER 15
 
 #endif /* ES_CONFIGURE_H */
