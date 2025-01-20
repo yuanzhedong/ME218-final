@@ -5,7 +5,6 @@
 #include "ES_Timers.h"
 #include "PIC32_AD_Lib.h"
 
-#define POTENTIOMETER_SERVICE_TIMER 0
 #define POTENTIOMETER_THRESHOLD 10
 
 static uint8_t MyPriority;
@@ -26,17 +25,18 @@ uint8_t InitPotentiometerService(uint8_t Priority)
     // Initialize the ADC to read from RB12 (AN12)
     if (!ADC_ConfigAutoScan(BIT12HI))
         return false;
+    DB_printf("Potentiometer Service Initialized\n");
     return true;
 }
 
-uint8_t PostPotentiometerService(ES_Event ThisEvent)
+uint8_t PostPotentiometerService(ES_Event_t ThisEvent)
 {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
-ES_Event_t RunPotentiometerService(ES_Event ThisEvent)
+ES_Event_t RunPotentiometerService(ES_Event_t ThisEvent)
 {
-    ES_Event ReturnEvent;
+    ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT;
 
     switch (ThisEvent.EventType)
@@ -51,9 +51,10 @@ ES_Event_t RunPotentiometerService(ES_Event ThisEvent)
         if (abs(CurrentPotentiometerValue - LastPotentiometerValue) > POTENTIOMETER_THRESHOLD)
         {
             LastPotentiometerValue = CurrentPotentiometerValue;
-            ES_Event NewEvent;
+            ES_Event_t NewEvent;
             NewEvent.EventType = ES_POTENTIOMETER_CHANGED;
             NewEvent.EventParam = CurrentPotentiometerValue;
+            DB_printf("Potentiometer Value: %d\n", CurrentPotentiometerValue);
             ES_PostAll(NewEvent);
         }
         break;

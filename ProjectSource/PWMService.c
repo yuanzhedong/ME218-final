@@ -22,6 +22,7 @@ void changeDutyCycle(uint16_t newDutyCycle)
     {
         return;
     }
+    DB_printf("Changing duty cycle to %d%%\r\n", newDutyCycle);
     DutyCycle = newDutyCycle;
     OC4RS = (PR2 + 1) * DutyCycle / 100;
 }

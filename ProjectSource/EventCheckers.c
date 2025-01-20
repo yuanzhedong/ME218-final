@@ -120,33 +120,33 @@ bool Check4Keystroke(void)
   return false;
 }
 
-bool ReadPotentiometer(void)
-{
-    static uint16_t LastPotentiometerValue = 0;
-    uint32_t adcResults[1]; // Array to hold the ADC result
-    bool SignalDetected = false;
+// bool ReadPotentiometer(void)
+// {
+//     static uint16_t LastPotentiometerValue = 0;
+//     uint32_t adcResults[1]; // Array to hold the ADC result
+//     bool SignalDetected = false;
 
-    // Configure RB12 as an analog input
-    TRISBbits.TRISB12 = 1; // Set RB12 as input
-    ANSELBbits.ANSB12 = 1; // Set RB12 as analog
+//     // Configure RB12 as an analog input
+//     TRISBbits.TRISB12 = 1; // Set RB12 as input
+//     ANSELBbits.ANSB12 = 1; // Set RB12 as analog
 
-    // Initialize the ADC to read from RB12 (AN12)
-    if (!ADC_ConfigAutoScan(BIT12HI))
-      return false;
+//     // Initialize the ADC to read from RB12 (AN12)
+//     if (!ADC_ConfigAutoScan(BIT12HI))
+//       return false;
 
-    ADC_MultiRead(adcResults); // Read the ADC value
-    uint16_t CurrentPotentiometerValue = (uint16_t)adcResults[0];
-    //DB_printf("Potentiometer Value: %d\n", CurrentPotentiometerValue);
-    // Define a change threshold
-    const uint16_t CHANGE_THRESHOLD = 10;
+//     ADC_MultiRead(adcResults); // Read the ADC value
+//     uint16_t CurrentPotentiometerValue = (uint16_t)adcResults[0];
+//     //DB_printf("Potentiometer Value: %d\n", CurrentPotentiometerValue);
+//     // Define a change threshold
+//     const uint16_t CHANGE_THRESHOLD = 10;
 
-    if (abs(CurrentPotentiometerValue - LastPotentiometerValue) > CHANGE_THRESHOLD)
-    {
-        ES_Event_t PotentiometerEvent = { .EventType = ES_NEW_KEY, .EventParam = CurrentPotentiometerValue };
-        ES_PostAll(PotentiometerEvent);
+//     if (abs(CurrentPotentiometerValue - LastPotentiometerValue) > CHANGE_THRESHOLD)
+//     {
+//         ES_Event_t PotentiometerEvent = { .EventType = ES_NEW_KEY, .EventParam = CurrentPotentiometerValue };
+//         ES_PostAll(PotentiometerEvent);
 
-        SignalDetected = true;
-        LastPotentiometerValue = CurrentPotentiometerValue;
-    }
-    return SignalDetected;
-}
+//         SignalDetected = true;
+//         LastPotentiometerValue = CurrentPotentiometerValue;
+//     }
+//     return SignalDetected;
+// }
