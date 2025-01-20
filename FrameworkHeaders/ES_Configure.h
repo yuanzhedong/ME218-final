@@ -263,7 +263,7 @@ typedef enum
     ES_NEW_KEY, /* signals a new key received from terminal */
     ES_LOCK,
     ES_UNLOCK,
-    POTENTIOMETER_CHANGED,
+    ES_POTENTIOMETER_CHANGED,
 
 } ES_EventType_t;
 

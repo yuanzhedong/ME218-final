@@ -52,7 +52,7 @@ ES_Event RunPotentiometerService(ES_Event ThisEvent)
         {
             LastPotentiometerValue = CurrentPotentiometerValue;
             ES_Event NewEvent;
-            NewEvent.EventType = POTENTIOMETER_CHANGED;
+            NewEvent.EventType = ES_POTENTIOMETER_CHANGED;
             NewEvent.EventParam = CurrentPotentiometerValue;
             ES_PostAll(NewEvent);
         }
