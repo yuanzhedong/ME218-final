@@ -115,6 +115,7 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
             TRISAbits.TRISA0 = 0;
             TRISAbits.TRISA1 = 1;
         }
+        puts("Direction changed.\r\n");
         // Handle timeout events
         // ...
         break;
