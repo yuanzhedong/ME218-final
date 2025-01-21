@@ -102,7 +102,7 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         if (Forward)
         {
             puts("Forward.\r\n");
-            ` LATAbits.LATA2 = 1;
+            LATAbits.LATA2 = 1;
             LATAbits.LATA3 = 0;
         }
         else
