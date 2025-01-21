@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 3
+#define NUM_SERVICES 4
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -84,11 +84,11 @@
 /****************************************************************************/
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
-#define SERV_3_HEADER "StepMotorService.h"
+#define SERV_3_HEADER "EncoderService.h"
 // the name of the Init function
-#define SERV_3_INIT InitStepMotorService
+#define SERV_3_INIT InitEncoderService
 // the name of the run function
-#define SERV_3_RUN RunStepMotorService
+#define SERV_3_RUN RunEncoderService
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 5
 #endif
@@ -321,7 +321,7 @@ typedef enum
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC TIMER_UNUSED
+//#define TIMER14_RESP_FUNC TIMER_UNUSED
 //#define TIMER15_RESP_FUNC TIMER_UNUSED
 
 // #define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
@@ -329,7 +329,7 @@ typedef enum
 // #define TIMER11_RESP_FUNC PostGameMonitorService
 // #define TIMER12_RESP_FUNC PostDisplayService
 // #define TIMER13_RESP_FUNC PostServoService
-//#define TIMER14_RESP_FUNC PostTestHarnessService0
+#define TIMER14_RESP_FUNC PostEncoderService
 #define TIMER15_RESP_FUNC PostPotentiometerService
 
 /****************************************************************************/
@@ -339,7 +339,7 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-//#define SERVICE0_TIMER 14
+#define ENCODER_TIMER 14
 #define POTENTIOMETER_SERVICE_TIMER 15
 
 #endif /* ES_CONFIGURE_H */

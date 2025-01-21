@@ -2,6 +2,7 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "ES_Timers.h"
+#include <sys/attribs.h>
 #include <xc.h> // Include processor files - each processor file is guarded.
 
 #define ENCODER_TIMER 1
@@ -27,13 +28,13 @@ static volatile TimerValue_t PrevVal;
 static volatile uint32_t DeltaTicks = 0; // Time difference between two input captures
 
 // Exact ISR code from the image
-void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void)
-{
+void __ISR(_INPUT_CAPTURE_2_VECTOR,IPL7SOFT) IC2ISR(void){
+
     // Read the IC2 buffer into a variable
     uint16_t CapturedTime = IC2BUF;
 
     // Clear the interrupt flag for IC2
-    IFSCLR = _IFS0_IC2IF_MASK;
+    IFS0CLR = _IFS0_IC2IF_MASK;
 
     // If a rollover has occurred and the Timer 2 interrupt flag is still set
     if ((0x8000 > CapturedTime) && (1 == IFS0bits.T2IF))
@@ -41,7 +42,7 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void)
         // Increment the rollover counter
         RolloverCounter++;
         // Clear the Timer 2 interrupt flag
-        IFSCLR = _IFS0_T2IF_MASK;
+        IFS0CLR = _IFS0_T2IF_MASK;
     }
 
     // Set the lower 16 bits of CurrentVal equal to the captured value
@@ -54,13 +55,14 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void)
 
     // Update the previous captured value
     PrevVal = CurrentVal;
+    puts("encoder interrupt");
 }
 
 // Timer2 ISR for Rollover Handling
-void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
+void __ISR(_TIMER_2_VECTOR,IPL4SOFT) Timer2_ISR(void)
 {
     // Disable interrupts globally
-    _builtin_disable_interrupts();
+    //_builtin_disable_interrupts();
 
     // If the Timer 2 interrupt flag is set
     if (1 == IFS0bits.T2IF)
@@ -68,11 +70,12 @@ void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
         // Increment the rollover counter
         RolloverCounter++;
         // Clear the Timer 2 interrupt flag
-        IFSCLR = _IFS0_T2IF_MASK;
+        IFS0CLR = _IFS0_T2IF_MASK;
+        puts("timer interrupt");
     }
 
     // Enable interrupts globally
-    _builtin_enable_interrupts();
+    //_builtin_enable_interrupts();
 }
 
 uint8_t InitEncoderService(uint8_t Priority)
@@ -127,10 +130,10 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         float RPM = RPS * 60.0;                                  // Convert RPS to RPM
 
         // Send speed as an event
-        ES_Event_t NewEvent;
-        NewEvent.EventType = ES_ENCODER_SPEED;
-        NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
-        PostEncoderService(NewEvent);
+        //ES_Event_t NewEvent;
+        //NewEvent.EventType = ES_ENCODER_SPEED;
+        //NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
+        //PostEncoderService(NewEvent);
 
         break;
 
