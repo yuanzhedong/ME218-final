@@ -69,17 +69,11 @@ bool InitPWMService(uint8_t Priority)
 
     ANSELAbits.ANSA1 = 0;
     ANSELAbits.ANSA0 = 0;
-    if (Forward)
-    {
-        TRISAbits.TRISA0 = 1;
-        TRISAbits.TRISA1 = 0;
-    }
-    else
-    {
-        TRISAbits.TRISA0 = 0;
-        TRISAbits.TRISA1 = 1;
-    }
 
+    TRISAbits.TRISA0 = 0;
+    TRISAbits.TRISA1 = 0;
+    LATAbits.LATA2 = 1;
+    LATAbits.LATA3 = 0;
     puts("PWM Service initialized.\r\n");
     return true;
 }
@@ -108,15 +102,13 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         if (Forward)
         {
             puts("Forward.\r\n");
-
-            TRISAbits.TRISA0 = 1;
-            TRISAbits.TRISA1 = 0;
+            ` LATAbits.LATA2 = 1;
+            LATAbits.LATA3 = 0;
         }
         else
         {
-            puts("Back.\r\n");
-            TRISAbits.TRISA0 = 0;
-            TRISAbits.TRISA1 = 1;
+            LATAbits.LATA2 = 0;
+            LATAbits.LATA3 = 1 puts("Back.\r\n");
         }
 
         // Handle timeout events
