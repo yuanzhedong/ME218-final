@@ -65,6 +65,15 @@ bool InitPWMService(uint8_t Priority)
     T2CONbits.ON = 1;
     // Start Output Compare 1
     OC4CONbits.ON = 1;
+
+    // Set RA0 and RA1 as output
+    TRISAbits.TRISA0 = 0; // Set RA0 as output
+    TRISAbits.TRISA1 = 0; // Set RA1 as output
+
+    // Set RA0 to 1 and RA1 to 0 to move the DC motor forward
+    LATAbits.LATA0 = 1; // Set RA0 high
+    LATAbits.LATA1 = 0; // Set RA1 low
+
     puts("PWM Service initialized.\r\n");
     return true;
 }
