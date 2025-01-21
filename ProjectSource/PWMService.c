@@ -15,6 +15,7 @@
 static uint8_t MyPriority;
 static uint16_t DutyCycle = 50;
 static uint16_t PRx = 12499;
+bool Forward = true;
 
 void changeDutyCycle(uint16_t newDutyCycle)
 {
@@ -65,6 +66,20 @@ bool InitPWMService(uint8_t Priority)
     T2CONbits.ON = 1;
     // Start Output Compare 1
     OC4CONbits.ON = 1;
+
+    ANSELAbits.ANSA1 = 0;
+    ANSELAbits.ANSA0 = 0;
+    if (Forward)
+    {
+        TRISAbits.TRISA0 = 1;
+        TRISAbits.TRISA1 = 0;
+    }
+    else
+    {
+        TRISAbits.TRISA0 = 0;
+        TRISAbits.TRISA1 = 1;
+    }
+
     puts("PWM Service initialized.\r\n");
     return true;
 }
@@ -88,7 +103,18 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         // ...
         break;
 
-    case ES_TIMEOUT:
+    case ES_NEW_KEY:
+        Forward = !Forward;
+        if (Forward)
+        {
+            TRISAbits.TRISA0 = 1;
+            TRISAbits.TRISA1 = 0;
+        }
+        else
+        {
+            TRISAbits.TRISA0 = 0;
+            TRISAbits.TRISA1 = 1;
+        }
         // Handle timeout events
         // ...
         break;
@@ -97,9 +123,9 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
     case ES_POTENTIOMETER_CHANGED:
         // Handle potentiometer changed events
         // Rescale the potentiometer reading from 0-1024 to 0-100
-        //uint16_t scaledValue = ((float)ThisEvent.EventParam * 100) / 1024;
+        // uint16_t scaledValue = ((float)ThisEvent.EventParam * 100) / 1024;
 
-        //uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
+        // uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
 
         changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
         break;
