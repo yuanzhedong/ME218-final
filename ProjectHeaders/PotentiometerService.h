@@ -2,7 +2,7 @@
 #define POTENTIOMETER_SERVICE_H
 
 #include "ES_Events.h"
-#include "ES_Port.h" // needed for definition of REENTRANT
+#include "ES_Port.h"
 
 // Public Function Prototypes
 uint8_t InitPotentiometerService(uint8_t Priority);
