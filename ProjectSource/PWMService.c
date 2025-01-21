@@ -107,15 +107,18 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         Forward = !Forward;
         if (Forward)
         {
+            puts("Forward.\r\n");
+
             TRISAbits.TRISA0 = 1;
             TRISAbits.TRISA1 = 0;
         }
         else
         {
+            puts("Back.\r\n");
             TRISAbits.TRISA0 = 0;
             TRISAbits.TRISA1 = 1;
         }
-        puts("Direction changed.\r\n");
+
         // Handle timeout events
         // ...
         break;
