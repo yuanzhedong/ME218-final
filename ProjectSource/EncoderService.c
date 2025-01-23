@@ -7,6 +7,8 @@
 
 #define TICKS_PER_REVOLUTION 512
 
+static uint8_t max_rpm = 42;
+static uint8_t min_rpm = 25;
 static uint8_t MyPriority;
 static volatile uint16_t EncoderTicks = 0;
 static volatile uint32_t RolloverCounter = 0; // Tracks timer rollovers
@@ -163,7 +165,7 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         
         //uint16_t RPM = RPS * 60.0;                                  // Convert RPS to RPM
 
-        uint16_t RPM = 60 / TimeInterval/5.9;
+        uint16_t RPM = 60 / TimeInterval / 5.9;
         // Send speed as an event
         // ES_Event_t NewEvent;
         // NewEvent.EventType = ES_ENCODER_SPEED;
