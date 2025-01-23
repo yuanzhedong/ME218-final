@@ -28,7 +28,8 @@ static volatile TimerValue_t PrevVal;
 static volatile uint32_t DeltaTicks = 0; // Time difference between two input captures
 
 // Exact ISR code from the image
-void __ISR(_INPUT_CAPTURE_2_VECTOR,IPL7SOFT) IC2ISR(void){
+void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void)
+{
 
     // Read the IC2 buffer into a variable
     uint16_t CapturedTime = IC2BUF;
@@ -59,7 +60,7 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR,IPL7SOFT) IC2ISR(void){
 }
 
 // Timer2 ISR for Rollover Handling
-void __ISR(_TIMER_2_VECTOR,IPL4SOFT) Timer2_ISR(void)
+void __ISR(_TIMER_2_VECTOR, IPL4SOFT) Timer2_ISR(void)
 {
     // Disable interrupts globally
     //_builtin_disable_interrupts();
@@ -82,11 +83,20 @@ uint8_t InitEncoderService(uint8_t Priority)
 {
     MyPriority = Priority;
 
-    // Configure the external interrupt for the encoder
-    TRISBbits.TRISB1 = 1;  // Set RB1 as input
-    INTCONbits.INT1EP = 1; // Interrupt on falling edge
-    IEC0bits.INT1IE = 1;   // Enable INT1 interrupt
-    IFS0bits.INT1IF = 0;   // Clear the interrupt flag
+    // Map RB11 to IC3 using PPS
+    TRISBbits.TRISB11 = 1; // Set RB11 as input
+    ANSELBbits.ANSB11 = 0; // Set RB11 as digital
+    IC3R = 0b0011;         // Assign RB11 as IC3 input
+
+    // Configure IC3
+    IC3CONbits.ICM = 0b011; // Capture rising edges only
+    IC3CONbits.ICTMR = 1;   // Use Timer2 as time base
+    IC3CONbits.ON = 1;      // Enable Input Capture 3
+
+    // Enable IC3 interrupt
+    IFS0bits.IC3IF = 0; // Clear IC3 interrupt flag
+    IEC0bits.IC3IE = 1; // Enable IC3 interrupt
+    IPC3bits.IC3IP = 3; // Set interrupt priority to 3
 
     // Configure Timer2
     T2CON = 0x0000;          // Stop Timer2 and clear configuration
@@ -130,10 +140,10 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         float RPM = RPS * 60.0;                                  // Convert RPS to RPM
 
         // Send speed as an event
-        //ES_Event_t NewEvent;
-        //NewEvent.EventType = ES_ENCODER_SPEED;
-        //NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
-        //PostEncoderService(NewEvent);
+        // ES_Event_t NewEvent;
+        // NewEvent.EventType = ES_ENCODER_SPEED;
+        // NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
+        // PostEncoderService(NewEvent);
 
         break;
 
