@@ -15,6 +15,7 @@
 static uint8_t MyPriority;
 static uint16_t DutyCycle = 50;
 static uint16_t PRx = 12499;
+bool Forward = true;
 
 void changeDutyCycle(uint16_t newDutyCycle)
 {
@@ -66,14 +67,13 @@ bool InitPWMService(uint8_t Priority)
     // Start Output Compare 1
     OC4CONbits.ON = 1;
 
-    // Set RA0 and RA1 as output
-    TRISAbits.TRISA0 = 0; // Set RA0 as output
-    TRISAbits.TRISA1 = 0; // Set RA1 as output
+    ANSELAbits.ANSA1 = 0;
+    ANSELAbits.ANSA0 = 0;
 
-    // Set RA0 to 1 and RA1 to 0 to move the DC motor forward
-    LATAbits.LATA0 = 1; // Set RA0 high
-    LATAbits.LATA1 = 0; // Set RA1 low
-
+    TRISAbits.TRISA0 = 0;
+    TRISAbits.TRISA1 = 0;
+    LATAbits.LATA0 = 1;
+    LATAbits.LATA1 = 0;
     puts("PWM Service initialized.\r\n");
     return true;
 }
@@ -97,7 +97,21 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         // ...
         break;
 
-    case ES_TIMEOUT:
+    case ES_NEW_KEY:
+        Forward = !Forward;
+        if (Forward)
+        {
+            puts("Forward.\r\n");
+            LATAbits.LATA0 = 1;
+            LATAbits.LATA1 = 0;
+        }
+        else
+        {
+            LATAbits.LATA0 = 0;
+            LATAbits.LATA1 = 1;
+            puts("Back.\r\n");
+        }
+
         // Handle timeout events
         // ...
         break;
@@ -106,9 +120,9 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
     case ES_POTENTIOMETER_CHANGED:
         // Handle potentiometer changed events
         // Rescale the potentiometer reading from 0-1024 to 0-100
-        //uint16_t scaledValue = ((float)ThisEvent.EventParam * 100) / 1024;
+        // uint16_t scaledValue = ((float)ThisEvent.EventParam * 100) / 1024;
 
-        //uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
+        // uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
 
         changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
         break;
