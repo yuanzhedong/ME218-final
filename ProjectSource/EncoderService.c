@@ -163,7 +163,7 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         
         //uint16_t RPM = RPS * 60.0;                                  // Convert RPS to RPM
 
-        uint16_t RPM = 60 / TimeInterval;
+        uint16_t RPM = 60 / TimeInterval/5.9;
         // Send speed as an event
         // ES_Event_t NewEvent;
         // NewEvent.EventType = ES_ENCODER_SPEED;
