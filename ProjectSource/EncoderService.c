@@ -56,7 +56,7 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void)
 
     // Update the previous captured value
     PrevVal = CurrentVal;
-    puts("encoder interrupt");
+    // puts("encoder interrupt");
 }
 
 // Timer2 ISR for Rollover Handling
@@ -144,6 +144,9 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         // NewEvent.EventType = ES_ENCODER_SPEED;
         // NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
         // PostEncoderService(NewEvent);
+        DB_printf("Speed: %f RPM\n", RPM);
+        uint16_t CurrentTime = TMR2;
+        DB_printf("Current Time: %d\n", CurrentTime);
 
         break;
 
