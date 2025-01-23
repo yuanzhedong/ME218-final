@@ -27,15 +27,13 @@ static volatile TimerValue_t CurrentVal;
 static volatile TimerValue_t PrevVal;
 static volatile uint32_t DeltaTicks = 0; // Time difference between two input captures
 
-// Exact ISR code from the image
-void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void)
+void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
 {
+    // Read the IC3 buffer into a variable
+    uint16_t CapturedTime = IC3BUF;
 
-    // Read the IC2 buffer into a variable
-    uint16_t CapturedTime = IC2BUF;
-
-    // Clear the interrupt flag for IC2
-    IFS0CLR = _IFS0_IC2IF_MASK;
+    // Clear the interrupt flag for IC3
+    IFS0CLR = _IFS0_IC3IF_MASK;
 
     // If a rollover has occurred and the Timer 2 interrupt flag is still set
     if ((0x8000 > CapturedTime) && (1 == IFS0bits.T2IF))
@@ -58,6 +56,7 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void)
     PrevVal = CurrentVal;
     puts("encoder interrupt");
 }
+
 
 // Timer2 ISR for Rollover Handling
 void __ISR(_TIMER_2_VECTOR, IPL4SOFT) Timer2_ISR(void)
@@ -85,7 +84,7 @@ uint8_t InitEncoderService(uint8_t Priority)
 
     // Map RB11 to IC3 using PPS
     TRISBbits.TRISB11 = 1; // Set RB11 as input
-    ANSELBbits.ANSB11 = 0; // Set RB11 as digital
+    //ANSELBbits.ANSB11 = 0; // Set RB11 as digital
     IC3R = 0b0011;         // Assign RB11 as IC3 input
 
     // Configure IC3
