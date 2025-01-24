@@ -9,6 +9,16 @@
 
 static uint8_t max_rpm = 42;
 static uint8_t min_rpm = 25;
+
+#define LED1 LATBbits.LATB3
+#define LED2 LATBbits.LATB4
+#define LED3 LATBbits.LATB5
+#define LED4 LATBbits.LATB8
+#define LED5 LATBbits.LATB9
+#define LED6 LATBbits.LATB10
+#define LED7 LATBbits.LATB13
+#define LED8 LATBbits.LATB14
+
 static uint8_t MyPriority;
 static volatile uint16_t EncoderTicks = 0;
 static volatile uint32_t RolloverCounter = 0; // Tracks timer rollovers
@@ -52,13 +62,12 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
 
     // Compute the period (in ticks) between two pulses
     DeltaTicks = CurrentVal.FullTime - PrevVal.FullTime;
-    //DB_printf("%d\n", DeltaTicks);                                                          
+    // DB_printf("%d\n", DeltaTicks);
 
     // Update the previous captured value
     PrevVal = CurrentVal;
     // puts("encoder interrupt");
 }
-
 
 // Timer2 ISR for Rollover Handling
 void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
@@ -73,7 +82,7 @@ void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
         RolloverCounter++;
         // Clear the Timer 2 interrupt flag
         IFS0CLR = _IFS0_T2IF_MASK;
-        //puts("timer interrupt");
+        // puts("timer interrupt");
     }
 
     // Enable interrupts globally
@@ -86,8 +95,8 @@ uint8_t InitEncoderService(uint8_t Priority)
 
     // Map RB11 to IC3 using PPS
     TRISBbits.TRISB11 = 1; // Set RB11 as input
-    //ANSELBbits.ANSB11 = 0; // Set RB11 as digital
-    IC3R = 0b0011;         // Assign RB11 as IC3 input
+    // ANSELBbits.ANSB11 = 0; // Set RB11 as digital
+    IC3R = 0b0011; // Assign RB11 as IC3 input
 
     // Configure IC3
     IC3CONbits.ICM = 0b011; // Capture rising edges only
@@ -108,14 +117,13 @@ uint8_t InitEncoderService(uint8_t Priority)
     // IFS0bits.T2IF = 0;       // Clear Timer2 interrupt flag
     // T2CONbits.ON = 1;        // Start Timer2
 
-
     // Configure Timer 2 (to be used for Input Capture)
     // Disable Timer 2
     T2CONbits.ON = 0;
     // Select the internal clock as the source
     T2CONbits.TCS = 0;
-    //T2CONbits.TGATE = 0; //added
-    // Choose a 1:4 prescaler
+    // T2CONbits.TGATE = 0; //added
+    //  Choose a 1:4 prescaler
     T2CONbits.TCKPS = 0b110;
     // Set the initial value of the timer to 0
     TMR2 = 0;
@@ -130,6 +138,23 @@ uint8_t InitEncoderService(uint8_t Priority)
     // Enable Timer 2
     T2CONbits.ON = 1;
 
+    TRISBbits.TRISB3 = 0;  // Set RB3 as output
+    TRISBbits.TRISB4 = 0;  // Set RB4 as output
+    TRISBbits.TRISB5 = 0;  // Set RB5 as output
+    TRISBbits.TRISB8 = 0;  // Set RB8 as output
+    TRISBbits.TRISB9 = 0;  // Set RB9 as output
+    TRISBbits.TRISB13 = 0; // Set RB13 as output
+    TRISBbits.TRISB14 = 0; // Set RB14 as output
+    TRISBbits.TRISB10 = 0; // Set RB10 as output
+
+    LED1 = 0;
+    LED2 = 0;
+    LED3 = 0;
+    LED4 = 0;
+    LED5 = 0;
+    LED6 = 0;
+    LED7 = 0;
+    LED8 = 0;
     // Initialize the timer for speed calculation
     ES_Timer_InitTimer(ENCODER_TIMER, 1000); // 1 second timer
 
@@ -157,13 +182,12 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         ES_Timer_InitTimer(ENCODER_TIMER, 1000);
 
         // Calculate Speed in RPM
-        //float TimeInterval = (float)(DeltaTicks) *  / (20000000 / 64.0);       // DeltaTicks to seconds (PBCLK = 20MHz, prescaler = 64)
+        // float TimeInterval = (float)(DeltaTicks) *  / (20000000 / 64.0);       // DeltaTicks to seconds (PBCLK = 20MHz, prescaler = 64)
         float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
-        //float TimeInterval = 0.4;
-        //float RPS = 1.0 / (TimeInterval * TICKS_PER_REVOLUTION); // Revolutions per second
-        
-        
-        //uint16_t RPM = RPS * 60.0;                                  // Convert RPS to RPM
+        // float TimeInterval = 0.4;
+        // float RPS = 1.0 / (TimeInterval * TICKS_PER_REVOLUTION); // Revolutions per second
+
+        // uint16_t RPM = RPS * 60.0;                                  // Convert RPS to RPM
 
         uint16_t RPM = 60 / TimeInterval / 5.9;
         // Send speed as an event
@@ -178,6 +202,41 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         uint16_t ct = TMR2;
         DB_printf("Current Time: %d\n", ct);
 
+        // Turn on LEDs based on RPM
+        if (RPM >= max_rpm)
+        {
+            LED1 = 1;
+            LED2 = 0;
+            LED3 = 0;
+            LED4 = 0;
+            LED5 = 0;
+            LED6 = 0;
+            LED7 = 0;
+            LED8 = 0;
+        }
+        else if (RPM <= min_rpm)
+        {
+            LED1 = 1;
+            LED2 = 1;
+            LED3 = 1;
+            LED4 = 1;
+            LED5 = 1;
+            LED6 = 1;
+            LED7 = 1;
+            LED8 = 1;
+        }
+        else
+        {
+            uint8_t num_leds = 8 * (RPM - min_rpm) / (max_rpm - min_rpm);
+            LED1 = (num_leds >= 1) ? 1 : 0;
+            LED2 = (num_leds >= 2) ? 1 : 0;
+            LED3 = (num_leds >= 3) ? 1 : 0;
+            LED4 = (num_leds >= 4) ? 1 : 0;
+            LED5 = (num_leds >= 5) ? 1 : 0;
+            LED6 = (num_leds >= 6) ? 1 : 0;
+            LED7 = (num_leds >= 7) ? 1 : 0;
+            LED8 = (num_leds >= 8) ? 1 : 0;
+        }
         break;
 
     default:
