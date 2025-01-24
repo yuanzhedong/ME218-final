@@ -48,12 +48,12 @@ bool InitPWMService(uint8_t Priority)
     // PRx = 1562 - 1 = 1561
 
     // Assuming Timer 2 and Output Compare 4 for PWM
-    T2CONbits.TCKPS = 0b011; // Set prescaler to 1:8
-    PR2 = PRx;               // Set period register for 1 kHz PWM frequency
-    TMR2 = 0;                // Clear timer register
+    T3CONbits.TCKPS = 0b011; // Set prescaler to 1:8
+    PR3 = PRx;               // Set period register for 1 kHz PWM frequency
+    TMR3 = 0;                // Clear timer register
 
     OC4CON = 0x0000;        // Clear OC4CON register
-    OC4CONbits.OCTSEL = 0;  // Select Timer 2 as clock source
+    OC4CONbits.OCTSEL = 1;  // Select Timer 2 as clock source
     OC4CONbits.OCM = 0b110; // Set Output Compare mode to PWM
     OC4R = 6250;            // Set initial duty cycle to 50%
     OC4RS = 6250;           // Set secondary compare register
@@ -63,7 +63,7 @@ bool InitPWMService(uint8_t Priority)
     RPA2R = 0b0101;       // Map OC4 to RA2
 
     // Start Timer 2
-    T2CONbits.ON = 1;
+    T3CONbits.ON = 1;
     // Start Output Compare 1
     OC4CONbits.ON = 1;
 

@@ -64,7 +64,7 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
 
     // Compute the period (in ticks) between two pulses
     DeltaTicks = CurrentVal.FullTime - PrevVal.FullTime;
-    DB_printf("%d\n", DeltaTicks);
+    //DB_printf("%d\n", DeltaTicks);
 
     // Update the previous captured value
     PrevVal = CurrentVal;
