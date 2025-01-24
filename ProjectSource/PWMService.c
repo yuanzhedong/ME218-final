@@ -13,8 +13,8 @@
 
 // Module-level variables
 static uint8_t MyPriority;
-static uint16_t DutyCycle = 50;
-static uint16_t PRx = 12499;
+static uint16_t DutyCycle = 70;
+static uint16_t PRx = 249;
 bool Forward = true;
 
 void changeDutyCycle(uint16_t newDutyCycle)
@@ -25,7 +25,7 @@ void changeDutyCycle(uint16_t newDutyCycle)
     }
     DB_printf("Changing duty cycle to %d%%\r\n", newDutyCycle);
     DutyCycle = newDutyCycle;
-    OC4RS = (PR2 + 1) * DutyCycle / 100;
+    OC4RS = (PR3 + 1) * DutyCycle / 100;
 }
 
 // Function to initialize the PWM Service
@@ -42,6 +42,22 @@ bool InitPWMService(uint8_t Priority)
     // 2.5 MHz / 200 Hz = 12500
     // PRx = 12500 - 1 = 12499
 
+
+    // 2.5 MHz / 250 Hz = 10000
+    // PRx = 10000 - 1 = 9999
+
+    // 2.5 MHz / 500 Hz = 5000
+    // PRx = 5000 - 1 = 4999 
+
+    //2.5 MHz / 1000 Hz = 2500
+    // PRx = 2500 - 1 = 2499
+
+    //2.5 MHz / 2000 Hz = 1250
+    // PRx = 1250 - 1 = 1249
+
+    //2.5 MHz / 10000 Hz = 250
+    //PRx = 250 - 1 = 249 
+    
     // prescale 64
     // 20 MHz / 64 = 312.5 kHz instruction clock
     // 312.5 kHz / 200 Hz = 1562.5
@@ -55,8 +71,8 @@ bool InitPWMService(uint8_t Priority)
     OC4CON = 0x0000;        // Clear OC4CON register
     OC4CONbits.OCTSEL = 1;  // Select Timer 2 as clock source
     OC4CONbits.OCM = 0b110; // Set Output Compare mode to PWM
-    OC4R = 6250;            // Set initial duty cycle to 50%
-    OC4RS = 6250;           // Set secondary compare register
+    OC4R = (PRx + 1) * (float)DutyCycle / 100;            // Set initial duty cycle to 50%
+    OC4RS = (PRx + 1) * (float)DutyCycle / 100;           // Set secondary compare register
 
     // Configure RA2 as output for OC1
     TRISAbits.TRISA2 = 0; // Set RA2 as output
@@ -124,7 +140,7 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
 
         // uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
 
-        changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
+        //changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
         break;
 
     default:

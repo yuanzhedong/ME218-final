@@ -9,7 +9,7 @@
 
 #define OSCOPE LATBbits.LATB15
 
-static uint8_t max_rpm = 45;
+static uint8_t max_rpm = 40;
 static uint8_t min_rpm = 25;
 
 #define LED1 LATBbits.LATB3
