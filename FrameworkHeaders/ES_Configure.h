@@ -264,6 +264,7 @@ typedef enum
     ES_LOCK,
     ES_UNLOCK,
     ES_POTENTIOMETER_CHANGED,
+    ES_NEW_DUTY_CYCLE,
 
 } ES_EventType_t;
 

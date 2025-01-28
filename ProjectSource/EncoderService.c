@@ -1,4 +1,5 @@
 #include "../ProjectHeaders/EncoderService.h"
+#include "../ProjectHeaders/PWMService.h"
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "ES_Timers.h"
@@ -25,6 +26,14 @@ static uint8_t MyPriority;
 static volatile uint16_t EncoderTicks = 0;
 static volatile uint32_t RolloverCounter = 0; // Tracks timer rollovers
 
+static float Kp = 1.0;
+static float Ki = 0.1;
+static float integral = 0.0;
+static float setpoint = 30.0; // Desired RPM
+static float dutyCycle = 0.0;
+static float maxDutyCycle = 100.0;
+static float minDutyCycle = 0.0;
+
 // Add Rollover handling variables
 typedef union
 {
@@ -49,7 +58,7 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
     IFS0CLR = _IFS0_IC3IF_MASK;
 
     // If a rollover has occurred and the Timer 2 interrupt flag is still set
-    if ((0x8000 > CapturedTime) && (1 == IFS0bits.T2IF))
+    if ((312 > CapturedTime) && (1 == IFS0bits.T2IF))
     {
         // Increment the rollover counter
         RolloverCounter++;
@@ -89,6 +98,40 @@ void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
 
     // Enable interrupts globally
     __builtin_enable_interrupts();
+
+   // Calculate the current RPM
+    float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
+    float RPM = 60 / TimeInterval / 5.9;
+
+    // PI control law
+    float error = setpoint - RPM;
+    integral += error * 0.002; // Integral term with 2 ms interval
+
+    // Anti-windup
+    if (integral > maxDutyCycle / Ki)
+    {
+        integral = maxDutyCycle / Ki;
+    }
+    else if (integral < minDutyCycle / Ki)
+    {
+        integral = minDutyCycle / Ki;
+    }
+
+    dutyCycle = Kp * error + Ki * integral;
+
+    // Clamp duty cycle
+    if (dutyCycle > maxDutyCycle)
+    {
+        dutyCycle = maxDutyCycle;
+    }
+    else if (dutyCycle < minDutyCycle)
+    {
+        dutyCycle = minDutyCycle;
+    }
+    ES_Event_t NewEvent = {ES_NEW_DUTY_CYCLE, (uint16_t)dutyCycle};
+    DB_printf("Duty Cycle: %d\n", (uint16_t)dutyCycle);
+    //PostPWMService(NewEvent);
+
 }
 
 uint8_t InitEncoderService(uint8_t Priority)
@@ -125,12 +168,14 @@ uint8_t InitEncoderService(uint8_t Priority)
     // Select the internal clock as the source
     T2CONbits.TCS = 0;
     // T2CONbits.TGATE = 0; //added
-    //  Choose a 1:4 prescaler
+    //  Choose a 1:64 prescaler
     T2CONbits.TCKPS = 0b110;
     // Set the initial value of the timer to 0
     TMR2 = 0;
     // Set the Period Register value to the max
-    PR2 = 0xFFFF;
+    //PR2 = 0xFFFF;
+    // Set the Period Register value to 624
+    PR2 = 624;
     // Clear the Timer 2 interrupt flag
     IFS0CLR = _IFS0_T2IF_MASK;
     // Set the priority of the Timer 2 interrupt to 6
@@ -203,11 +248,11 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         // NewEvent.EventType = ES_ENCODER_SPEED;
         // NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
         // PostEncoderService(NewEvent);
-        DB_printf("Deltaticks: %d\n", DeltaTicks);
+        //DB_printf("Deltaticks: %d\n", DeltaTicks);
         //DB_printf("TimeInterval is : %f\n", TimeInterval);
 
         OSCOPE=1;
-        DB_printf("Speed: %d RPM\n", RPM);
+        //DB_printf("Speed: %d RPM\n", RPM);
         OSCOPE=0;
         uint16_t ct = TMR2;
         //DB_printf("Current Time: %d\n", ct);
@@ -252,7 +297,7 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
             LED6 = (num_leds >= 6) ? 1 : 0;
             LED7 = (num_leds >= 7) ? 1 : 0;
             LED8 = (num_leds >= 8) ? 1 : 0;
-            DB_printf("%d LEDs", num_leds);
+            //DB_printf("%d LEDs", num_leds);
         }
         //OSCOPE=0;
         break;

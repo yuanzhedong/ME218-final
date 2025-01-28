@@ -14,7 +14,7 @@
 // Module-level variables
 static uint8_t MyPriority;
 static uint16_t DutyCycle = 70;
-static uint16_t PRx = 249;
+static uint16_t PRx = 12499;
 bool Forward = true;
 
 void changeDutyCycle(uint16_t newDutyCycle)
@@ -138,9 +138,13 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         // Rescale the potentiometer reading from 0-1024 to 0-100
         // uint16_t scaledValue = ((float)ThisEvent.EventParam * 100) / 1024;
 
-        // uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
+        //uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
 
-        //changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
+        changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
+        break;
+
+    case ES_NEW_DUTY_CYCLE:
+        changeDutyCycle(ThisEvent.EventParam);
         break;
 
     default:
