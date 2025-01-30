@@ -25,7 +25,16 @@ void changeDutyCycle(uint16_t newDutyCycle)
     }
     DB_printf("Changing duty cycle to %d%%\r\n", newDutyCycle);
     DutyCycle = newDutyCycle;
-    OC4RS = (PR3 + 1) * DutyCycle / 100;
+    if (Forward)
+    {
+        OC4R = (PR3 + 1) * DutyCycle / 100;
+        OC4RS = (PR3 + 1) * DutyCycle / 100;
+    }
+    else
+    {
+        OC4R = (PR3 + 1) * (100 - DutyCycle) / 100;
+        OC4RS = (PR3 + 1) * (100 - DutyCycle) / 100;
+    }
 }
 
 // Function to initialize the PWM Service
@@ -74,6 +83,11 @@ bool InitPWMService(uint8_t Priority)
     OC4R = (PRx + 1) * (float)DutyCycle / 100;            // Set initial duty cycle to 50%
     OC4RS = (PRx + 1) * (float)DutyCycle / 100;           // Set secondary compare register
 
+    TRISAbits.TRISA0 = 0;
+    TRISAbits.TRISA1 = 0;
+    LATAbits.LATA0 = 1;
+    LATAbits.LATA1 = 0;
+
     // Configure RA2 as output for OC1
     TRISAbits.TRISA2 = 0; // Set RA2 as output
     RPA2R = 0b0101;       // Map OC4 to RA2
@@ -86,10 +100,7 @@ bool InitPWMService(uint8_t Priority)
     ANSELAbits.ANSA1 = 0;
     ANSELAbits.ANSA0 = 0;
 
-    TRISAbits.TRISA0 = 0;
-    TRISAbits.TRISA1 = 0;
-    LATAbits.LATA0 = 1;
-    LATAbits.LATA1 = 0;
+    
     puts("PWM Service initialized.\r\n");
     return true;
 }
@@ -118,12 +129,12 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         if (Forward)
         {
             puts("Forward.\r\n");
-            LATAbits.LATA0 = 1;
+            changeDutyCycle(DutyCycle);
             LATAbits.LATA1 = 0;
         }
         else
         {
-            LATAbits.LATA0 = 0;
+            changeDutyCycle(DutyCycle);
             LATAbits.LATA1 = 1;
             puts("Back.\r\n");
         }

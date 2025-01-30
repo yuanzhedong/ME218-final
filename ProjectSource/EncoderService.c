@@ -129,7 +129,7 @@ void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
         dutyCycle = minDutyCycle;
     }
     ES_Event_t NewEvent = {ES_NEW_DUTY_CYCLE, (uint16_t)dutyCycle};
-    DB_printf("Duty Cycle: %d\n", (uint16_t)dutyCycle);
+    //DB_printf("Duty Cycle: %d\n", (uint16_t)dutyCycle);
     //PostPWMService(NewEvent);
 
 }
