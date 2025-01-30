@@ -25,14 +25,21 @@ static uint8_t min_rpm = 25;
 static uint8_t MyPriority;
 static volatile uint16_t EncoderTicks = 0;
 static volatile uint32_t RolloverCounter = 0; // Tracks timer rollovers
+static volatile uint16_t RPM = 0;
+static uint16_t TargetRPM = 100;
+volatile static uint16_t Error;
+volatile static uint16_t ErrorSum;
+
 
 static float Kp = 1.0;
 static float Ki = 0.1;
 static float integral = 0.0;
 static float setpoint = 30.0; // Desired RPM
 static float dutyCycle = 0.0;
+static float TargetDC = 0.0;
 static float maxDutyCycle = 100.0;
 static float minDutyCycle = 0.0;
+static uint16_t PRx = 12499; // from PW1Service
 
 // Add Rollover handling variables
 typedef union
@@ -48,6 +55,12 @@ typedef union
 static volatile TimerValue_t CurrentVal;
 static volatile TimerValue_t PrevVal;
 static volatile uint32_t DeltaTicks = 0; // Time difference between two input captures
+
+void calcualteRPM(uint16_t DeltaTicks)
+{
+    float RPS = 512 * (float)(DeltaTicks) * 64 / 20000000;
+    RPM = 60 / RPS / 5.9;
+}
 
 void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
 {
@@ -98,40 +111,37 @@ void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
 
     // Enable interrupts globally
     __builtin_enable_interrupts();
+}
 
-   // Calculate the current RPM
-    float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
-    float RPM = 60 / TimeInterval / 5.9;
-
-    // PI control law
-    float error = setpoint - RPM;
-    integral += error * 0.002; // Integral term with 2 ms interval
-
-    // Anti-windup
-    if (integral > maxDutyCycle / Ki)
-    {
-        integral = maxDutyCycle / Ki;
+void __ISR(_TIMER_4_VECTOR,IPL6SOFT) CONTROL_ISR(void){
+    // Raise the OSCOPE pin to begin timing
+    //OSCOPE = 1;
+    // Clear the Timer 2 interrupt flag
+    IFS0CLR = _IFS0_T4IF_MASK;
+    // Compute the error in attaining the target velocity
+    Error = TargetRPM - RPM;
+    // Add to the sum of errors over time
+    ErrorSum += Error;
+    // Compute the required duty cycle
+    TargetDC = Kp*Error + Ki*ErrorSum;
+    // Convert the duty cycle into the tick value for OC2RS
+    // Account for saturation
+    if(TargetDC > 100){
+        TargetDC = 100;
+        ErrorSum -= Error;
+    }else if(TargetDC < 0){
+        TargetDC = 0;
+        ErrorSum -= Error;
     }
-    else if (integral < minDutyCycle / Ki)
-    {
-        integral = minDutyCycle / Ki;
-    }
+    OC2RS = (uint16_t)TargetDC*PRx/100;
+    //DB_printf("TargetDC: %d\n", TargetDC);
+    //DB_printf("Error: %d\n", Error);
+    //DB_printf("TargetRPM: %d\n", TargetRPM);
+    //DB_printf("RPM: %d\n", RPM);
 
-    dutyCycle = Kp * error + Ki * integral;
-
-    // Clamp duty cycle
-    if (dutyCycle > maxDutyCycle)
-    {
-        dutyCycle = maxDutyCycle;
-    }
-    else if (dutyCycle < minDutyCycle)
-    {
-        dutyCycle = minDutyCycle;
-    }
-    ES_Event_t NewEvent = {ES_NEW_DUTY_CYCLE, (uint16_t)dutyCycle};
-    //DB_printf("Duty Cycle: %d\n", (uint16_t)dutyCycle);
-    //PostPWMService(NewEvent);
-
+    //DB_printf("Duty Cycle: %d\n", TargetDC);
+    // Lower the OSCOPE pin to end timing
+    //OSCOPE = 0;
 }
 
 uint8_t InitEncoderService(uint8_t Priority)
@@ -175,7 +185,7 @@ uint8_t InitEncoderService(uint8_t Priority)
     // Set the Period Register value to the max
     //PR2 = 0xFFFF;
     // Set the Period Register value to 624
-    PR2 = 624;
+    PR2 = 0xFFFF;
     // Clear the Timer 2 interrupt flag
     IFS0CLR = _IFS0_T2IF_MASK;
     // Set the priority of the Timer 2 interrupt to 6
@@ -184,6 +194,29 @@ uint8_t InitEncoderService(uint8_t Priority)
     IEC0SET = _IEC0_T2IE_MASK;
     // Enable Timer 2
     T2CONbits.ON = 1;
+
+
+
+    // Configure Timer 4 as an interrupt to implement the control law
+    // Disable Timer 4
+    T4CONbits.ON = 0;
+    // Select the internal clock as the source
+    T4CONbits.TCS = 0;
+    // Choose a 1:2 prescaler
+    T4CONbits.TCKPS = 0b001;
+    // Set the initial value of the timer to 0
+    TMR4 = 0;
+    // 0.002/(2/20000000) = 20000
+    // Set interrupt period to 2 ms
+    PR4 = 19999;
+    // Clear the Timer 4 interrupt flag
+    IFS0CLR = _IFS0_T4IF_MASK;
+    // Set the priority of the Timer 4 interrupt to 6
+    IPC4bits.T4IP = 6;
+    // Enable interrupts from Timer 4
+    IEC0SET = _IEC0_T4IE_MASK;
+    // Enable Timer 4
+    T4CONbits.ON = 1;
 
     TRISBbits.TRISB3 = 0;  // Set RB3 as output
     TRISBbits.TRISB4 = 0;  // Set RB4 as output
