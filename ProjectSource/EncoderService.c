@@ -10,7 +10,7 @@
 
 #define OSCOPE LATBbits.LATB15
 
-static uint8_t max_rpm = 40;
+static uint8_t max_rpm = 50;
 static uint8_t min_rpm = 25;
 
 #define LED1 LATBbits.LATB3
@@ -29,7 +29,6 @@ static volatile uint16_t RPM = 0;
 static uint16_t TargetRPM = 43;
 volatile static uint16_t Error;
 volatile static uint16_t ErrorSum;
-
 
 static float Kp = 1.0;
 static float Ki = 0.1;
@@ -55,6 +54,11 @@ typedef union
 static volatile TimerValue_t CurrentVal;
 static volatile TimerValue_t PrevVal;
 static volatile uint32_t DeltaTicks = 0; // Time difference between two input captures
+
+void calculateTargetRPM(float potValue)
+{
+    TargetRPM = (max_rpm - min_rpm) * potValue / 1023.0) + min_rpm;
+}
 
 void calcualteRPM(uint16_t DeltaTicks)
 {
@@ -86,7 +90,7 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
 
     // Compute the period (in ticks) between two pulses
     DeltaTicks = CurrentVal.FullTime - PrevVal.FullTime;
-    //DB_printf("%d\n", DeltaTicks);
+    // DB_printf("%d\n", DeltaTicks);
 
     // Update the previous captured value
     PrevVal = CurrentVal;
@@ -114,9 +118,10 @@ void __ISR(_TIMER_2_VECTOR, IPL6SOFT) Timer2_ISR(void)
     __builtin_enable_interrupts();
 }
 
-void __ISR(_TIMER_4_VECTOR,IPL6SOFT) CONTROL_ISR(void){
+void __ISR(_TIMER_4_VECTOR, IPL6SOFT) CONTROL_ISR(void)
+{
     // Raise the OSCOPE pin to begin timing
-    //OSCOPE = 1;
+    // OSCOPE = 1;
     // Clear the Timer 2 interrupt flag
     IFS0CLR = _IFS0_T4IF_MASK;
     // Compute the error in attaining the target velocity
@@ -124,25 +129,28 @@ void __ISR(_TIMER_4_VECTOR,IPL6SOFT) CONTROL_ISR(void){
     // Add to the sum of errors over time
     ErrorSum += Error;
     // Compute the required duty cycle
-    TargetDC = Kp*Error + Ki*ErrorSum;
+    TargetDC = Kp * Error + Ki * ErrorSum;
     // Convert the duty cycle into the tick value for OC2RS
     // Account for saturation
-    if(TargetDC > 100){
+    if (TargetDC > 100)
+    {
         TargetDC = 100;
         ErrorSum -= Error;
-    }else if(TargetDC < 0){
+    }
+    else if (TargetDC < 0)
+    {
         TargetDC = 0;
         ErrorSum -= Error;
     }
-    OC2RS = (uint16_t)TargetDC*PRx/100;
-    //DB_printf("TargetDC: %d\n", TargetDC);
-    //DB_printf("Error: %d\n", Error);
-    //DB_printf("TargetRPM: %d\n", TargetRPM);
-    //DB_printf("RPM: %d\n", RPM);
+    OC2RS = (uint16_t)TargetDC * PRx / 100;
+    // DB_printf("TargetDC: %d\n", TargetDC);
+    // DB_printf("Error: %d\n", Error);
+    // DB_printf("TargetRPM: %d\n", TargetRPM);
+    // DB_printf("RPM: %d\n", RPM);
 
-    //DB_printf("Duty Cycle: %d\n", TargetDC);
-    // Lower the OSCOPE pin to end timing
-    //OSCOPE = 0;
+    // DB_printf("Duty Cycle: %d\n", TargetDC);
+    //  Lower the OSCOPE pin to end timing
+    // OSCOPE = 0;
 }
 
 uint8_t InitEncoderService(uint8_t Priority)
@@ -184,7 +192,7 @@ uint8_t InitEncoderService(uint8_t Priority)
     // Set the initial value of the timer to 0
     TMR2 = 0;
     // Set the Period Register value to the max
-    //PR2 = 0xFFFF;
+    // PR2 = 0xFFFF;
     // Set the Period Register value to 624
     PR2 = 0xFFFF;
     // Clear the Timer 2 interrupt flag
@@ -195,8 +203,6 @@ uint8_t InitEncoderService(uint8_t Priority)
     IEC0SET = _IEC0_T2IE_MASK;
     // Enable Timer 2
     T2CONbits.ON = 1;
-
-
 
     // Configure Timer 4 as an interrupt to implement the control law
     // Disable Timer 4
@@ -237,7 +243,7 @@ uint8_t InitEncoderService(uint8_t Priority)
     LED6 = 0;
     LED7 = 0;
     LED8 = 0;
-    OSCOPE=0;
+    OSCOPE = 0;
     // Initialize the timer for speed calculation
     ES_Timer_InitTimer(ENCODER_TIMER, 1000); // 1 second timer
 
@@ -267,81 +273,36 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         // Calculate Speed in RPM
         // float TimeInterval = (float)(DeltaTicks) *  / (20000000 / 64.0);       // DeltaTicks to seconds (PBCLK = 20MHz, prescaler = 64)
 
-
-        //OSCOPE=1;
-        //float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
-        //DB_printf("Deltaticks: %d\n", RPM);
-        // float TimeInterval = 0.4;
-        // float RPS = 1.0 / (TimeInterval * TICKS_PER_REVOLUTION); // Revolutions per second
+        // OSCOPE=1;
+        // float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
+        // DB_printf("Deltaticks: %d\n", RPM);
+        //  float TimeInterval = 0.4;
+        //  float RPS = 1.0 / (TimeInterval * TICKS_PER_REVOLUTION); // Revolutions per second
 
         // uint16_t RPM = RPS * 60.0;                                  // Convert RPS to RPM
 
-        //uint16_t RPM = 60 / TimeInterval / 5.9;
+        // uint16_t RPM = 60 / TimeInterval / 5.9;
         DB_printf("TargetDC: %d\n", (uint16_t)TargetDC);
 
         DB_printf("Error: %d\n", (uint16_t)Error);
-        //DB_printf("TargetRPM: %d\n", TargetRPM);
+        // DB_printf("TargetRPM: %d\n", TargetRPM);
         DB_printf("RPM: %d\n", RPM);
-        DB_printf("duty counter: %d\n", (uint16_t)TargetDC*PRx/100);
+        DB_printf("duty counter: %d\n", (uint16_t)TargetDC * PRx / 100);
 
-        //OSCOPE=0;
-        // Send speed as an event
-        // ES_Event_t NewEvent;
-        // NewEvent.EventType = ES_ENCODER_SPEED;
-        // NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
-        // PostEncoderService(NewEvent);
-        //DB_printf("Deltaticks: %d\n", DeltaTicks);
-        //DB_printf("TimeInterval is : %f\n", TimeInterval);
-
-        OSCOPE=1;
-        //DB_printf("Speed: %d RPM\n", RPM);
-        OSCOPE=0;
-        uint16_t ct = TMR2;
-        //DB_printf("Current Time: %d\n", ct);
-
-        //OSCOPE=1;
-        //RPM=30;
-        // Turn on LEDs based on RPM
-        if (RPM >= max_rpm)
-        {
-            LED1 = 1;
-            LED2 = 0;
-            LED3 = 0;
-            LED4 = 0;
-            LED5 = 0;
-            LED6 = 0;
-            LED7 = 0;
-            LED8 = 0;
-            puts("1 LED MAX\n");
-        }
-        else if (RPM <= min_rpm)
-        {
-            LED1 = 1;
-            LED2 = 1;
-            LED3 = 1;
-            LED4 = 1;
-            LED5 = 1;
-            LED6 = 1;
-            LED7 = 1;
-            LED8 = 1;
-            puts("8 LED MIN");
-        }
-        else
-        {
-            uint8_t num_leds = 8 * (float)(RPM - min_rpm) / (max_rpm - min_rpm);
-            //num_leds=8;
-            
-            LED1 = (num_leds >= 1) ? 1 : 0;
-            LED2 = (num_leds >= 2) ? 1 : 0;
-            LED3 = (num_leds >= 3) ? 1 : 0;
-            LED4 = (num_leds >= 4) ? 1 : 0;
-            LED5 = (num_leds >= 5) ? 1 : 0;
-            LED6 = (num_leds >= 6) ? 1 : 0;
-            LED7 = (num_leds >= 7) ? 1 : 0;
-            LED8 = (num_leds >= 8) ? 1 : 0;
-            //DB_printf("%d LEDs", num_leds);
-        }
-        //OSCOPE=0;
+        // OSCOPE=0;
+        //  Send speed as an event
+        //  ES_Event_t NewEvent;
+        //  NewEvent.EventType = ES_ENCODER_SPEED;
+        //  NewEvent.EventParam = (uint16_t)(RPM * 100); // Speed * 100 to preserve two decimal places
+        //  PostEncoderService(NewEvent);
+        // DB_printf("Deltaticks: %d\n", DeltaTicks);
+        // DB_printf("TimeInterval is : %f\n", TimeInterval);
+        break;
+    case ES_POTENTIOMETER_CHANGED:
+        // Set the new duty cycle
+        // dutyCycle = ThisEvent.EventParam;
+        calculateTargetRPM(ThisEvent.EventParam);
+        DB_printf("TargetRPM: %d\n", TargetRPM);
         break;
 
     default:
