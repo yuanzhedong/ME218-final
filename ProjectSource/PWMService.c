@@ -14,7 +14,7 @@
 // Module-level variables
 static uint8_t MyPriority;
 static uint16_t DutyCycle = 70;
-static uint16_t PRx = 12499;
+static uint16_t PRx = 2399;
 bool Forward = true;
 
 void changeDutyCycle(uint16_t newDutyCycle)
@@ -51,37 +51,36 @@ bool InitPWMService(uint8_t Priority)
     // 2.5 MHz / 200 Hz = 12500
     // PRx = 12500 - 1 = 12499
 
-
     // 2.5 MHz / 250 Hz = 10000
     // PRx = 10000 - 1 = 9999
 
     // 2.5 MHz / 500 Hz = 5000
-    // PRx = 5000 - 1 = 4999 
+    // PRx = 5000 - 1 = 4999
 
-    //2.5 MHz / 1000 Hz = 2500
-    // PRx = 2500 - 1 = 2499
+    // 2.5 MHz / 1000 Hz = 2500
+    //  PRx = 2500 - 1 = 2499
 
-    //2.5 MHz / 2000 Hz = 1250
-    // PRx = 1250 - 1 = 1249
+    // 2.5 MHz / 2000 Hz = 1250
+    //  PRx = 1250 - 1 = 1249
 
-    //2.5 MHz / 10000 Hz = 250
-    //PRx = 250 - 1 = 249 
-    
+    // 2.5 MHz / 10000 Hz = 250
+    // PRx = 250 - 1 = 249
+
     // prescale 64
     // 20 MHz / 64 = 312.5 kHz instruction clock
     // 312.5 kHz / 200 Hz = 1562.5
     // PRx = 1562 - 1 = 1561
 
     // Assuming Timer 2 and Output Compare 4 for PWM
-    T3CONbits.TCKPS = 0b011; // Set prescaler to 1:8
+    T3CONbits.TCKPS = 0b000; // Set prescaler to 1:1
     PR3 = PRx;               // Set period register for 1 kHz PWM frequency
     TMR3 = 0;                // Clear timer register
 
-    OC4CON = 0x0000;        // Clear OC4CON register
-    OC4CONbits.OCTSEL = 1;  // Select Timer 2 as clock source
-    OC4CONbits.OCM = 0b110; // Set Output Compare mode to PWM
-    OC4R = (PRx + 1) * (float)DutyCycle / 100;            // Set initial duty cycle to 50%
-    OC4RS = (PRx + 1) * (float)DutyCycle / 100;           // Set secondary compare register
+    OC4CON = 0x0000;                            // Clear OC4CON register
+    OC4CONbits.OCTSEL = 1;                      // Select Timer 2 as clock source
+    OC4CONbits.OCM = 0b110;                     // Set Output Compare mode to PWM
+    OC4R = (PRx + 1) * (float)DutyCycle / 100;  // Set initial duty cycle to 50%
+    OC4RS = (PRx + 1) * (float)DutyCycle / 100; // Set secondary compare register
 
     TRISAbits.TRISA0 = 0;
     TRISAbits.TRISA1 = 0;
@@ -100,7 +99,6 @@ bool InitPWMService(uint8_t Priority)
     ANSELAbits.ANSA1 = 0;
     ANSELAbits.ANSA0 = 0;
 
-    
     puts("PWM Service initialized.\r\n");
     return true;
 }
@@ -149,13 +147,13 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
         // Rescale the potentiometer reading from 0-1024 to 0-100
         // uint16_t scaledValue = ((float)ThisEvent.EventParam * 100) / 1024;
 
-        //uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
+        // uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
 
-        //changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
+        changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
         break;
 
     case ES_NEW_DUTY_CYCLE:
-        //changeDutyCycle(ThisEvent.EventParam);
+        // changeDutyCycle(ThisEvent.EventParam);
         break;
 
     default:

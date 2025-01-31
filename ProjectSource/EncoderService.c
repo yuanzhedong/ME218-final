@@ -33,12 +33,11 @@ volatile static float ErrorSum;
 static float Kp = 1.0;
 static float Ki = 0.1;
 static float integral = 0.0;
-static float setpoint = 30.0; // Desired RPM
 static float dutyCycle = 0.0;
 static float TargetDC = 0.0;
 static float maxDutyCycle = 100.0;
 static float minDutyCycle = 0.0;
-static uint16_t PRx = 12499; // from PW1Service
+static uint16_t PRx = 2399; // from PW1Service
 
 // Add Rollover handling variables
 typedef union
@@ -62,14 +61,15 @@ void calculateTargetRPM(float potValue)
 
 void calcualteRPM(uint16_t DeltaTicks)
 {
-    if (DeltaTicks == 0) {
+    if (DeltaTicks == 0)
+    {
         RPM = 0;
     }
-    else {
+    else
+    {
         float RPS = 512 * (float)(DeltaTicks) * 64 / 20000000;
         RPM = 60 / RPS / 5.9;
     }
-    
 }
 
 void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
@@ -308,7 +308,7 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         // Set the new duty cycle
         // dutyCycle = ThisEvent.EventParam;
         calculateTargetRPM(ThisEvent.EventParam);
-        
+
         break;
 
     default:
