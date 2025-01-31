@@ -26,7 +26,7 @@ static uint8_t MyPriority;
 static volatile uint16_t EncoderTicks = 0;
 static volatile uint32_t RolloverCounter = 0; // Tracks timer rollovers
 static volatile uint16_t RPM = 0;
-static uint16_t TargetRPM = 100;
+static uint16_t TargetRPM = 43;
 volatile static uint16_t Error;
 volatile static uint16_t ErrorSum;
 
@@ -90,6 +90,7 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
 
     // Update the previous captured value
     PrevVal = CurrentVal;
+    calcualteRPM(DeltaTicks);
     // puts("encoder interrupt");
 }
 
@@ -268,13 +269,21 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
 
 
         //OSCOPE=1;
-        float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
+        //float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
+        //DB_printf("Deltaticks: %d\n", RPM);
         // float TimeInterval = 0.4;
         // float RPS = 1.0 / (TimeInterval * TICKS_PER_REVOLUTION); // Revolutions per second
 
         // uint16_t RPM = RPS * 60.0;                                  // Convert RPS to RPM
 
-        uint16_t RPM = 60 / TimeInterval / 5.9;
+        //uint16_t RPM = 60 / TimeInterval / 5.9;
+        DB_printf("TargetDC: %d\n", (uint16_t)TargetDC);
+
+        DB_printf("Error: %d\n", (uint16_t)Error);
+        //DB_printf("TargetRPM: %d\n", TargetRPM);
+        DB_printf("RPM: %d\n", RPM);
+        DB_printf("duty counter: %d\n", (uint16_t)TargetDC*PRx/100);
+
         //OSCOPE=0;
         // Send speed as an event
         // ES_Event_t NewEvent;
