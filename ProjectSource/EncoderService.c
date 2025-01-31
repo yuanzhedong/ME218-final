@@ -27,8 +27,8 @@ static volatile uint16_t EncoderTicks = 0;
 static volatile uint32_t RolloverCounter = 0; // Tracks timer rollovers
 static volatile uint16_t RPM = 0;
 static uint16_t TargetRPM = 43;
-volatile static uint16_t Error;
-volatile static uint16_t ErrorSum;
+volatile static float Error;
+volatile static float ErrorSum;
 
 static float Kp = 1.0;
 static float Ki = 0.1;
@@ -57,13 +57,19 @@ static volatile uint32_t DeltaTicks = 0; // Time difference between two input ca
 
 void calculateTargetRPM(float potValue)
 {
-    TargetRPM = (max_rpm - min_rpm) * potValue / 1023.0) + min_rpm;
+    TargetRPM = (max_rpm - min_rpm) * potValue / 1023.0 + min_rpm;
 }
 
 void calcualteRPM(uint16_t DeltaTicks)
 {
-    float RPS = 512 * (float)(DeltaTicks) * 64 / 20000000;
-    RPM = 60 / RPS / 5.9;
+    if (DeltaTicks == 0) {
+        RPM = 0;
+    }
+    else {
+        float RPS = 512 * (float)(DeltaTicks) * 64 / 20000000;
+        RPM = 60 / RPS / 5.9;
+    }
+    
 }
 
 void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
@@ -94,7 +100,6 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void)
 
     // Update the previous captured value
     PrevVal = CurrentVal;
-    calcualteRPM(DeltaTicks);
     // puts("encoder interrupt");
 }
 
@@ -125,6 +130,7 @@ void __ISR(_TIMER_4_VECTOR, IPL6SOFT) CONTROL_ISR(void)
     // Clear the Timer 2 interrupt flag
     IFS0CLR = _IFS0_T4IF_MASK;
     // Compute the error in attaining the target velocity
+    calcualteRPM(DeltaTicks);
     Error = TargetRPM - RPM;
     // Add to the sum of errors over time
     ErrorSum += Error;
@@ -142,7 +148,7 @@ void __ISR(_TIMER_4_VECTOR, IPL6SOFT) CONTROL_ISR(void)
         TargetDC = 0;
         ErrorSum -= Error;
     }
-    OC2RS = (uint16_t)TargetDC * PRx / 100;
+    OC4RS = (uint16_t)TargetDC * PRx / 100;
     // DB_printf("TargetDC: %d\n", TargetDC);
     // DB_printf("Error: %d\n", Error);
     // DB_printf("TargetRPM: %d\n", TargetRPM);
@@ -275,7 +281,7 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
 
         // OSCOPE=1;
         // float TimeInterval = 512 * (float)(DeltaTicks) * 64 / 20000000;
-        // DB_printf("Deltaticks: %d\n", RPM);
+        DB_printf("Deltaticks: %d\n", DeltaTicks);
         //  float TimeInterval = 0.4;
         //  float RPS = 1.0 / (TimeInterval * TICKS_PER_REVOLUTION); // Revolutions per second
 
@@ -285,7 +291,7 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         DB_printf("TargetDC: %d\n", (uint16_t)TargetDC);
 
         DB_printf("Error: %d\n", (uint16_t)Error);
-        // DB_printf("TargetRPM: %d\n", TargetRPM);
+        DB_printf("TargetRPM: %d\n", TargetRPM);
         DB_printf("RPM: %d\n", RPM);
         DB_printf("duty counter: %d\n", (uint16_t)TargetDC * PRx / 100);
 
@@ -302,7 +308,7 @@ ES_Event_t RunEncoderService(ES_Event_t ThisEvent)
         // Set the new duty cycle
         // dutyCycle = ThisEvent.EventParam;
         calculateTargetRPM(ThisEvent.EventParam);
-        DB_printf("TargetRPM: %d\n", TargetRPM);
+        
         break;
 
     default:

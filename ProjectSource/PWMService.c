@@ -151,11 +151,11 @@ ES_Event_t RunPWMService(ES_Event_t ThisEvent)
 
         //uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
 
-        changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
+        //changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
         break;
 
     case ES_NEW_DUTY_CYCLE:
-        changeDutyCycle(ThisEvent.EventParam);
+        //changeDutyCycle(ThisEvent.EventParam);
         break;
 
     default:
