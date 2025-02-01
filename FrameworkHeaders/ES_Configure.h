@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 8
+#define NUM_SERVICES 4
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -58,26 +58,25 @@
 #define SERV_0_QUEUE_SIZE 3
 
 #if NUM_SERVICES > 1
-// the header file with the public function prototypes
-// the header file with the public function prototypes
-#define SERV_1_HEADER "WeightSensor.h"
+
+#define SERV_1_HEADER "PWMService.h"
 // the name of the Init function
-#define SERV_1_INIT InitWeightSensor
+#define SERV_1_INIT InitPWMService
 // the name of the run function
-#define SERV_1_RUN RunWeightSensor
+#define SERV_1_RUN RunPWMService
 // How big should this services Queue be?
-#define SERV_1_QUEUE_SIZE 3
+#define SERV_1_QUEUE_SIZE 5
 #endif
 
 /****************************************************************************/
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "ServoService.h"
+#define SERV_2_HEADER "PotentiometerService.h"
 // the name of the Init function
-#define SERV_2_INIT InitServoService
+#define SERV_2_INIT InitPotentiometerService
 // the name of the run function
-#define SERV_2_RUN RunServoService
+#define SERV_2_RUN RunPotentiometerService
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -85,11 +84,11 @@
 /****************************************************************************/
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
-#define SERV_3_HEADER "CoinLEDService.h"
+#define SERV_3_HEADER "EncoderService.h"
 // the name of the Init function
-#define SERV_3_INIT InitCoinLEDService
+#define SERV_3_INIT InitEncoderService
 // the name of the run function
-#define SERV_3_RUN RunCoinLEDService
+#define SERV_3_RUN RunEncoderService
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 5
 #endif
@@ -264,25 +263,9 @@ typedef enum
     ES_NEW_KEY, /* signals a new key received from terminal */
     ES_LOCK,
     ES_UNLOCK,
-    ES_CALIBRATION_COMPLETE,
-    ES_INIT_MORSE,
-    ES_MORSE_RISE,
-    ES_MORSE_FALL,
-    ES_BUTTON_PRESSED,
-    ES_NEW_COIN_RISING,
-    ES_NEW_COIN_FALLING,
-    ES_START_GAME,
-    ES_END_GAME,
-    ES_TOUCH_BOUNDARY,
-    ES_START_VIBRATION,
-    ES_START_LED_WRITE,
-    ES_LED_WRITE_ROW,
-    ES_MINUS_LIVE,
-    ES_UPDATE_LIVE,
-    ES_START_LED_WRITE_LIVE,
-    ES_RESET_GAME_MONITOR,
-    ES_UPDATE_SCORE,
-    ES_START_LED_WRITE_SCORE,
+    ES_POTENTIOMETER_CHANGED,
+    ES_NEW_DUTY_CYCLE,
+
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -317,7 +300,7 @@ typedef enum
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check4Keystroke, Check4CoinSignal, Check4Touch
+#define EVENT_CHECK_LIST Check4Keystroke
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the
 // corresponding timer expires. All 16 must be defined. If you are not using
@@ -334,21 +317,21 @@ typedef enum
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
-//#define TIMER9_RESP_FUNC TIMER_UNUSED
-//#define TIMER10_RESP_FUNC TIMER_UNUSED
-// #define TIMER11_RESP_FUNC TIMER_UNUSED
-// #define TIMER12_RESP_FUNC TIMER_UNUSED
-// #define TIMER13_RESP_FUNC TIMER_UNUSED
-// #define TIMER14_RESP_FUNC TIMER_UNUSED
-// #define TIMER15_RESP_FUNC TIMER_UNUSED
+#define TIMER9_RESP_FUNC TIMER_UNUSED
+#define TIMER10_RESP_FUNC TIMER_UNUSED
+#define TIMER11_RESP_FUNC TIMER_UNUSED
+#define TIMER12_RESP_FUNC TIMER_UNUSED
+#define TIMER13_RESP_FUNC TIMER_UNUSED
+//#define TIMER14_RESP_FUNC TIMER_UNUSED
+//#define TIMER15_RESP_FUNC TIMER_UNUSED
 
-#define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
-#define TIMER10_RESP_FUNC PostLiveService
-#define TIMER11_RESP_FUNC PostGameMonitorService
-#define TIMER12_RESP_FUNC PostDisplayService
-#define TIMER13_RESP_FUNC PostServoService
-#define TIMER14_RESP_FUNC PostLiveService
-#define TIMER15_RESP_FUNC PostWeightSensor
+// #define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
+// #define TIMER10_RESP_FUNC PostLiveService
+// #define TIMER11_RESP_FUNC PostGameMonitorService
+// #define TIMER12_RESP_FUNC PostDisplayService
+// #define TIMER13_RESP_FUNC PostServoService
+#define TIMER14_RESP_FUNC PostEncoderService
+#define TIMER15_RESP_FUNC PostPotentiometerService
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
@@ -357,11 +340,7 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-#define WEIGHT_SENSOR_TIMER 15
-#define LIVE_SERVICE_TIMER 14
-#define SERVO_SERVICE_TIMER 13
-#define DISPLAY_SERVICE_TIMER 12
-#define GAME_MONITOR_SERVICE_TIMER 11
-#define TOUCH_BOUNDARY_TIMER 10
-#define DISPLAY_SCORE_TIMER 9
+#define ENCODER_TIMER 14
+#define POTENTIOMETER_SERVICE_TIMER 15
+
 #endif /* ES_CONFIGURE_H */

@@ -242,6 +242,7 @@ ES_TimerReturn_t ES_Timer_InitTimer(uint8_t Num, uint16_t NewTime)
       /* tried to set a timer without putting any time on it */
       (NewTime == 0))
   {
+    puts("#####################");
     return ES_Timer_ERR;
   }
   TMR_TimerArray[Num] = NewTime;

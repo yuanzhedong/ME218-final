@@ -22,7 +22,6 @@
 // prototypes for event checkers
 
 bool Check4Keystroke(void);
-bool Check4CoinSignal(void);
-bool Check4Touch(void);
+bool ReadPotentiometer(void);
 
 #endif /* EventCheckers_H */

@@ -198,7 +198,7 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
     break;
     case ES_TIMEOUT:   // re-start timer & announce
     {
-     //ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
+      //ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
       DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
           ThisEvent.EventParam, MyPriority);
     }

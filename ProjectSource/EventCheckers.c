@@ -39,6 +39,7 @@
 // include our own prototypes to insure consistency between header &
 // actual functionsdefinition
 #include "EventCheckers.h"
+#include "PIC32_AD_Lib.h"
 
 // This is the event checking function sample. It is not intended to be
 // included in the module. It is only here as a sample to guide you in writing
@@ -119,59 +120,33 @@ bool Check4Keystroke(void)
   return false;
 }
 
-bool Check4CoinSignal(void)
-{
-  static uint8_t LastPinState = 1; // Last state of RB4, default HIGH
-  uint8_t CurrentPinState;
-  bool ReturnVal = false;
+// bool ReadPotentiometer(void)
+// {
+//     static uint16_t LastPotentiometerValue = 0;
+//     uint32_t adcResults[1]; // Array to hold the ADC result
+//     bool SignalDetected = false;
 
-  CurrentPinState = PORTBbits.RB4; // Read the current state of RB4
+//     // Configure RB12 as an analog input
+//     TRISBbits.TRISB12 = 1; // Set RB12 as input
+//     ANSELBbits.ANSB12 = 1; // Set RB12 as analog
 
-  // Check for a falling edge
-  if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
-  {
-    // Rising edge detected
-    ES_Event_t ThisEvent;
-    ThisEvent.EventType = ES_NEW_COIN_RISING;
-    ThisEvent.EventParam = ES_Timer_GetTime();
-    PostCoinLEDService(ThisEvent);
-    ReturnVal = false; // have to set to false, otherwise code will stuch, why???
-  }
-  // Check for a rising edge
-  else if ((CurrentPinState != LastPinState) && (CurrentPinState == 1))
-  {
-    // Falling edge detected
-    ES_Event_t ThisEvent;
-    ThisEvent.EventType = ES_NEW_COIN_FALLING;
-    ThisEvent.EventParam = ES_Timer_GetTime();
-    PostCoinLEDService(ThisEvent);
-    ReturnVal = true;
-  }
+//     // Initialize the ADC to read from RB12 (AN12)
+//     if (!ADC_ConfigAutoScan(BIT12HI))
+//       return false;
 
-  LastPinState = CurrentPinState; // Update last state for the next check
+//     ADC_MultiRead(adcResults); // Read the ADC value
+//     uint16_t CurrentPotentiometerValue = (uint16_t)adcResults[0];
+//     //DB_printf("Potentiometer Value: %d\n", CurrentPotentiometerValue);
+//     // Define a change threshold
+//     const uint16_t CHANGE_THRESHOLD = 10;
 
-  return ReturnVal;
-}
+//     if (abs(CurrentPotentiometerValue - LastPotentiometerValue) > CHANGE_THRESHOLD)
+//     {
+//         ES_Event_t PotentiometerEvent = { .EventType = ES_NEW_KEY, .EventParam = CurrentPotentiometerValue };
+//         ES_PostAll(PotentiometerEvent);
 
-bool Check4Touch(void)
-{
-  static uint8_t LastPinState = 1; // Last state of RB4, default HIGH
-  uint8_t CurrentPinState;
-  bool ReturnVal = false;
-
-  CurrentPinState = PORTAbits.RA2; // Read the current state of RB4
-  // Check for a falling edge
-  //if ((CurrentPinState != LastPinState) && (CurrentPinState == 0))
-  if (CurrentPinState == 0)
-  {
-    //puts("Touch!!!!\n");
-    ES_Event_t ThisEvent;
-    ThisEvent.EventType = ES_TOUCH_BOUNDARY;
-    ES_PostAll(ThisEvent);
-    ReturnVal = false; // have to set to false, otherwise code will stuch, why???
-  }
-
-  LastPinState = CurrentPinState; // Update last state for the next check
-
-  return ReturnVal;
-}
+//         SignalDetected = true;
+//         LastPotentiometerValue = CurrentPotentiometerValue;
+//     }
+//     return SignalDetected;
+// }
