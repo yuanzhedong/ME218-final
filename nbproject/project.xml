@@ -17,6 +17,8 @@
                 <sourceRootElem>FrameworkSource</sourceRootElem>
                 <sourceRootElem>ProjectSource</sourceRootElem>
                 <sourceRootElem>ProjectHeaders</sourceRootElem>
+                <sourceRootElem>../lab6/ProjectHeaders</sourceRootElem>
+                <sourceRootElem>../lab6/ProjectSource</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

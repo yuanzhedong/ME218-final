@@ -1,164 +1,242 @@
 /****************************************************************************
+ Module
+   PWMService.c
 
-  Source file for PWM Service
-  based on the Gen 2 Events and Services Framework
-
- ****************************************************************************/
-
-#include "../ProjectHeaders/PWMService.h"
+****************************************************************************/
+/*----------------------------- Include Files -----------------------------*/
+/* include header files for this state machine as well as any machines at the
+   next lower level in the hierarchy that are sub-machines to this machine
+*/
 #include "ES_Configure.h"
 #include "ES_Framework.h"
-#include "ES_Timers.h"
-#include <xc.h> // Include processor files - each processor file is guarded.
+#include "ES_Events.h"
+#include "PWMService.h" // header file for this module
+#include "dbprintf.h"
+#include "ES_Port.h"
 
-// Module-level variables
+/*----------------------------- Module Defines ----------------------------*/
+ #define TEST // for debugging
+
+/*---------------------------- Module Functions ---------------------------*/
+/* prototypes for private functions for this service.They should be functions
+   relevant to the behavior of this service
+*/
+
+/*---------------------------- Module Variables ---------------------------*/
+// with the introduction of Gen2, we need a module level Priority variable
 static uint8_t MyPriority;
-static uint16_t DutyCycle = 70;
-static uint16_t PRx = 2399;
-bool Forward = true;
 
-void changeDutyCycle(uint16_t newDutyCycle)
+// for writing number of ticks
+static uint16_t TimerPeriod = 49999;
+
+// array structure goes WhichMove [OC2RS, OC2 polarity, OC3RS, OC3 polarity, time]
+// 2 is right, 3 is left
+
+static uint16_t MotorSettings[10][5] = 
 {
-    if (newDutyCycle < 0 || newDutyCycle > 100)
+    {0, 0, 0, 0, 0}, // setting 0: stop
+    {45000, 0, 49000, 0, 0}, // setting 1: forward full speed
+    {22500, 0, 25000, 0, 0}, // setting 2: forward half speed
+    {49000, 1, 47000, 1, 0}, // setting 3: reverse full speed
+    {25000, 1, 23500, 1, 0}, // setting 4: reverse half speed
+    {49000, 1, 49000, 0, 1600}, // setting 5 clockwise 90 deg
+    {45000, 0, 47000, 1, 1600}, // setting 6 counter-clockwise 90 deg
+    {49000, 1, 49000, 0, 800}, // setting 7 clockwise 45 deg
+    {45000, 0, 47000, 1, 800}, // setting 8 counter-clockwise 45 deg
+    {49000, 1, 49000, 0, 0} // setting 9 unbounded rotation
+    
+};
+
+// direction tracking
+static bool isFwd = true;
+
+
+/*------------------------------ Module Code ------------------------------*/
+/****************************************************************************
+ Function
+     InitPWMService
+
+****************************************************************************/
+bool InitPWMService(uint8_t Priority)
+{
+    #ifdef TEST
+        DB_printf(" init PWM service \r\n"); // debug printing
+    #endif
+    
+  ES_Event_t ThisEvent; // variable event to return
+  MyPriority = Priority; // save priority variable
+    
+    // PWM pins configure as outputs
+    TRISBbits.TRISB8 = 0; // PWM OC2
+    TRISBbits.TRISB9 = 0; // PWM OC3
+    TRISBbits.TRISB10 = 0; // polarity OC2
+    TRISBbits.TRISB12 = 0; // polarity OC3
+    
+    // no analog on capable pins
+    ANSELBbits.ANSB12 = 0;
+    
+    // configure timer 2 (use for both PWM channels))
+    T2CONbits.ON = 0; // turn timer off
+    T2CONbits.TCS = 0; // internal clock source
+    T2CONbits.TCKPS = 1; // 1 for prescale of 2, 0 for 1
+    T2CONbits.TGATE = 0; // no external gate
+    PR2 = TimerPeriod; // period setting (starting freq 200Hz)
+    TMR2 = 0; // start timer at zero
+    IFS0CLR = _IFS0_T2IF_MASK; // clear any flag
+    T2CONbits.ON = 1; // turn timer on
+
+    // configure output channel (channel 3, RPB9)
+    OC3CONbits.ON = 0; // turn off output compare
+    OC3CONbits.OCM = 0b110; // PWM without fault mode
+    OC3CONbits.OCTSEL = 0; // connect timer 2
+    OC3CONbits.SIDL = 0; // continue in idle
+    OC3CONbits.OC32 = 0; //32-bit mode off
+    RPB9R = 0b0101; // map channel to the correct pin
+    OC3CONbits.ON = 1; // turn on output compare
+    OC3RS = 0; // preliminary duty cycle zero
+    OC3R = 0; // preliminary duty cycle zero
+    
+    // configure output channel (channel 2, RPB8)
+    OC2CONbits.ON = 0; // turn off output compare
+    OC2CONbits.OCM = 0b110; // PWM without fault mode
+    OC2CONbits.OCTSEL = 0; // connect timer 2
+    OC2CONbits.SIDL = 0; // continue in idle
+    OC2CONbits.OC32 = 0; //32-bit mode off
+    RPB8R = 0b0101; // map channel to the correct pin
+    OC2CONbits.ON = 1; // turn on output compare
+    OC2RS = 0; // preliminary duty cycle zero
+    OC2R = 0; // preliminary duty cycle zero
+    
+    // timer to trigger the run function
+    // ES_Timer_InitTimer(TEST_TIMER, 100);
+
+  // post the initial transition event
+  ThisEvent.EventType = ES_INIT;
+  if (ES_PostToService(MyPriority, ThisEvent) == true)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+/****************************************************************************
+ Function
+     PostPWMService
+
+ Parameters
+     EF_Event_t ThisEvent ,the event to post to the queue
+
+ Returns
+     bool false if the Enqueue operation failed, true otherwise
+
+ Description
+     Posts an event to this state machine's queue
+
+****************************************************************************/
+bool PostPWMService(ES_Event_t ThisEvent)
+{
+  return ES_PostToService(MyPriority, ThisEvent);
+}
+
+/****************************************************************************
+ Function
+    RunPWMService
+
+ Parameters
+   ES_Event_t : the event to process
+
+ Returns
+   ES_Event, ES_NO_EVENT if no error ES_ERROR otherwise
+
+ Description
+   add your description here
+
+****************************************************************************/
+ES_Event_t RunPWMService(ES_Event_t ThisEvent)
+{
+  ES_Event_t ReturnEvent; // prepare event to return to the framework
+  ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
+
+   if (ThisEvent.EventType == ES_TIMEOUT) // if it's a timeout
+  {
+//    if (ThisEvent.EventParam == TEST_TIMER) // if it's the encoder timer's timeout
+//    {
+//        MotorCommand(M_CW_45); // send the motor command
+//    } // endif test timer
+    
+    if (ThisEvent.EventParam == MOTOR_TIMER) // if motor timer done
     {
-        return;
-    }
-    DB_printf("Changing duty cycle to %d%%\r\n", newDutyCycle);
-    DutyCycle = newDutyCycle;
-    if (Forward)
+//        if (isFwd)
+//        {
+//            MotorCommand(M_CCW_45); // send the motor command
+//            isFwd = false;
+//        }
+//        else
+//        {
+//            MotorCommand(M_CW_45); // send the motor command
+//            isFwd = true;
+//        }
+          
+          MotorCommand(M_STOP); // send the motor command
+        
+    } // endif motor timer
+    
+   } // endif timeout event
+    
+  return ReturnEvent; // return event for the framework
+}
+
+/***************************************************************************
+ private functions
+ ***************************************************************************/
+// helper function for sending commands to the motor
+void MotorCommand(uint16_t WhichMove)
+{
+    // array structure goes WhichMove [OC2RS, OC2 polarity, OC3RS, OC3 polarity, time]
+    
+    // start at no speed
+    OC2RS = 0;
+    OC3RS = 0;
+    
+    // send commands to left side motor
+    if (MotorSettings[WhichMove][3] == 0) // if going clockwise
     {
-        OC4R = (PR3 + 1) * DutyCycle / 100;
-        OC4RS = (PR3 + 1) * DutyCycle / 100;
+        OC3RS = MotorSettings[WhichMove][2]; // set pwm normally
+        LATBbits.LATB12 = 0; // set polarity pin
     }
     else
     {
-        OC4R = (PR3 + 1) * (100 - DutyCycle) / 100;
-        OC4RS = (PR3 + 1) * (100 - DutyCycle) / 100;
+        OC3RS = (TimerPeriod - MotorSettings[WhichMove][2]); // inverse pwm
+        LATBbits.LATB12 = 1; // set polarity pin
     }
-}
-
-// Function to initialize the PWM Service
-bool InitPWMService(uint8_t Priority)
-{
-    MyPriority = Priority;
-    // Initialization code for PWM hardware
-    // ...
-    // Example initialization code for PWM hardware using TMR and OC
-    // Configure Timer and Output Compare for PWM
-
-    // prescale 8
-    // 20 MHz / 8 = 2.5 MHz instruction clock
-    // 2.5 MHz / 200 Hz = 12500
-    // PRx = 12500 - 1 = 12499
-
-    // 2.5 MHz / 250 Hz = 10000
-    // PRx = 10000 - 1 = 9999
-
-    // 2.5 MHz / 500 Hz = 5000
-    // PRx = 5000 - 1 = 4999
-
-    // 2.5 MHz / 1000 Hz = 2500
-    //  PRx = 2500 - 1 = 2499
-
-    // 2.5 MHz / 2000 Hz = 1250
-    //  PRx = 1250 - 1 = 1249
-
-    // 2.5 MHz / 10000 Hz = 250
-    // PRx = 250 - 1 = 249
-
-    // prescale 64
-    // 20 MHz / 64 = 312.5 kHz instruction clock
-    // 312.5 kHz / 200 Hz = 1562.5
-    // PRx = 1562 - 1 = 1561
-
-    // Assuming Timer 2 and Output Compare 4 for PWM
-    T3CONbits.TCKPS = 0b000; // Set prescaler to 1:1
-    PR3 = PRx;               // Set period register for 1 kHz PWM frequency
-    TMR3 = 0;                // Clear timer register
-
-    OC4CON = 0x0000;                            // Clear OC4CON register
-    OC4CONbits.OCTSEL = 1;                      // Select Timer 2 as clock source
-    OC4CONbits.OCM = 0b110;                     // Set Output Compare mode to PWM
-    OC4R = (PRx + 1) * (float)DutyCycle / 100;  // Set initial duty cycle to 50%
-    OC4RS = (PRx + 1) * (float)DutyCycle / 100; // Set secondary compare register
-
-    TRISAbits.TRISA0 = 0;
-    TRISAbits.TRISA1 = 0;
-    LATAbits.LATA0 = 1;
-    LATAbits.LATA1 = 0;
-
-    // Configure RA2 as output for OC1
-    TRISAbits.TRISA2 = 0; // Set RA2 as output
-    RPA2R = 0b0101;       // Map OC4 to RA2
-
-    // Start Timer 2
-    T3CONbits.ON = 1;
-    // Start Output Compare 1
-    OC4CONbits.ON = 1;
-
-    ANSELAbits.ANSA1 = 0;
-    ANSELAbits.ANSA0 = 0;
-
-    puts("PWM Service initialized.\r\n");
-    return true;
-}
-
-// Function to post an event to the PWM Service
-bool PostPWMService(ES_Event_t ThisEvent)
-{
-    return ES_PostToService(MyPriority, ThisEvent);
-}
-
-// Function to run the PWM Service
-ES_Event_t RunPWMService(ES_Event_t ThisEvent)
-{
-    ES_Event_t ReturnEvent;
-    ReturnEvent.EventType = ES_NO_EVENT; // Assume no errors
-
-    switch (ThisEvent.EventType)
+    
+    
+    // send PWM commands to right side motor
+    if (MotorSettings[WhichMove][1] == 0) // if going clockwise
     {
-    case ES_INIT:
-        // Initialization code for the service
-        // ...
-        break;
-
-    case ES_NEW_KEY:
-        Forward = !Forward;
-        if (Forward)
-        {
-            puts("Forward.\r\n");
-            changeDutyCycle(DutyCycle);
-            LATAbits.LATA1 = 0;
-        }
-        else
-        {
-            changeDutyCycle(DutyCycle);
-            LATAbits.LATA1 = 1;
-            puts("Back.\r\n");
-        }
-
-        // Handle timeout events
-        // ...
-        break;
-
-        // Add other event types here
-    case ES_POTENTIOMETER_CHANGED:
-        // Handle potentiometer changed events
-        // Rescale the potentiometer reading from 0-1024 to 0-100
-        // uint16_t scaledValue = ((float)ThisEvent.EventParam * 100) / 1024;
-
-        // uint16_t scaledValue = ThisEvent.EventParam * 100 / 1024;
-
-        changeDutyCycle(ThisEvent.EventParam * 100 / 1024);
-        break;
-
-    case ES_NEW_DUTY_CYCLE:
-        // changeDutyCycle(ThisEvent.EventParam);
-        break;
-
-    default:
-        break;
+        OC2RS = (TimerPeriod - MotorSettings[WhichMove][0]); // inverse pwm
+        LATBbits.LATB10 = 1; // set polarity pin
     }
-
-    return ReturnEvent;
+    else
+    {
+        OC2RS = MotorSettings[WhichMove][0]; // set pwm normally
+        LATBbits.LATB10 = 0; // set polarity pin
+    }
+    
+    // if we need to start a timer
+    if (MotorSettings[WhichMove][4] != 0)
+    {
+        uint16_t time = MotorSettings[WhichMove][4];
+        ES_Timer_InitTimer(MOTOR_TIMER, time);
+    }
+    
 }
+
+
+/*------------------------------- Footnotes -------------------------------*/
+
+
+/*------------------------------ End of file ------------------------------*/

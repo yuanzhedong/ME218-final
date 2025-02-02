@@ -72,11 +72,11 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "PotentiometerService.h"
+#define SERV_2_HEADER "Lab8_SM.h"
 // the name of the Init function
-#define SERV_2_INIT InitPotentiometerService
+#define SERV_2_INIT InitLab8_SM
 // the name of the run function
-#define SERV_2_RUN RunPotentiometerService
+#define SERV_2_RUN RunLab8_SM
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -84,11 +84,11 @@
 /****************************************************************************/
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
-#define SERV_3_HEADER "EncoderService.h"
+#define SERV_3_HEADER "KeyboardService.h"
 // the name of the Init function
-#define SERV_3_INIT InitEncoderService
+#define SERV_3_INIT InitKeyboardService
 // the name of the run function
-#define SERV_3_RUN RunEncoderService
+#define SERV_3_RUN RunKeyboardService
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 5
 #endif
@@ -263,9 +263,14 @@ typedef enum
     ES_NEW_KEY, /* signals a new key received from terminal */
     ES_LOCK,
     ES_UNLOCK,
-    ES_POTENTIOMETER_CHANGED,
-    ES_NEW_DUTY_CYCLE,
-
+    ES_GEN,
+    ES_BEACON,
+    ES_TAPE,
+    ES_ALIGN,
+    ES_LOOKING_4_BEACON,
+    ES_FOUND_BEACON,
+    ES_FOUND_TAPE,
+    ES_NO_TAPE,
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -322,7 +327,7 @@ typedef enum
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
-//#define TIMER14_RESP_FUNC TIMER_UNUSED
+#define TIMER14_RESP_FUNC TIMER_UNUSED
 //#define TIMER15_RESP_FUNC TIMER_UNUSED
 
 // #define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
@@ -330,8 +335,8 @@ typedef enum
 // #define TIMER11_RESP_FUNC PostGameMonitorService
 // #define TIMER12_RESP_FUNC PostDisplayService
 // #define TIMER13_RESP_FUNC PostServoService
-#define TIMER14_RESP_FUNC PostEncoderService
-#define TIMER15_RESP_FUNC PostPotentiometerService
+//#define TIMER14_RESP_FUNC PostEncoderService
+#define TIMER15_RESP_FUNC PostPWMService
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
@@ -340,7 +345,7 @@ typedef enum
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
 
-#define ENCODER_TIMER 14
-#define POTENTIOMETER_SERVICE_TIMER 15
+//#define ENCODER_TIMER 14
+#define MOTOR_TIMER 15
 
 #endif /* ES_CONFIGURE_H */

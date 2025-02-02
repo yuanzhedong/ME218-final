@@ -23,7 +23,7 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "Lab8_SM.h"
-#include "MotorService.h"
+#include "PWMService.h"
 #include "dbprintf.h"
 
 /*----------------------------- Module Defines ----------------------------*/
@@ -67,7 +67,7 @@ bool InitLab8_SM(uint8_t Priority)
    in here you write your initialization code
    *******************************************/
   clrScrn();
-  InitOpto();
+  //InitOpto();
   state = Generating;
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
@@ -135,7 +135,7 @@ ES_Event_t RunLab8_SM(ES_Event_t ThisEvent)
               switch(ThisEvent.EventParam)
               {
                   case STOP_CMD:
-                      MotorCommand(M_STOP);
+                      MotorCommand( M_STOP);
                       DB_printf("Command: 0x%x\n",ThisEvent.EventParam);
                       DB_printf("Stopping motors\n");
                       DB_printf("\n");
@@ -191,9 +191,9 @@ ES_Event_t RunLab8_SM(ES_Event_t ThisEvent)
                   case ALIGN_CMD:
                       MotorCommand(M_SPIN);
                       state = Aligning;
-                      ES_Event_t BeginLooking4Beacon;
-                      BeginLooking4Beacon.EventType = ES_LOOKING_4_BEACON;
-                      PostBeaconFSM(BeginLooking4Beacon);
+                      //ES_Event_t BeginLooking4Beacon;
+                      //BeginLooking4Beacon.EventType = ES_LOOKING_4_BEACON;
+                      //PostBeaconFSM(BeginLooking4Beacon);
                       DB_printf("Command: 0x%x\n",ThisEvent.EventParam);
                       DB_printf("Aligning with beacon\n");
                       DB_printf("\n");
