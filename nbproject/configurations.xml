@@ -54,6 +54,7 @@
       <itemPath>ProjectHeaders/Lab8_SM.h</itemPath>
       <itemPath>ProjectHeaders/PWMService.h</itemPath>
       <itemPath>ProjectHeaders/KeyboardService.h</itemPath>
+      <itemPath>ProjectHeaders/CommandService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -79,6 +80,7 @@
       <itemPath>ProjectSource/Lab8_SM.c</itemPath>
       <itemPath>ProjectSource/PWMService.c</itemPath>
       <itemPath>ProjectSource/KeyboardService.c</itemPath>
+      <itemPath>ProjectSource/CommandService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -99,7 +101,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>snap</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.45</languageToolchainVersion>
+        <languageToolchainVersion>4.30</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
