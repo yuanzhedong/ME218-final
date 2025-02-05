@@ -131,7 +131,7 @@ ES_Event_t RunLab8_SM(ES_Event_t ThisEvent)
   {
       case Generating:
           if(ES_GEN == ThisEvent.EventType){
-//              DB_printf("Inside ES_GEN\n");
+//             DB_printf("Inside ES_GEN\n");
               switch(ThisEvent.EventParam)
               {
                   case STOP_CMD:

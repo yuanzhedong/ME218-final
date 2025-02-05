@@ -75,17 +75,15 @@ bool InitCommandService(uint8_t Priority)
   CurrentCmd = 0xFF;
   
   // Step 0: Disable analog function on all SPI pins
-  ANSELAbits.ANSA0 = 0;
-  ANSELAbits.ANSA1 = 0;
   ANSELBbits.ANSB14 = 0;
   // Step 1: Map SPI Outputs to all desired pins
-  TRISAbits.TRISA0 = 0;
-  RPA0R = 0b0011; // Map SS1 to RA0
-  TRISAbits.TRISA1 = 0;
-  RPA1R = 0b0011; // Map SDO to RA1
-  TRISBbits.TRISB14 = 0;
+  TRISBbits.TRISB4 = 0;
+  RPB4R = 0b0011; // Map SS1 to RB4
+  TRISBbits.TRISB8 = 0;
+  RPB8R = 0b0011; // Map SDO to RB8
+  TRISBbits.TRISB14 = 0; //set SCK1 (RB14) as output
   // Step 2: Map SDI
-  TRISBbits.TRISB5 = 1;
+  TRISBbits.TRISB5 = 1; //input
   SDI1R = 0b0001; // Map SDI1 to RB5
   // Step 3: Disable SPI Module
   SPI1CONbits.ON = 0;
@@ -186,11 +184,11 @@ ES_Event_t RunCommandService(ES_Event_t ThisEvent)
   if(ES_TIMEOUT == ThisEvent.EventType){
       if(QUERY_TIMER == ThisEvent.EventParam){
           SPI1BUF = QUERY;
-//          DB_printf("Querying\n");
+         DB_printf("Querying\n");
           ES_Timer_InitTimer(QUERY_TIMER, 100);
       }
-//  }else if(ES_GEN == ThisEvent.EventType){
-//      DB_printf("Event: 0x%x\n",ThisEvent.EventParam);
+ }else if(ES_GEN == ThisEvent.EventType){
+     DB_printf("Event: 0x%x\n",ThisEvent.EventParam);
   }
   return ReturnEvent;
 }
@@ -202,8 +200,10 @@ void __ISR(_SPI_1_VECTOR,IPL6SOFT) CmdISR(void){
     //__builtin_disable_interrupts();
     CurrentCmd = (uint16_t)SPI1BUF;
     IFS1CLR = _IFS1_SPI1RXIF_MASK;
-    //DB_printf("In ISR");
-    if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
+    DB_printf("In ISR");
+    // if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
+      if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
+        DB_printf("sth");
         ES_Event_t CMD_Event;
         CMD_Event.EventType = ES_GEN;
         CMD_Event.EventParam = CurrentCmd;

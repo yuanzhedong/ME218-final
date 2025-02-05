@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 4
+#define NUM_SERVICES 5
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -97,11 +97,11 @@
 // These are the definitions for Service 4
 #if NUM_SERVICES > 4
 // the header file with the public function prototypes
-#define SERV_4_HEADER "LiveService.h"
+#define SERV_4_HEADER "CommandService.h"
 // the name of the Init function
-#define SERV_4_INIT InitLiveService
+#define SERV_4_INIT InitCommandService
 // the name of the run function
-#define SERV_4_RUN RunLiveService
+#define SERV_4_RUN RunCommandService
 // How big should this services Queue be?
 #define SERV_4_QUEUE_SIZE 3
 #endif
@@ -327,7 +327,7 @@ typedef enum
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC TIMER_UNUSED
+//#define TIMER14_RESP_FUNC TIMER_UNUSED
 //#define TIMER15_RESP_FUNC TIMER_UNUSED
 
 // #define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
@@ -335,7 +335,7 @@ typedef enum
 // #define TIMER11_RESP_FUNC PostGameMonitorService
 // #define TIMER12_RESP_FUNC PostDisplayService
 // #define TIMER13_RESP_FUNC PostServoService
-//#define TIMER14_RESP_FUNC PostEncoderService
+#define TIMER14_RESP_FUNC PostCommandService
 #define TIMER15_RESP_FUNC PostPWMService
 
 /****************************************************************************/
@@ -347,5 +347,6 @@ typedef enum
 
 //#define ENCODER_TIMER 14
 #define MOTOR_TIMER 15
+#define QUERY_TIMER 14
 
 #endif /* ES_CONFIGURE_H */
