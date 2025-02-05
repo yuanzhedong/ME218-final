@@ -2,6 +2,13 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/U:/zhiyuanl/lab8/ProjectSource/MyMotorService.c</file>
+            <file>file:/U:/zhiyuanl/lab8/FrameworkHeaders/ES_Configure.h</file>
+            <file>file:/U:/zhiyuanl/lab8/ProjectHeaders/PWMService.h</file>
+            <file>file:/U:/zhiyuanl/lab8/FrameworkHeaders/ES_Events.h</file>
+            <file>file:/U:/zhiyuanl/lab8/ProjectSource/KeyboardService.c</file>
+            <file>file:/U:/zhiyuanl/lab8/ProjectSource/Lab8_SM.c</file>
+        </group>
     </open-files>
 </project-private>

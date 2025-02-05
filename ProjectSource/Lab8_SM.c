@@ -134,12 +134,16 @@ ES_Event_t RunLab8_SM(ES_Event_t ThisEvent)
 //             DB_printf("Inside ES_GEN\n");
               switch(ThisEvent.EventParam)
               {
-                  case STOP_CMD:
-                      MotorCommand( M_STOP);
-                      DB_printf("Command: 0x%x\n",ThisEvent.EventParam);
-                      DB_printf("Stopping motors\n");
-                      DB_printf("\n");
-                      break;
+                   case STOP_CMD:
+//                      MotorCommand( M_STOP);
+//                    ES_Event_t ThisEvent;
+//                    ThisEvent.EventType = ES_FORWARD;
+//                    ThisEvent.EventParam = 50;
+//                    PostMotorService(ThisEvent);
+                    DB_printf("Command: 0x%x\n",ThisEvent.EventParam);
+                    DB_printf("Stopping motors\n");
+                    DB_printf("\n");
+                    break;
                   case CW_90_CMD:
                       MotorCommand(M_CW_90);
                       DB_printf("Command: 0x%x\n",ThisEvent.EventParam);

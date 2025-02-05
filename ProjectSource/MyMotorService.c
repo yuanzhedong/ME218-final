@@ -104,6 +104,8 @@ bool InitMotorService(uint8_t Priority)
   ConfigPWM_OC3();
 
   // Initialize Motor Pin state
+  LATBbits.LATB2 = 0;
+  LATBbits.LATB10 = 0;
   LATBbits.LATB3 = 0;
   LATBbits.LATB9 = 0;
   ES_Event_t ThisEvent;
@@ -167,6 +169,60 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
 {
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
+  uint8_t dutyCycle;
+  
+  switch(ThisEvent.EventType){
+    case ES_FORWARD:
+    {   
+      DB_printf("\rFSFSDFFDFDSFDSd\r\n");
+      LATBbits.LATB2 = 0;
+      LATBbits.LATB9 = 0;
+      dutyCycle = ThisEvent.EventParam;
+      OC1RS = (PR2+1) * dutyCycle/100;       // Secondary Compare Register (for duty cycle)
+      OC3RS = (PR2+1) * dutyCycle/100;
+    }
+    break;
+    
+    case ES_BACKWARD:
+    {
+        
+        DB_printf("\rFSFSDFDSFDSd\r\n");
+        LATBbits.LATB2 = 1;
+        LATBbits.LATB9 = 1;
+        dutyCycle = 100-ThisEvent.EventParam;
+        OC1RS = (PR2+1) * dutyCycle/100;       // Secondary Compare Register (for duty cycle)
+        OC3RS = (PR2+1) * dutyCycle/100;
+    }
+    break;
+    
+    case ES_LEFT:
+    {
+        
+        dutyCycle = ThisEvent.EventParam;
+        OC1RS = 0;
+        OC3RS = (PR2+1) * dutyCycle/100;
+    }
+    break;
+    
+    case ES_RIGHT:
+    {
+        dutyCycle = ThisEvent.EventParam;
+        OC3RS = 0;
+        OC1RS = (PR2+1) * dutyCycle/100;
+    }
+    break;
+    
+    case ES_STOP:
+    {
+        OC1RS = (PR2+1) *100*LATBbits.LATB2;
+        OC3RS = OC1RS;
+    }
+    break;
+    
+    default:
+    {}
+    break;
+  }
   /*Adjust Speed here*/
   
 //  if (ThisEvent.EventType == ES_Read_Pot) {
@@ -177,8 +233,9 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
 //    DB_printf("\r PR2:   %d\r\n", PR2);
 //  }
   
-    OC1RS = PR2 * 0.9;       // Secondary Compare Register (for duty cycle)
-    OC3RS = PR2 * 0.4;   
+//    OC1RS = PR2 * 0.9;       // Secondary Compare Register (for duty cycle)
+//    OC3RS = PR2 * 0.4;
+//    
 //    OC1R = PR2 * 0.2;  
   // switch (CurrentState) {
   //   case NOT_INIT:

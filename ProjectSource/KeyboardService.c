@@ -5,12 +5,14 @@
 #include "PWMService.h"
 #include "dbprintf.h"
 #include "ES_Port.h"
+#include "MyMotorService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 #define FORWARD 'w'
 #define BACKWARD 's'
 #define LEFT 'a'
 #define RIGHT 'd'
+#define STOP 'x'
 
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
@@ -48,6 +50,7 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
 {
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT;
+    ES_Event_t CurEvent;
 
     if (ThisEvent.EventType == ES_NEW_KEY)
     {
@@ -55,17 +58,30 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         switch (key)
         {
             case FORWARD:
-                MotorCommand(1); // forward full speed
+                CurEvent.EventType = ES_FORWARD;
+                CurEvent.EventParam = 100;
+                PostMotorService(CurEvent);
                 break;
             case BACKWARD:
-                MotorCommand(3); // reverse full speed
+                CurEvent.EventType = ES_BACKWARD;
+                CurEvent.EventParam = 100;
+                PostMotorService(CurEvent);
                 break;
             case LEFT:
-                MotorCommand(6); // counter-clockwise 90 deg
+                CurEvent.EventType = ES_LEFT;
+                CurEvent.EventParam = 100;
+                PostMotorService(CurEvent);
                 break;
             case RIGHT:
-                MotorCommand(5); // clockwise 90 deg
+                CurEvent.EventType = ES_RIGHT;
+                CurEvent.EventParam = 100;
+                PostMotorService(CurEvent);
                 break;
+             case STOP:
+                CurEvent.EventType = ES_STOP;
+                PostMotorService(CurEvent);
+                break;
+                
             default:
                 MotorCommand(0); // stop
                 break;

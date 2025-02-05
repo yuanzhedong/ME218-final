@@ -271,6 +271,12 @@ typedef enum
     ES_FOUND_BEACON,
     ES_FOUND_TAPE,
     ES_NO_TAPE,
+            
+    ES_FORWARD,
+    ES_BACKWARD,
+    ES_LEFT,
+    ES_RIGHT,
+    ES_STOP
 } ES_EventType_t;
 
 /****************************************************************************/
