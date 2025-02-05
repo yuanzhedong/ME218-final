@@ -68,10 +68,7 @@ bool InitCommandService(uint8_t Priority)
   /********************************************
    in here you write your initialization code
    *******************************************/
-  // DB_printf("Started Initializing\n");
-
-  PrevCmd = 0xFF;
-  CurrentCmd = 0xFF;
+  puts("Started Initializing Command Service\n");
 
   // Step 0: Disable analog function on all SPI pins
   ANSELBbits.ANSB14 = 0;
@@ -119,6 +116,8 @@ bool InitCommandService(uint8_t Priority)
 
   // Initialize Commands
   SPI1BUF = QUERY;
+  PrevCmd = 0xFF;
+  CurrentCmd = 0xFF;
 
   ES_Timer_InitTimer(QUERY_TIMER, 100);
 
@@ -182,11 +181,12 @@ ES_Event_t RunCommandService(ES_Event_t ThisEvent)
    *******************************************/
   if (ES_TIMEOUT == ThisEvent.EventType)
   {
+    // Query the Command generator in a timely manner, interval set to 50ms
     if (QUERY_TIMER == ThisEvent.EventParam)
     {
       SPI1BUF = QUERY;
-      DB_printf("Querying\n");
-      ES_Timer_InitTimer(QUERY_TIMER, 100);
+      //DB_printf("Querying\n");
+      ES_Timer_InitTimer(QUERY_TIMER, 50);
     }
   }
   else if (ES_GEN == ThisEvent.EventType)
@@ -204,7 +204,7 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) CmdISR(void)
   //__builtin_disable_interrupts();
   CurrentCmd = (uint16_t)SPI1BUF;
   IFS1CLR = _IFS1_SPI1RXIF_MASK;
-  DB_printf("In ISR");
+  //DB_printf("In ISR");
   // if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
   if ((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF))
   {
@@ -212,7 +212,8 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) CmdISR(void)
     ES_Event_t CMD_Event;
     CMD_Event.EventType = ES_GEN;
     CMD_Event.EventParam = CurrentCmd;
-    PostLab8_SM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
+    // PostLab8_SM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
+    PostCommandService(CMD_Event);
     PrevCmd = CurrentCmd;
   }
   //__builtin_enable_interrupts();
