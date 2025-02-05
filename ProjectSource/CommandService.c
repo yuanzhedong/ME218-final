@@ -41,7 +41,6 @@ static uint8_t MyPriority;
 volatile static uint16_t PrevCmd;
 volatile static uint16_t CurrentCmd;
 
-
 /*------------------------------ Module Code ------------------------------*/
 /****************************************************************************
  Function
@@ -69,25 +68,25 @@ bool InitCommandService(uint8_t Priority)
   /********************************************
    in here you write your initialization code
    *******************************************/
-  //DB_printf("Started Initializing\n");
-  
+  // DB_printf("Started Initializing\n");
+
   PrevCmd = 0xFF;
   CurrentCmd = 0xFF;
-  
+
   // Step 0: Disable analog function on all SPI pins
   ANSELBbits.ANSB14 = 0;
   // Step 1: Map SPI Outputs to all desired pins
   TRISBbits.TRISB4 = 0;
   RPB4R = 0b0011; // Map SS1 to RB4
   TRISBbits.TRISB8 = 0;
-  RPB8R = 0b0011; // Map SDO to RB8
-  TRISBbits.TRISB14 = 0; //set SCK1 (RB14) as output
+  RPB8R = 0b0011;        // Map SDO to RB8
+  TRISBbits.TRISB14 = 0; // set SCK1 (RB14) as output
   // Step 2: Map SDI
-  TRISBbits.TRISB5 = 1; //input
-  SDI1R = 0b0001; // Map SDI1 to RB5
+  TRISBbits.TRISB5 = 1; // input
+  SDI1R = 0b0001;       // Map SDI1 to RB5
   // Step 3: Disable SPI Module
   SPI1CONbits.ON = 0;
-//  SPI1CONbits.MCLKSEL = 0;
+  //  SPI1CONbits.MCLKSEL = 0;
   // Step 4: Clear the receive buffer
   SPI1BUF;
   // Step 5: Enable Enhanced Buffer
@@ -99,30 +98,30 @@ bool InitCommandService(uint8_t Priority)
   // Step 8: Write desired settings to SPIxCON
   SPI1CONbits.MSTEN = 1; // Places in Leader Mode
   SPI1CONbits.MSSEN = 1; // Drives the CS automatically
-  SPI1CONbits.CKE = 0; // Reads on 2nd edge
-  SPI1CONbits.CKP = 1; // SCK idles high
-  //SPI1CONbits.FRMEN = 0; // FRMEN
+  SPI1CONbits.CKE = 0;   // Reads on 2nd edge
+  SPI1CONbits.CKP = 1;   // SCK idles high
+  // SPI1CONbits.FRMEN = 0; // FRMEN
   SPI1CONbits.FRMPOL = 0; // CS is active low
   SPI1CON2bits.AUDEN = 0; // |
   SPI1CONbits.MODE16 = 0; // Enable 8 bit transfers
   SPI1CONbits.MODE32 = 0; // |
   // Step 9: Initialize Interrupts
-  //IEC1CLR = _IEC1_SPI1RXIE_MASK;
+  // IEC1CLR = _IEC1_SPI1RXIE_MASK;
   SPI1CONbits.SRXISEL = 0b01;
-//  IFS0CLR = _IFS0_INT4IF_MASK;
+  //  IFS0CLR = _IFS0_INT4IF_MASK;
   IFS1CLR = _IFS1_SPI1RXIF_MASK;
   IPC7bits.SPI1IP = 6;
   IEC1SET = _IEC1_SPI1RXIE_MASK;
-  //INTCONbits.MVEC = 1;
-  // Step 10: Enable SPI
+  // INTCONbits.MVEC = 1;
+  //  Step 10: Enable SPI
   SPI1CONbits.ON = 1;
   __builtin_enable_interrupts();
-  
+
   // Initialize Commands
   SPI1BUF = QUERY;
-  
+
   ES_Timer_InitTimer(QUERY_TIMER, 100);
-  
+
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
   if (ES_PostToService(MyPriority, ThisEvent) == true)
@@ -181,14 +180,18 @@ ES_Event_t RunCommandService(ES_Event_t ThisEvent)
   /********************************************
    in here you write your service code
    *******************************************/
-  if(ES_TIMEOUT == ThisEvent.EventType){
-      if(QUERY_TIMER == ThisEvent.EventParam){
-          SPI1BUF = QUERY;
-         DB_printf("Querying\n");
-          ES_Timer_InitTimer(QUERY_TIMER, 100);
-      }
- }else if(ES_GEN == ThisEvent.EventType){
-     DB_printf("Event: 0x%x\n",ThisEvent.EventParam);
+  if (ES_TIMEOUT == ThisEvent.EventType)
+  {
+    if (QUERY_TIMER == ThisEvent.EventParam)
+    {
+      SPI1BUF = QUERY;
+      DB_printf("Querying\n");
+      ES_Timer_InitTimer(QUERY_TIMER, 100);
+    }
+  }
+  else if (ES_GEN == ThisEvent.EventType)
+  {
+    DB_printf("Event: 0x%x\n", ThisEvent.EventParam);
   }
   return ReturnEvent;
 }
@@ -196,23 +199,23 @@ ES_Event_t RunCommandService(ES_Event_t ThisEvent)
 /***************************************************************************
  private functions
  ***************************************************************************/
-void __ISR(_SPI_1_VECTOR,IPL6SOFT) CmdISR(void){
-    //__builtin_disable_interrupts();
-    CurrentCmd = (uint16_t)SPI1BUF;
-    IFS1CLR = _IFS1_SPI1RXIF_MASK;
-    DB_printf("In ISR");
-    // if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
-      if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
-        DB_printf("sth");
-        ES_Event_t CMD_Event;
-        CMD_Event.EventType = ES_GEN;
-        CMD_Event.EventParam = CurrentCmd;
-        PostLab8_SM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
-        PrevCmd = CurrentCmd;
-    }
-    //__builtin_enable_interrupts();
-    
+void __ISR(_SPI_1_VECTOR, IPL6SOFT) CmdISR(void)
+{
+  //__builtin_disable_interrupts();
+  CurrentCmd = (uint16_t)SPI1BUF;
+  IFS1CLR = _IFS1_SPI1RXIF_MASK;
+  DB_printf("In ISR");
+  // if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
+  if ((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF))
+  {
+    DB_printf("sth");
+    ES_Event_t CMD_Event;
+    CMD_Event.EventType = ES_GEN;
+    CMD_Event.EventParam = CurrentCmd;
+    PostLab8_SM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
+    PrevCmd = CurrentCmd;
+  }
+  //__builtin_enable_interrupts();
 }
 /*------------------------------- Footnotes -------------------------------*/
 /*------------------------------ End of file ------------------------------*/
-
