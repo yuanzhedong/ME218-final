@@ -83,7 +83,7 @@ bool InitCommandService(uint8_t Priority)
   TRISBbits.TRISB14 = 0; // set SCK1 (RB14) as output
   // Step 2: Map SDI
   TRISBbits.TRISB5 = 1; // input
-  SDI1R = 0b0100;       // Map SDI1 to RB5
+  SDI1R = 0b0001;       // Map SDI1 to RB5
   // Step 3: Disable SPI Module
   SPI1CONbits.ON = 0;
   //  SPI1CONbits.MCLKSEL = 0;
