@@ -34,15 +34,26 @@ static uint16_t TimerPeriod = 49999;
 
 static uint16_t MotorSettings[10][5] = 
 {
+//    {0, 0, 0, 0, 0}, // setting 0: stop
+//    {45000, 0, 49000, 0, 0}, // setting 1: forward full speed
+//    {22500, 0, 25000, 0, 0}, // setting 2: forward half speed
+//    {49000, 1, 47000, 1, 0}, // setting 3: reverse full speed
+//    {25000, 1, 23500, 1, 0}, // setting 4: reverse half speed
+//    {49000, 1, 49000, 0, 1600}, // setting 5 clockwise 90 deg
+//    {45000, 0, 47000, 1, 1600}, // setting 6 counter-clockwise 90 deg
+//    {49000, 1, 49000, 0, 800}, // setting 7 clockwise 45 deg
+//    {45000, 0, 47000, 1, 800}, // setting 8 counter-clockwise 45 deg
+//    {49000, 1, 49000, 0, 0} // setting 9 unbounded rotation
+    
     {0, 0, 0, 0, 0}, // setting 0: stop
-    {45000, 0, 49000, 0, 0}, // setting 1: forward full speed
-    {22500, 0, 25000, 0, 0}, // setting 2: forward half speed
-    {49000, 1, 47000, 1, 0}, // setting 3: reverse full speed
-    {25000, 1, 23500, 1, 0}, // setting 4: reverse half speed
+    {49000, 0, 49000, 0, 0}, // setting 1: forward full speed
+    {25000, 0, 25000, 0, 0}, // setting 2: forward half speed
+    {49000, 1, 49000, 1, 0}, // setting 3: reverse full speed
+    {25000, 1, 25000, 1, 0}, // setting 4: reverse half speed
     {49000, 1, 49000, 0, 1600}, // setting 5 clockwise 90 deg
-    {45000, 0, 47000, 1, 1600}, // setting 6 counter-clockwise 90 deg
+    {47000, 0, 47000, 1, 1600}, // setting 6 counter-clockwise 90 deg
     {49000, 1, 49000, 0, 800}, // setting 7 clockwise 45 deg
-    {45000, 0, 47000, 1, 800}, // setting 8 counter-clockwise 45 deg
+    {47000, 0, 47000, 1, 800}, // setting 8 counter-clockwise 45 deg
     {49000, 1, 49000, 0, 0} // setting 9 unbounded rotation
     
 };
@@ -67,10 +78,10 @@ bool InitPWMService(uint8_t Priority)
   MyPriority = Priority; // save priority variable
     
     // PWM pins configure as outputs
-    TRISBbits.TRISB8 = 0; // PWM OC2
-    TRISBbits.TRISB9 = 0; // PWM OC3
-    TRISBbits.TRISB10 = 0; // polarity OC2
-    TRISBbits.TRISB12 = 0; // polarity OC3
+    TRISBbits.TRISB3 = 0; // PWM OC1
+    TRISBbits.TRISB10 = 0; // PWM OC3
+    TRISBbits.TRISB2 = 0; // polarity OC1
+    TRISBbits.TRISB9 = 0; // polarity OC3
     
     // no analog on capable pins
     ANSELBbits.ANSB12 = 0;

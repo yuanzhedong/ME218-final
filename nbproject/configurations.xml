@@ -52,9 +52,9 @@
       <itemPath>ProjectHeaders/PWM_PIC32.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
       <itemPath>ProjectHeaders/Lab8_SM.h</itemPath>
-      <itemPath>ProjectHeaders/PWMService.h</itemPath>
       <itemPath>ProjectHeaders/KeyboardService.h</itemPath>
       <itemPath>ProjectHeaders/CommandService.h</itemPath>
+      <itemPath>ProjectHeaders/MyMotorService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -78,9 +78,9 @@
       <itemPath>ProjectSource/PWM_PIC32.c</itemPath>
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
       <itemPath>ProjectSource/Lab8_SM.c</itemPath>
-      <itemPath>ProjectSource/PWMService.c</itemPath>
       <itemPath>ProjectSource/KeyboardService.c</itemPath>
       <itemPath>ProjectSource/CommandService.c</itemPath>
+      <itemPath>ProjectSource/MyMotorService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

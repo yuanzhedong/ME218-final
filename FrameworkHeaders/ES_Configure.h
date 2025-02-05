@@ -59,11 +59,11 @@
 
 #if NUM_SERVICES > 1
 
-#define SERV_1_HEADER "PWMService.h"
+#define SERV_1_HEADER "MyMotorService.h"
 // the name of the Init function
-#define SERV_1_INIT InitPWMService
+#define SERV_1_INIT InitMotorService
 // the name of the run function
-#define SERV_1_RUN RunPWMService
+#define SERV_1_RUN RunMotorService
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 5
 #endif
@@ -336,7 +336,7 @@ typedef enum
 // #define TIMER12_RESP_FUNC PostDisplayService
 // #define TIMER13_RESP_FUNC PostServoService
 #define TIMER14_RESP_FUNC PostCommandService
-#define TIMER15_RESP_FUNC PostPWMService
+#define TIMER15_RESP_FUNC PostMotorService
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
