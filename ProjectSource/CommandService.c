@@ -213,7 +213,7 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) CmdISR(void)
     CMD_Event.EventType = ES_GEN;
     CMD_Event.EventParam = CurrentCmd;
     PostCommandService(CMD_Event);
-    PostRobotFSM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
+    //PostRobotFSM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
     PrevCmd = CurrentCmd;
   }
   //__builtin_enable_interrupts();

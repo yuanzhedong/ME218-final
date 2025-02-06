@@ -109,7 +109,7 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
             
                 
             default:
-                MotorCommand(0); // stop
+                //MotorCommand(0); // stop
                 break;
         }
     }

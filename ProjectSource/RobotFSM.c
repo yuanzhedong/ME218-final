@@ -82,12 +82,14 @@ bool InitRobotFSM(uint8_t Priority)
   state = NormalMove;
   /*******************************
   ***************Sensor stuff*/
+  /*
   TapeSensorTris = 1; 
   //A2 doesn't have analog capability
   ADC_ConfigAutoScan(BIT12HI);//bit5 corresponds to AN12/PMD0/RB12
   TRISBbits.TRISB12 = 1; // configure the pin as input
   ANSELBbits.ANSB12 = 1; // Configure RB15 as analog IO
   DB_printf("AD service initialized \n");
+  */
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
   if (ES_PostToService(MyPriority, ThisEvent) == true)
@@ -191,7 +193,7 @@ ES_Event_t RunRobotFSM(ES_Event_t ThisEvent)
                         PostMotorService(MotorEvent);
                         break;
                     case FWD_HALF_CMD:
-                        DB_printf("Command received: 0x%ScanIntervalx\n",ThisEvent.EventParam);
+                        DB_printf("Command received: 0x%x\n",ThisEvent.EventParam);
                         DB_printf("Driving forwards at half speed\n");
                         MotorEvent.EventType = ES_FWDHALF;
                         PostMotorService(MotorEvent);
@@ -208,6 +210,7 @@ ES_Event_t RunRobotFSM(ES_Event_t ThisEvent)
                         MotorEvent.EventType = ES_BWDHALF;
                         PostMotorService(MotorEvent);
                         break;
+                    /*
                     case ALIGN_CMD:
                         state = BeaconAlign;
                         AlignState = FindingPeak;
@@ -218,91 +221,103 @@ ES_Event_t RunRobotFSM(ES_Event_t ThisEvent)
                         ES_Timer_InitTimer(ADTimer,ScanInterval);
                         break;
                     
+                    case FIND_TAPE_CMD:
+                        state = MovingToTape;
+                        MotorEvent.EventType = ES_FWDFULL;
+                        PostMotorService(MotorEvent);
+                        DB_printf("moving forward to find tape\n");
+                    break;
+                    */
                     default:
                         break;
                 }
             }
-        break;
-        case BeaconAlign:
-            if (ThisEvent.EventParam == ADTimer)//AD value gets read no matter what
-            {
-                    ES_Timer_InitTimer(ADTimer,ScanInterval);
-                    ADC_MultiRead(CurrADVal);
-                }
-            switch (AlignState)
-            {
-            case FindingPeak:
-                if (CurrADVal[0]<PrevADVal[0])
-                {
-                    min_ADVal = CurrADVal[0];
-                    }
-                PrevADVal[0] = CurrADVal[0];    
-                if (ThisEvent==Rotate360Complete)
-                {
-                    AlignState = AlignPeak;
-                    alignError_prev = 1023;
-                    ES_Event_t Event2Post;
-                    Event2Post.EventType = ES_CCW_continuous;
-                    rotateDir = 0; //0 means it's rotating CCW
-                    PostMotorService(Event2Post);
-                    
-                }
-                
-            break;
-            case AlignPeak:
-            if (CurrADVal[0]<min_ADVal + 10 || ThisEvent.EventType == ES_GEN)
-            {
-                ES_Event_t Event2Post;
-                Event2Post.EventType = ES_STOP;
-                PostMotorService(Event2Post);
-                state = NormalMove;
-                AlignState = FindingPeak;
-                if (ThisEvent.EventType == ES_GEN)//meaning aligning took too much time and the next command is already here
-                {
-                    PostRobotFSM(ThisEvent);
-                }
-                
-            }
-            
-                // alignError = CurrADVal[0] - min_ADVal;
-                // if (alignError > alignError_prev)//error increased
-                // {
-                //     errorIsIncr = true;
-                //     IncrCount+=1;
-                // }else
-                // {
-                //     errorIsIncr = false;
-                //     IncrCount = 0;
-                // }
-                // if (IncrCount>=4)
-                // {
-                //     IncrCount = 0;//reset the count
-                //     rotateDir = !rotateDir;
-                //     ES_Event_t Event2Post;
-                //     if (rotateDir)
-                //     {
-                //         Event2Post.EventType = ES_CW_continuous;
-                //     }else
-                //     {
-                //         Event2Post.EventType = ES_CCW_continuous;
-                //     }
-                //     PostMotorService(Event2Post);    
-                // }
-                
-                
-            break;
-            case FindTape:
-            break;
-            default:
-                break;
-            }
-            
 
-                
-                
-        break;
-        case FindTape:
-        break;
+//        case BeaconAlign:
+//            if (ThisEvent.EventParam == ADTimer)//AD value gets read no matter what
+//            {
+//                    ES_Timer_InitTimer(ADTimer,ScanInterval);
+//                    ADC_MultiRead(CurrADVal);
+//                }
+//            switch (AlignState)
+//            {
+//            case FindingPeak:
+//                if (CurrADVal[0]<PrevADVal[0])
+//                {
+//                    min_ADVal = CurrADVal[0];
+//                    }
+//                PrevADVal[0] = CurrADVal[0];    
+//                if (ThisEvent.EventType==Rotate360Complete)
+//                {
+//                    AlignState = AlignPeak;
+//                    alignError_prev = 1023;
+//                    ES_Event_t Event2Post;
+//                    Event2Post.EventType = ES_CCW_continuous;
+//                    rotateDir = 0; //0 means it's rotating CCW
+//                    PostMotorService(Event2Post);
+//                    
+//                }
+//                
+//            break;
+//            case AlignPeak:
+//            if (CurrADVal[0]<min_ADVal + 10 || ThisEvent.EventType == ES_GEN)
+//            {
+//                ES_Event_t Event2Post;
+//                Event2Post.EventType = ES_STOP;
+//                PostMotorService(Event2Post);
+//                state = NormalMove;
+//                AlignState = FindingPeak;
+//                if (ThisEvent.EventType == ES_GEN)//meaning aligning took too much time and the next command is already here
+//                {
+//                    PostRobotFSM(ThisEvent);
+//                }
+//                
+//            }
+//            
+//                // alignError = CurrADVal[0] - min_ADVal;
+//                // if (alignError > alignError_prev)//error increased
+//                // {
+//                //     errorIsIncr = true;
+//                //     IncrCount+=1;
+//                // }else
+//                // {
+//                //     errorIsIncr = false;
+//                //     IncrCount = 0;
+//                // }
+//                // if (IncrCount>=4)
+//                // {
+//                //     IncrCount = 0;//reset the count
+//                //     rotateDir = !rotateDir;
+//                //     ES_Event_t Event2Post;
+//                //     if (rotateDir)
+//                //     {
+//                //         Event2Post.EventType = ES_CW_continuous;
+//                //     }else
+//                //     {
+//                //         Event2Post.EventType = ES_CCW_continuous;
+//                //     }
+//                //     PostMotorService(Event2Post);    
+//                // }
+//                
+//                
+//            break;
+//            default:
+//                break;
+//            }
+//            
+//
+//                
+//                
+//        break;
+//        case MovingToTape:
+//            if (ThisEvent.EventType == ES_Tape_Detect)
+//            {
+//                ES_Event_t Event2Post;
+//                Event2Post.EventType = ES_STOP;
+//                PostMotorService(Event2Post);
+//                state = NormalMove;
+//            }     
+//        break;
         default:
         break;
     }

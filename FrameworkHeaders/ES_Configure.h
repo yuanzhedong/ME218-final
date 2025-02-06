@@ -284,7 +284,8 @@ typedef enum
     ES_CW360,
     ES_CW_continuous,
     ES_CCW_continuous,
-    Rotate360Complete
+    Rotate360Complete,
+    ES_Tape_Detect
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -339,8 +340,7 @@ typedef enum
 #define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
-#define TIMER12_RESP_FUNC TIMER_UNUSED
-#define TIMER13_RESP_FUNC TIMER_UNUSED
+
 //#define TIMER14_RESP_FUNC TIMER_UNUSED
 //#define TIMER15_RESP_FUNC TIMER_UNUSED
 

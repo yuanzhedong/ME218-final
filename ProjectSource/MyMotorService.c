@@ -290,6 +290,7 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
         OC3RS = 0;
     }
     break;
+    /*
     case ES_CW360:
         puts("\rMotor: Turning CW 360 degree\r\n");
         LATBbits.LATB2 = 1;
@@ -300,7 +301,7 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
         OC3RS = (PR2+1) * dutyCycle/100;
 
     break;
-    
+    */
     default:
     {}
     break;

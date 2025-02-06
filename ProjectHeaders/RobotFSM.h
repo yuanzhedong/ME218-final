@@ -21,7 +21,7 @@ typedef enum
 {
   NormalMove = 0,
   BeaconAlign, 
-  FindTape
+  MovingToTape
 }RobotState_t;
 typedef enum
 {
