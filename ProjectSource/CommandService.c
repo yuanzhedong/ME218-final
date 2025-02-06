@@ -68,7 +68,7 @@ bool InitCommandService(uint8_t Priority)
   /********************************************
    in here you write your initialization code
    *******************************************/
-  puts("Started Initializing Command Service\n");
+  puts("Start Initializing Command Service\n");
 
   // Step 0: Disable analog function on all SPI pins
   ANSELBbits.ANSB14 = 0;
@@ -119,7 +119,7 @@ bool InitCommandService(uint8_t Priority)
   PrevCmd = 0xFF;
   CurrentCmd = 0xFF;
 
-  ES_Timer_InitTimer(QUERY_TIMER, 100);
+  ES_Timer_InitTimer(QUERY_TIMER, 200);
 
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
@@ -181,17 +181,17 @@ ES_Event_t RunCommandService(ES_Event_t ThisEvent)
    *******************************************/
   if (ES_TIMEOUT == ThisEvent.EventType)
   {
-    // Query the Command generator in a timely manner, interval set to 50ms
+    // Query the Command generator in a timely manner, interval set to 200ms
     if (QUERY_TIMER == ThisEvent.EventParam)
     {
       SPI1BUF = QUERY;
       //DB_printf("Querying\n");
-      ES_Timer_InitTimer(QUERY_TIMER, 50);
+      ES_Timer_InitTimer(QUERY_TIMER, 200);
     }
   }
   else if (ES_GEN == ThisEvent.EventType)
   {
-    DB_printf("Event: 0x%x\n", ThisEvent.EventParam);
+    DB_printf("Command sent: 0x%x\n", ThisEvent.EventParam);
   }
   return ReturnEvent;
 }
@@ -208,12 +208,12 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) CmdISR(void)
   // if((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF)){
   if ((PrevCmd != CurrentCmd) && (CurrentCmd != 0xFF))
   {
-    DB_printf("sth");
+    //DB_printf("sth");
     ES_Event_t CMD_Event;
     CMD_Event.EventType = ES_GEN;
     CMD_Event.EventParam = CurrentCmd;
-    PostLab8_SM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
-    //wwwwPostCommandService(CMD_Event);
+    PostCommandService(CMD_Event);
+    PostRobotFSM(CMD_Event); // CHANGE THIS WHEN IMPLEMENTING EVERYTHING SO MOTORS GET THIS EVENT!!!!!!!!
     PrevCmd = CurrentCmd;
   }
   //__builtin_enable_interrupts();
