@@ -61,6 +61,8 @@ static MotorState_t CurrentState;
 // static uint32_t ConversionRatio; 
 static uint32_t DCtick; 
 static float DC; 
+
+
 /*------------------------------ Module Code ------------------------------*/
 /****************************************************************************
  Function
@@ -108,6 +110,8 @@ bool InitMotorService(uint8_t Priority)
   LATBbits.LATB10 = 0;
   LATBbits.LATB3 = 0;
   LATBbits.LATB9 = 0;
+
+  
   ES_Event_t ThisEvent;
 
   MyPriority = Priority;
@@ -172,122 +176,136 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
   uint8_t dutyCycle;
   
   switch(ThisEvent.EventType){
-    case ES_FORWARD:
+    case ES_TIMEOUT:
+    {
+      ES_Event_t myEvent;
+      myEvent.EventType = ES_STOP;
+      PostMotorService(myEvent);
+    }
+    case ES_FWDFULL:
     {   
-      DB_printf("\rFSFSDFFDFDSFDSd\r\n");
+      puts("\rMotor: Moving forward at full speed\r\n");
       LATBbits.LATB2 = 0;
       LATBbits.LATB9 = 0;
-      dutyCycle = ThisEvent.EventParam;
+      //dutyCycle = ThisEvent.EventParam;
+      dutyCycle = 100; 
+      OC1RS = (PR2+1) * dutyCycle/100;       // Secondary Compare Register (for duty cycle)
+      OC3RS = (PR2+1) * dutyCycle/100;
+    }
+    break;
+    case ES_FWDHALF:
+    {   
+      puts("\rMotor: Moving forward at half speed\r\n");
+      LATBbits.LATB2 = 0;
+      LATBbits.LATB9 = 0;
+      //dutyCycle = ThisEvent.EventParam;
+      dutyCycle = 60;
       OC1RS = (PR2+1) * dutyCycle/100;       // Secondary Compare Register (for duty cycle)
       OC3RS = (PR2+1) * dutyCycle/100;
     }
     break;
     
-    case ES_BACKWARD:
+    case ES_BWDFULL:
     {
-        
-        DB_printf("\rFSFSDFDSFDSd\r\n");
+      puts("\rMotor: Moving Backward at full speed\r\n");
+      LATBbits.LATB2 = 1;
+      LATBbits.LATB9 = 1;
+      //dutyCycle = 100-ThisEvent.EventParam;
+      dutyCycle = 0; 
+      OC1RS = (PR2+1) * dutyCycle/100;       // Secondary Compare Register (for duty cycle)
+      OC3RS = (PR2+1) * dutyCycle/100;
+    }
+    break;
+
+    case ES_BWDHALF:
+    {
+      puts("\rMotor: Moving Backward at half speed\r\n");
+      LATBbits.LATB2 = 1;
+      LATBbits.LATB9 = 1;
+      //dutyCycle = 100-ThisEvent.EventParam;
+      dutyCycle = 40;
+      OC1RS = (PR2+1) * dutyCycle/100;       // Secondary Compare Register (for duty cycle)
+      OC3RS = (PR2+1) * dutyCycle/100;
+    }
+    break;
+    
+    case ES_LEFT90:
+    {
+        puts("\rMotor: Turning Left 90\r\n");
         LATBbits.LATB2 = 1;
+        LATBbits.LATB9 = 0;
+        // dutyCycle = ThisEvent.EventParam;
+        dutyCycle = 100;
+        OC1RS = (PR2+1) * (100-dutyCycle)/100;
+        OC3RS = (PR2+1) * dutyCycle/100;
+        ES_Timer_InitTimer(MOTOR_TIMER, 2000); // 
+    }
+    break;
+
+    case ES_LEFT45:
+    {
+        puts("\rMotor: Turning Left 45\r\n");
+        LATBbits.LATB2 = 1;
+        LATBbits.LATB9 = 0;
+        // dutyCycle = ThisEvent.EventParam;
+        dutyCycle = 100;
+        OC1RS = (PR2+1) * (100-dutyCycle)/100;
+        OC3RS = (PR2+1) * dutyCycle/100;
+        ES_Timer_InitTimer(MOTOR_TIMER, 1000);
+    }
+    break;
+    
+    case ES_RIGHT90:
+    {
+        puts("\rMotor: Turning Right 90\r\n");
+        LATBbits.LATB2 = 0;
         LATBbits.LATB9 = 1;
-        dutyCycle = 100-ThisEvent.EventParam;
-        OC1RS = (PR2+1) * dutyCycle/100;       // Secondary Compare Register (for duty cycle)
-        OC3RS = (PR2+1) * dutyCycle/100;
-    }
-    break;
-    
-    case ES_LEFT:
-    {
-        
-        dutyCycle = ThisEvent.EventParam;
-        OC1RS = 0;
-        OC3RS = (PR2+1) * dutyCycle/100;
-    }
-    break;
-    
-    case ES_RIGHT:
-    {
-        dutyCycle = ThisEvent.EventParam;
-        OC3RS = 0;
+        // dutyCycle = ThisEvent.EventParam;
+        dutyCycle = 100;
+        OC3RS = (PR2+1) * (100-dutyCycle)/100;
         OC1RS = (PR2+1) * dutyCycle/100;
+        ES_Timer_InitTimer(MOTOR_TIMER, 2000);
+    }
+    break;
+
+    case ES_RIGHT45:
+    {
+        puts("\rMotor: Turning Right 45\r\n");
+        LATBbits.LATB2 = 0;
+        LATBbits.LATB9 = 1;
+        // dutyCycle = ThisEvent.EventParam;
+        dutyCycle = 100;
+        OC3RS = (PR2+1) * (100-dutyCycle)/100;
+        OC1RS = (PR2+1) * dutyCycle/100;
+        ES_Timer_InitTimer(MOTOR_TIMER, 1000);
     }
     break;
     
     case ES_STOP:
     {
-        OC1RS = (PR2+1) *100*LATBbits.LATB2;
-        OC3RS = OC1RS;
+        puts("\rMotor: Action Stop or Turning Complete\r\n");
+        LATBbits.LATB2 = 0;
+        LATBbits.LATB9 = 0;
+        OC1RS = 0;
+        OC3RS = 0;
     }
     break;
-    
+    /*
+    case ES_CW360:
+        puts("\rMotor: Turning CW 360 degree\r\n");
+        LATBbits.LATB2 = 1;
+        LATBbits.LATB9 = 0;
+        // dutyCycle = ThisEvent.EventParam;
+        dutyCycle = 100;
+        OC1RS = (PR2+1) * (100-dutyCycle)/100;
+        OC3RS = (PR2+1) * dutyCycle/100;
+
+    break;
+    */
     default:
     {}
     break;
   }
-  /*Adjust Speed here*/
-  
-//  if (ThisEvent.EventType == ES_Read_Pot) {
-//    // DCtick = PR2 * ThisEvent.EventParam / 1023;
-//    DCtick = PR2 * (1023 * 1) / 1023;
-//    DB_printf("\r POT:  %d\r\n", ThisEvent.EventParam);
-//    DB_printf("\r DCtick:   %d\r\n", DCtick);
-//    DB_printf("\r PR2:   %d\r\n", PR2);
-//  }
-  
-//    OC1RS = PR2 * 0.9;       // Secondary Compare Register (for duty cycle)
-//    OC3RS = PR2 * 0.4;
-//    
-//    OC1R = PR2 * 0.2;  
-  // switch (CurrentState) {
-  //   case NOT_INIT:
-  //   {
-  //     if (ThisEvent.EventType == ES_INIT) { 
-  //       DB_printf("\rES_INIT received in Service %d\r\n", MyPriority); // should print ES_INIT received in Service 0
-  //       // Your code goes here
-  //       CurrentState = CWRot;
-  //     }
-  //   }
-  //   break;
-  //   case CWRot:
-  //   {
-  //     puts("\rCurrent Direction is CW\r\n"); 
-  //     if (ThisEvent.EventType == ES_BUTTON_PRESSED) {
-  //       puts("\rSwitch from CW to CWW\r\n"); 
-  //       LATAbits.LATA0 = 1;
-  //       OC1RS = PR2 - DCtick;
-  //       CurrentState = CCWRot;
-  //     }
-  //     else {
-  //       OC1RS = DCtick;
-  //     }
-      
-  //   }
-  //   break;
-  //   case CCWRot:
-  //   { 
-  //     puts("\rCurrent Direction is CCW\r\n"); 
-  //     if (ThisEvent.EventType == ES_BUTTON_PRESSED) {
-  //       puts("\rSwitch from CWW to CW\r\n"); 
-  //       LATAbits.LATA0 = 0;
-  //       OC1RS = DCtick;
-  //       CurrentState = CWRot;
-  //     }
-  //     else {
-  //       OC1RS = PR2 - DCtick;
-  //     }
-  //   }
-  //   break;
-
-  //   case Pause:
-  //   {
-  //   }
-  //   break;
-
-  //   default:
-  //   {}
-  //   break;
-
-  // }
-  
   return ReturnEvent;
 }
 
@@ -341,7 +359,6 @@ void ConfigPWM_OC1() {
 }
 
 
-
 void ConfigPWM_OC3() {
 
     // map OC3 to RB10
@@ -369,45 +386,3 @@ void ConfigPWM_OC3() {
 
 /*------------------------------- Footnotes -------------------------------*/
 /*------------------------------ End of file ------------------------------*/
-
-void MotorCommand(uint16_t WhichMove)
-{
-//    // array structure goes WhichMove [OC2RS, OC2 polarity, OC3RS, OC3 polarity, time]
-//    
-//    // start at no speed
-//    OC2RS = 0;
-//    OC3RS = 0;
-//    
-//    // send commands to left side motor
-//    if (MotorSettings[WhichMove][3] == 0) // if going clockwise
-//    {
-//        OC3RS = MotorSettings[WhichMove][2]; // set pwm normally
-//        LATBbits.LATB12 = 0; // set polarity pin
-//    }
-//    else
-//    {
-//        OC3RS = (TimerPeriod - MotorSettings[WhichMove][2]); // inverse pwm
-//        LATBbits.LATB12 = 1; // set polarity pin
-//    }
-//    
-//    
-//    // send PWM commands to right side motor
-//    if (MotorSettings[WhichMove][1] == 0) // if going clockwise
-//    {
-//        OC2RS = (TimerPeriod - MotorSettings[WhichMove][0]); // inverse pwm
-//        LATBbits.LATB10 = 1; // set polarity pin
-//    }
-//    else
-//    {
-//        OC2RS = MotorSettings[WhichMove][0]; // set pwm normally
-//        LATBbits.LATB10 = 0; // set polarity pin
-//    }
-//    
-//    // if we need to start a timer
-//    if (MotorSettings[WhichMove][4] != 0)
-//    {
-//        uint16_t time = MotorSettings[WhichMove][4];
-//        ES_Timer_InitTimer(MOTOR_TIMER, time);
-//    }
-    
-}

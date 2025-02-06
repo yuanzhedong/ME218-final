@@ -119,7 +119,22 @@ bool Check4Keystroke(void)
   }
   return false;
 }
-
+//bool Check4TapeSensor(void)
+//{
+//  static bool currSensorState = false;
+//  static bool lastSensorState = false;
+//  currSensorState = PORTAbits.RA2;
+//  if (lastSensorState!=currSensorState && currSensorState)
+//  {
+//    ES_Event_t ThisEvent;
+//    ThisEvent.EventType = ES_Tape_Detect;
+//    PostRobotFSM(ThisEvent);
+//    return true;
+//  }
+//  lastSensorState = currSensorState;
+//  return false;
+//  
+//}
 // bool ReadPotentiometer(void)
 // {
 //     static uint16_t LastPotentiometerValue = 0;

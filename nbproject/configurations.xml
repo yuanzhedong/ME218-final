@@ -51,10 +51,10 @@
       <itemPath>ProjectHeaders/TemplateFSM.h</itemPath>
       <itemPath>ProjectHeaders/PWM_PIC32.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
-      <itemPath>ProjectHeaders/Lab8_SM.h</itemPath>
       <itemPath>ProjectHeaders/KeyboardService.h</itemPath>
       <itemPath>ProjectHeaders/CommandService.h</itemPath>
       <itemPath>ProjectHeaders/MyMotorService.h</itemPath>
+      <itemPath>ProjectHeaders/RobotFSM.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -77,10 +77,10 @@
       <itemPath>ProjectSource/TemplateFSM.c</itemPath>
       <itemPath>ProjectSource/PWM_PIC32.c</itemPath>
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
-      <itemPath>ProjectSource/Lab8_SM.c</itemPath>
       <itemPath>ProjectSource/KeyboardService.c</itemPath>
       <itemPath>ProjectSource/CommandService.c</itemPath>
       <itemPath>ProjectSource/MyMotorService.c</itemPath>
+      <itemPath>ProjectSource/RobotFSM.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

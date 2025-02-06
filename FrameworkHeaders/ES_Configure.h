@@ -72,11 +72,11 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "Lab8_SM.h"
+#define SERV_2_HEADER "RobotFSM.h"
 // the name of the Init function
-#define SERV_2_INIT InitLab8_SM
+#define SERV_2_INIT InitRobotFSM
 // the name of the run function
-#define SERV_2_RUN RunLab8_SM
+#define SERV_2_RUN RunRobotFSM
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -272,11 +272,20 @@ typedef enum
     ES_FOUND_TAPE,
     ES_NO_TAPE,
             
-    ES_FORWARD,
-    ES_BACKWARD,
-    ES_LEFT,
-    ES_RIGHT,
-    ES_STOP
+    ES_FWDFULL,
+    ES_FWDHALF,
+    ES_BWDFULL,
+    ES_BWDHALF,
+    ES_LEFT90,
+    ES_LEFT45,
+    ES_RIGHT90,
+    ES_RIGHT45,
+    ES_STOP,
+    ES_CW360,
+    ES_CW_continuous,
+    ES_CCW_continuous,
+    Rotate360Complete,
+    ES_Tape_Detect
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -331,16 +340,15 @@ typedef enum
 #define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
-#define TIMER12_RESP_FUNC TIMER_UNUSED
-#define TIMER13_RESP_FUNC TIMER_UNUSED
+
 //#define TIMER14_RESP_FUNC TIMER_UNUSED
 //#define TIMER15_RESP_FUNC TIMER_UNUSED
 
 // #define TIMER9_RESP_FUNC DISPLAY_SCORE_TIMER
 // #define TIMER10_RESP_FUNC PostLiveService
 // #define TIMER11_RESP_FUNC PostGameMonitorService
-// #define TIMER12_RESP_FUNC PostDisplayService
-// #define TIMER13_RESP_FUNC PostServoService
+#define TIMER12_RESP_FUNC PostRobotFSM
+#define TIMER13_RESP_FUNC PostRobotFSM
 #define TIMER14_RESP_FUNC PostCommandService
 #define TIMER15_RESP_FUNC PostMotorService
 
@@ -354,5 +362,6 @@ typedef enum
 //#define ENCODER_TIMER 14
 #define MOTOR_TIMER 15
 #define QUERY_TIMER 14
-
+#define ADTimer 13
+#define AlignTimer 12
 #endif /* ES_CONFIGURE_H */
