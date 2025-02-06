@@ -45,14 +45,13 @@
       <itemPath>ProjectHeaders/EventCheckers.h</itemPath>
       <itemPath>ProjectHeaders/TestHarnessService0.h</itemPath>
       <itemPath>ProjectHeaders/TestHarnessService1.h</itemPath>
+      <itemPath>ProjectHeaders/LEDService.h</itemPath>
       <itemPath>ProjectHeaders/FontStuff.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_SPI_HAL.h</itemPath>
-      <itemPath>FrameworkHeaders/SendStringService.h</itemPath>
       <itemPath>ProjectHeaders/TemplateFSM.h</itemPath>
       <itemPath>ProjectHeaders/PWM_PIC32.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
       <itemPath>ProjectHeaders/KeyboardService.h</itemPath>
-      <itemPath>ProjectHeaders/CommandService.h</itemPath>
       <itemPath>ProjectHeaders/MyMotorService.h</itemPath>
       <itemPath>ProjectHeaders/RobotFSM.h</itemPath>
     </logicalFolder>
@@ -77,8 +76,9 @@
       <itemPath>ProjectSource/TemplateFSM.c</itemPath>
       <itemPath>ProjectSource/PWM_PIC32.c</itemPath>
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
-      <itemPath>ProjectSource/KeyboardService.c</itemPath>
+      <itemPath>ProjectSource/PWMService.c</itemPath>
       <itemPath>ProjectSource/CommandService.c</itemPath>
+      <itemPath>ProjectSource/KeyboardService.c</itemPath>
       <itemPath>ProjectSource/MyMotorService.c</itemPath>
       <itemPath>ProjectSource/RobotFSM.c</itemPath>
     </logicalFolder>
@@ -257,7 +257,21 @@
         <property key="use-iar" value="false"/>
         <property key="use-indirect-calls" value="false"/>
       </C32CPP>
-      <item path="FrameworkHeaders/SendStringService.h" ex="true" overriding="false">
+      <C32Global>
+        <property key="common-include-directories"
+                  value="FrameworkHeaders;ProjectHeaders"/>
+        <property key="gp-relative-option" value=""/>
+        <property key="legacy-libc" value="true"/>
+        <property key="mdtcm" value=""/>
+        <property key="mitcm" value=""/>
+        <property key="mstacktcm" value="false"/>
+        <property key="omit-pack-options" value="1"/>
+        <property key="relaxed-math" value="true"/>
+        <property key="save-temps" value="false"/>
+        <property key="stack-smashing" value=""/>
+        <property key="wpo-lto" value="false"/>
+      </C32Global>
+      <item path="ProjectHeaders/LEDService.h" ex="false" overriding="false">
         <C32>
         </C32>
         <C32-AR>
