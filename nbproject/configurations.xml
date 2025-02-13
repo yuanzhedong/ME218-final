@@ -44,8 +44,6 @@
       <itemPath>ProjectHeaders/EventCheckWrapper.h</itemPath>
       <itemPath>ProjectHeaders/EventCheckers.h</itemPath>
       <itemPath>ProjectHeaders/TestHarnessService0.h</itemPath>
-      <itemPath>ProjectHeaders/TestHarnessService1.h</itemPath>
-      <itemPath>ProjectHeaders/LEDService.h</itemPath>
       <itemPath>ProjectHeaders/FontStuff.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_SPI_HAL.h</itemPath>
       <itemPath>ProjectHeaders/TemplateFSM.h</itemPath>
@@ -70,9 +68,7 @@
       <itemPath>ProjectSource/EventCheckers.c</itemPath>
       <itemPath>ProjectSource/TestHarnessService0.c</itemPath>
       <itemPath>ProjectSource/main.c</itemPath>
-      <itemPath>ProjectSource/TestHarnessService1.c</itemPath>
       <itemPath>ProjectSource/PIC32_SPI_HAL_Starter.c</itemPath>
-      <itemPath>ProjectSource/FontStuff.c</itemPath>
       <itemPath>ProjectSource/TemplateFSM.c</itemPath>
       <itemPath>ProjectSource/PWM_PIC32.c</itemPath>
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
@@ -164,26 +160,6 @@
       <C32-AR>
         <property key="additional-options-chop-files" value="false"/>
       </C32-AR>
-      <C32-AS>
-        <property key="assembler-symbols" value=""/>
-        <property key="enable-symbols" value="true"/>
-        <property key="exclude-floating-point-library" value="false"/>
-        <property key="expand-macros" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=""/>
-        <property key="extra-include-directories-for-preprocessor" value=""/>
-        <property key="false-conditionals" value="false"/>
-        <property key="generate-16-bit-code" value="false"/>
-        <property key="generate-micro-compressed-code" value="false"/>
-        <property key="keep-locals" value="false"/>
-        <property key="list-assembly" value="false"/>
-        <property key="list-source" value="false"/>
-        <property key="list-symbols" value="false"/>
-        <property key="oXC32asm-list-to-file" value="false"/>
-        <property key="omit-debug-dirs" value="false"/>
-        <property key="omit-forms" value="false"/>
-        <property key="preprocessor-macros" value=""/>
-        <property key="warning-level" value=""/>
-      </C32-AS>
       <C32-CO>
         <property key="coverage-enable" value=""/>
         <property key="stack-guidance" value="false"/>
@@ -271,61 +247,11 @@
         <property key="stack-smashing" value=""/>
         <property key="wpo-lto" value="false"/>
       </C32Global>
-      <item path="ProjectHeaders/LEDService.h" ex="false" overriding="false">
-        <C32>
-        </C32>
-        <C32-AR>
-        </C32-AR>
-        <C32-AS>
-        </C32-AS>
-        <C32-CO>
-        </C32-CO>
-        <C32-LD>
-        </C32-LD>
-        <C32CPP>
-        </C32CPP>
-        <C32Global>
-        </C32Global>
-      </item>
-      <item path="ProjectHeaders/TestHarnessService1.h" ex="true" overriding="false">
-        <C32>
-        </C32>
-        <C32-AR>
-        </C32-AR>
-        <C32-AS>
-        </C32-AS>
-        <C32-CO>
-        </C32-CO>
-        <C32-LD>
-        </C32-LD>
-        <C32CPP>
-        </C32CPP>
-        <C32Global>
-        </C32Global>
-      </item>
-      <item path="ProjectSource/TestHarnessService1.c" ex="true" overriding="false">
-        <C32>
-        </C32>
-        <C32-AR>
-        </C32-AR>
-        <C32-AS>
-        </C32-AS>
-        <C32-CO>
-        </C32-CO>
-        <C32-LD>
-        </C32-LD>
-        <C32CPP>
-        </C32CPP>
-        <C32Global>
-        </C32Global>
-      </item>
       <item path="ProjectSource/main.c" ex="false" overriding="false">
         <C32>
         </C32>
         <C32-AR>
         </C32-AR>
-        <C32-AS>
-        </C32-AS>
         <C32-CO>
         </C32-CO>
         <C32-LD>
