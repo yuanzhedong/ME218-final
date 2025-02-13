@@ -4,7 +4,7 @@ sequenceDiagram
     participant Navigation
 
     rect rgb(255, 220, 220)
-    Note over Planner,Navigation: Scan Area
+    Note over Planner,Navigation: Scan Area and Decide
     Planner->>Navigation: TURN_360
     Navigation-->>Planner: Turn Complete
 
@@ -24,6 +24,14 @@ sequenceDiagram
     Planner->>Navigation: MOVE Backward
     Navigation-->>Planner: T Cross Detected
     Note over Planner: Drop
+    end
+
+    rect rgb(200, 220, 255)
+    Note over Planner,Navigation: Navigate to Column 2
+    end
+
+    rect rgb(200, 220, 255)
+    Note over Planner,Navigation: Navigate to opponent Columns
     end
 
     end

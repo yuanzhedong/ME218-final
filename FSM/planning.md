@@ -3,7 +3,8 @@ stateDiagram-v2
     state "Strategy Planner FSM" as PlannerFSM {
         [*] --> InitPlanner
         
-        InitPlanner --> NavigateToColumn1: Init Complete
+        InitPlanner --> SideDetection: Init Complete
+        SideDetection --> NavigateToColumn1: Side Detected
         note right of InitPlanner
             Initialize variables
             Set currentColumn = 1
@@ -39,7 +40,8 @@ stateDiagram-v2
         note right of NavigateToColumn2
             Return to center line
             Follow to next intersection
-            Turn to column2
+            Turn towards Column2
+            reach intersection
         end note
 
         ProcessColumn --> GameOver: Column2 Complete

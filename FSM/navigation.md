@@ -20,10 +20,12 @@ stateDiagram-v2
 
     LineFollow --> CheckIntersection: Cross Detected
     LineFollow --> Idle: STOP
+    LineFollow --> LineDiscover: ERROR
     note right of LineFollow
         Follow black line
         PID control
         Monitor sensors
+        Through ERROR if line can't be detected
     end note
 
     CheckIntersection --> TurnLeft: Need Left Turn
@@ -40,6 +42,10 @@ stateDiagram-v2
 
     TurnLeft --> Idle: STOP
     TurnRight --> Idle: STOP
+
+    LineDiscover --> LineFollow: recovered
+    LineDiscover --> Idle: STOP
+
     
 
 ```
