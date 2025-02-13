@@ -9,16 +9,16 @@ stateDiagram-v2
         Set initial mode
     end note
 
-    Idle --> LineFollow: navCommand == MOVE
-    Idle --> Turn360: navCommand == TURN_360
+    Idle --> LineFollow: FORWARD
+    Idle --> AlignBeacon: ALIGN_BEACON
     note right of Idle
         Wait for commands
         Motors stopped
     end note
 
-    Turn360 --> Idle: navCommand == STOP or turn is finished.
+    AlignBeacon --> Idle: STOP or Aligned.
 
-    LineFollow --> CheckIntersection: Cross Detected
+    LineFollow --> CheckIntersection: CROSS_DETECTED
     LineFollow --> Idle: STOP
     LineFollow --> LineDiscover: ERROR
     note right of LineFollow
@@ -28,9 +28,9 @@ stateDiagram-v2
         Through ERROR if line can't be detected
     end note
 
-    CheckIntersection --> TurnLeft: Need Left Turn
-    CheckIntersection --> TurnRight: Need Right Turn
-    CheckIntersection --> LineFollow: Need Forward/Backward
+    CheckIntersection --> TurnLeft: TURN_LEFT
+    CheckIntersection --> TurnRight: TURN_RIGHT
+    CheckIntersection --> LineFollow: FORWARD/BACKWARD
     CheckIntersection --> Idle: STOP
     note right of CheckIntersection
         Set moter duty cycle to zero
