@@ -50,7 +50,7 @@ stateDiagram-v2
     }
 
     note right of PlannerFSM
-        Navigation between columns:
+        Navigator between columns:
         Column1: Start to Center to Turn to Column1
         Column2: Stack1 to Center to Turn to Column2
         Column Processing: Same logic both columns
