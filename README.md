@@ -1,3 +1,15 @@
+# PIC0
+
+Planner
+Craft related control
+
+
+# PIC1
+Navigator
+Wheel Motor related control
+
+
+
 # Git Workflow: Checkout a Branch, Make a PR, and Resolve Conflicts
 
 ## 1. Checkout a New Branch from `main`
