@@ -18,6 +18,7 @@ stateDiagram-v2
 
     AlignBeacon --> Idle: STOP or Aligned.
 
+    LineFollow --> CheckCraft: CRAFT_DETECTED
     LineFollow --> CheckIntersection: CROSS_DETECTED
     LineFollow --> Idle: STOP
     LineFollow --> LineDiscover: ERROR
@@ -45,6 +46,13 @@ stateDiagram-v2
 
     LineDiscover --> LineFollow: recovered
     LineDiscover --> Idle: STOP
+
+    CheckCraft --> LineFollow: FORWARD/BACKWARD
+    CheckCraft --> Idle: STOP
+    note right of CheckCraft
+        Set moter duty cycle to zero
+        Wait for cmd
+    end note
 
     
 
