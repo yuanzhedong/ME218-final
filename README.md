@@ -1,13 +1,17 @@
 # PIC0
 
 Planner
+
 Craft related control
 
 
 # PIC1
+
 Navigator
+
 Wheel Motor related control
 
+Craft detection sensor
 
 
 # Git Workflow: Checkout a Branch, Make a PR, and Resolve Conflicts
