@@ -11,7 +11,7 @@ Navigator
 
 Wheel Motor related control
 
-Craft detection sensor
+Crate detection sensor
 
 
 # Git Workflow: Checkout a Branch, Make a PR, and Resolve Conflicts
