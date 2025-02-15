@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 2
+#define NUM_SERVICES 3
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -70,11 +70,11 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "NavigatorHSM.h"
+#define SERV_2_HEADER "SPIFollowerService.h"
 // the name of the Init function
-#define SERV_2_INIT InitNavigatorHSM
+#define SERV_2_INIT InitSPIFollowerService
 // the name of the run function
-#define SERV_2_RUN RunNavigatorHSM
+#define SERV_2_RUN RunSPIFollowerService
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -254,12 +254,12 @@
 typedef enum
 {
   ES_NO_EVENT = 0,
-  ES_ERROR,                 /* used to indicate an error from the service */
-  ES_INIT,                  /* used to transition from initial pseudo-state */
-  ES_TIMEOUT,               /* signals that the timer has expired */
-  ES_SHORT_TIMEOUT,         /* signals that a short timer has expired */
+  ES_ERROR,         /* used to indicate an error from the service */
+  ES_INIT,          /* used to transition from initial pseudo-state */
+  ES_TIMEOUT,       /* signals that the timer has expired */
+  ES_SHORT_TIMEOUT, /* signals that a short timer has expired */
   /* User-defined events start here */
-  ES_NEW_KEY,               /* signals a new key received from terminal */
+  ES_NEW_KEY, /* signals a new key received from terminal */
   ES_LOCK,
   ES_UNLOCK,
   ES_ENTRY,
@@ -279,7 +279,7 @@ typedef enum
   ES_TURN_LEFT,
   ES_TURN_RIGHT,
   ES_RECOVERED
-}ES_EventType_t;
+} ES_EventType_t;
 
 /****************************************************************************/
 // These are the definitions for the Distribution lists. Each definition
@@ -347,6 +347,5 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
-
 
 #endif /* ES_CONFIGURE_H */
