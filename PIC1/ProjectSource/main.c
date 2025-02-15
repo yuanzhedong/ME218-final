@@ -58,7 +58,7 @@ void main(void)
     {
       ErrorType = 0; // a hack to get a readable assert message
       assert( FailedOther  == ErrorType );
-//      DB_printf("Other Failure\n");
+      DB_printf("Other Failure\n");
     }
     break;
   }

@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 1
+#define NUM_SERVICES 2
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -57,11 +57,11 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "TestHarnessService1.h"
+#define SERV_1_HEADER "NavigatorHSM.h"
 // the name of the Init function
-#define SERV_1_INIT InitTestHarnessService1
+#define SERV_1_INIT InitNavigatorHSM
 // the name of the run function
-#define SERV_1_RUN RunTestHarnessService1
+#define SERV_1_RUN RunNavigatorHSM
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -70,11 +70,11 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "TestHarnessService2.h"
+#define SERV_2_HEADER "NavigatorHSM.h"
 // the name of the Init function
-#define SERV_2_INIT InitTestHarnessService2
+#define SERV_2_INIT InitNavigatorHSM
 // the name of the run function
-#define SERV_2_RUN RunTestHarnessService2
+#define SERV_2_RUN RunNavigatorHSM
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -261,7 +261,24 @@ typedef enum
   /* User-defined events start here */
   ES_NEW_KEY,               /* signals a new key received from terminal */
   ES_LOCK,
-  ES_UNLOCK
+  ES_UNLOCK,
+  ES_ENTRY,
+  ES_EXIT,
+  ES_FORWARD,
+  ES_BACKWARD,
+  ES_STOP,
+  ES_CRATE_DETECTED,
+  ES_CROSS_DETECTED,
+  ES_TJUNCTION_DETECTED,
+  ES_ALIGN_BEACON,
+  ES_BEACON_ALIGNED,
+  ES_ALIGNED,
+  ES_NOT_ALIGNED,
+  ES_ENTRY_HISTORY,
+  ES_TURN_COMPLETE,
+  ES_TURN_LEFT,
+  ES_TURN_RIGHT,
+  ES_RECOVERED
 }ES_EventType_t;
 
 /****************************************************************************/
