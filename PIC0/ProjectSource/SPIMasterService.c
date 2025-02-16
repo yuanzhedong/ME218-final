@@ -115,6 +115,7 @@ void InitSPI(void)
 bool SendSPICommand(uint8_t command) {
     // Check if previous transfer is complete
     if(SPI1STATbits.SPIBUSY) {
+        DB_printf("SPI is busy\r\n");
         return false;
     }
     
@@ -135,18 +136,12 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
     // Check for timeout
     if((ES_Timer_GetTime() - LastTransferTime) > SPI_TIMEOUT_MS) {
         // Handle timeout
-        //ES_Event_t TimeoutEvent;
-        //TimeoutEvent.EventType = ES_SPI_TIMEOUT;
         DB_printf("SPI Timeout\r\n");
-        //PostSPIMasterService(TimeoutEvent);
         return;
     } else {
         ReceivedCmd = receivedByte;
         ES_Event_t CmdEvent;
-        //CmdEvent.EventType = ES_NAVITATOR_STATUS;
-        //CmdEvent.EventParam = ReceivedCmd;
         DB_printf("Received status: %d\r\n", ReceivedCmd);
-        //PostSPIMasterService(CmdEvent);
     }
     LastTransferTime = ES_Timer_GetTime();
 }

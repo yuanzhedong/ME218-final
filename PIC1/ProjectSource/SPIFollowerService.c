@@ -80,7 +80,7 @@ void InitSPI(void)
     SPI2CONbits.MSTEN = 0; // Slave mode
     SPI2CONbits.CKE = 0;   // Reads on 2nd edge
     SPI2CONbits.CKP = 1;   // SCK idles high
-    SPI2CONbits.SSEN = 1;  // Enable SS pin
+    //SPI2CONbits.SSEN = 1;  // Enable SS pin
 
     // Step 8: Initialize Interrupts
     SPI2CONbits.SRXISEL = 0b01; // Interrupt when buffer is full
