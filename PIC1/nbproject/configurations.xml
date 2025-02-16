@@ -44,6 +44,8 @@
       <itemPath>ProjectHeaders/EventCheckWrapper.h</itemPath>
       <itemPath>ProjectHeaders/EventCheckers.h</itemPath>
       <itemPath>ProjectHeaders/TestHarnessService0.h</itemPath>
+      <itemPath>ProjectHeaders/NavigatorHSM.h</itemPath>
+      <itemPath>ProjectHeaders/SPIFollowerService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -60,6 +62,8 @@
       <itemPath>ProjectSource/EventCheckers.c</itemPath>
       <itemPath>ProjectSource/TestHarnessService0.c</itemPath>
       <itemPath>ProjectSource/main.c</itemPath>
+      <itemPath>ProjectSource/NavigatorHSM.c</itemPath>
+      <itemPath>ProjectSource/SPIFollowerService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -78,7 +82,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>snap</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.50</languageToolchainVersion>
+        <languageToolchainVersion>4.45</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
