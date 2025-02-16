@@ -118,6 +118,7 @@ bool SendSPICommand(uint8_t command) {
     
     // Send command directly
     while(SPI1STATbits.SPITBF);
+    DB_printf("Sending command: %d\r\n", command);
     SPI1BUF = command;
     LastSentCmd = command;
     LastTransferTime = ES_Timer_GetTime();    
