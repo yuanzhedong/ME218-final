@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 1
+#define NUM_SERVICES 3
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -57,11 +57,11 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "TestHarnessService1.h"
+#define SERV_1_HEADER "PlannerHSM.h"
 // the name of the Init function
-#define SERV_1_INIT InitTestHarnessService1
+#define SERV_1_INIT InitPlannerHSM
 // the name of the run function
-#define SERV_1_RUN RunTestHarnessService1
+#define SERV_1_RUN RunPlannerHSM
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -70,11 +70,11 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "TestHarnessService2.h"
+#define SERV_2_HEADER "KeyBoardService.h"
 // the name of the Init function
-#define SERV_2_INIT InitTestHarnessService2
+#define SERV_2_INIT InitKeyboardService
 // the name of the run function
-#define SERV_2_RUN RunTestHarnessService2
+#define SERV_2_RUN RunKeyboardService
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -265,6 +265,19 @@ typedef enum
   ES_ENTRY,
   ES_ENTRY_HISTORY,
   ES_EXIT,
+  ES_INIT_COMPLETE,
+  ES_HAS_CRATE,
+  ES_SIDE_DETECTED,
+  ES_AT_COLUMN1_INTERSECTION,
+  ES_AT_STACK,
+  ES_DROPPED,
+  ES_AT_CRATE,
+  ES_AT_COLUMN2_INTERSECTION,
+  ES_COLUMN_DONE,
+  ES_COLUMN1_COMPLETE,
+  ES_COLUMN2_COMPLETE,
+  
+  
   
 }ES_EventType_t;
 

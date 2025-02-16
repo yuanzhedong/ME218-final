@@ -19,7 +19,9 @@ build/default/debug/FrameworkSource/ES_Framework.o: \
  FrameworkSource/../FrameworkHeaders/ES_CheckEvents.h \
  FrameworkHeaders/ES_ServiceHeaders.h FrameworkHeaders/ES_Configure.h \
  ProjectHeaders/TestHarnessService0.h FrameworkHeaders/ES_Events.h \
- FrameworkHeaders/ES_Port.h ProjectHeaders/EventCheckWrapper.h \
+ FrameworkHeaders/ES_Port.h ProjectHeaders/PlannerHSM.h \
+ FrameworkHeaders/ES_Configure.h FrameworkHeaders/ES_Framework.h \
+ ProjectHeaders/KeyBoardService.h ProjectHeaders/EventCheckWrapper.h \
  ProjectHeaders/EventCheckers.h
 
 FrameworkSource/../FrameworkHeaders/ES_Configure.h:
@@ -65,6 +67,14 @@ ProjectHeaders/TestHarnessService0.h:
 FrameworkHeaders/ES_Events.h:
 
 FrameworkHeaders/ES_Port.h:
+
+ProjectHeaders/PlannerHSM.h:
+
+FrameworkHeaders/ES_Configure.h:
+
+FrameworkHeaders/ES_Framework.h:
+
+ProjectHeaders/KeyBoardService.h:
 
 ProjectHeaders/EventCheckWrapper.h:
 

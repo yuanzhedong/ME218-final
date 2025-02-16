@@ -1,20 +1,21 @@
-/****************************************************************************
- Template header file for Hierarchical Sate Machines AKA StateCharts
+/*----------------------------- Header Guard -----------------------------*/
+#ifndef PLANNER_HSM_H
+#define PLANNER_HSM_H
 
- ****************************************************************************/
+/*----------------------------- Include Files -----------------------------*/
+#include "ES_Configure.h"
+#include "ES_Framework.h"
 
-#ifndef TopHSMTemplate_H
-#define TopHSMTemplate_H
+/*----------------------------- Public Defines ----------------------------*/
+typedef enum { INIT_PLANNER, SEARCH_PICKUP_CRATE, SIDE_DETECTION, NAVIGATE_TO_COLUMN1,
+               PROCESS_COLUMN, GO_TO_STACK, DROP_CRATE, UPDATE_PROGRESS1, UPDATE_PROGRESS2,
+               GO_TO_CRATE, PICKUP_CRATE, NAVIGATE_TO_COLUMN2, GAME_OVER } PlannerState_t;
 
-// State definitions for use with the query function
-typedef enum { STATE_ONE, STATE_TWO, STATE_THREE } MasterState_t ;
+/*----------------------------- Public Functions ----------------------------*/
+bool InitPlannerHSM(uint8_t Priority);
+bool PostPlannerHSM(ES_Event_t ThisEvent);
+ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent);
+void StartPlannerHSM(ES_Event_t CurrentEvent);
+PlannerState_t QueryPlannerHSM(void);
 
-// Public Function Prototypes
-
-ES_Event_t RunMasterSM( ES_Event_t CurrentEvent );
-void StartMasterSM ( ES_Event_t CurrentEvent );
-bool PostMasterSM( ES_Event_t ThisEvent );
-bool InitMasterSM ( uint8_t Priority );
-
-#endif /*TopHSMTemplate_H */
-
+#endif /* PLANNER_HSM_H */

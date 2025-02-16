@@ -5,7 +5,8 @@ build/default/debug/ProjectSource/PlannerHSM.o: \
  FrameworkHeaders/Bin_Const.h FrameworkHeaders/terminal.h \
  FrameworkHeaders/ES_Events.h FrameworkHeaders/ES_Configure.h \
  FrameworkHeaders/ES_PostList.h FrameworkHeaders/ES_General.h \
- FrameworkHeaders/ES_Timers.h ProjectHeaders/PlannerHSM.h
+ FrameworkHeaders/ES_Timers.h ProjectHeaders/PlannerHSM.h \
+ FrameworkHeaders/dbprintf.h
 
 FrameworkHeaders/ES_Configure.h:
 
@@ -32,3 +33,5 @@ FrameworkHeaders/ES_General.h:
 FrameworkHeaders/ES_Timers.h:
 
 ProjectHeaders/PlannerHSM.h:
+
+FrameworkHeaders/dbprintf.h:
