@@ -6,16 +6,15 @@
 #include "NavigatorHSM.h"
 #include "dbprintf.h"
 
-/*----------------------------- Module Defines ----------------------------*/
-#define SPI_SLAVE_CMD 0xAA
-
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
-volatile static uint16_t ReceivedCmd;
+volatile static uint8_t ReceivedCmd;
+volatile static uint32_t lastReceiveTime;
+static uint8_t CurrentStatus = NAV_STATUS_OK;
 
 /*---------------------------- Module Functions ---------------------------*/
 void InitSPI(void);
-void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPISlaveISR(void);
+void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void);
 
 /*------------------------------ Module Code ------------------------------*/
 bool InitSPIFollowerService(uint8_t Priority)
@@ -54,7 +53,7 @@ ES_Event_t RunSPIFollowerService(ES_Event_t ThisEvent)
 void InitSPI(void)
 {
     // Step 0: Disable analog function on all SPI pins
-    ANSELBbits.ANSB5 = 0;
+    
     // Step 1: Map SPI Inputs/Outputs to all desired pins
     TRISBbits.TRISB5 = 1;  // Set SDI2 (RB5) as input
     SDI2R = 0b0100;        // Map SDI2 to RB5
@@ -67,7 +66,7 @@ void InitSPI(void)
     SPI2CONbits.ON = 0;
 
     // Step 3: Clear the receive buffer
-    SPI2BUF;
+    uint8_t dummpy = SPI2BUF;
 
     // Step 4: Enable Enhanced Buffer
     SPI2CONbits.ENHBUF = 0;
@@ -85,21 +84,62 @@ void InitSPI(void)
 
     // Step 8: Initialize Interrupts
     IFS1CLR = _IFS1_SPI2RXIF_MASK;
-    IPC8bits.SPI2IP = 6;
+    IPC9bits.SPI2IP = 6;
     IEC1SET = _IEC1_SPI2RXIE_MASK;
 
     // Step 9: Enable SPI
     SPI2CONbits.ON = 1;
+
+    lastReceiveTime = ES_Timer_GetTime();
 }
 
-void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPISlaveISR(void)
-{
-    ReceivedCmd = (uint16_t)SPI2BUF;
-    IFS1CLR = _IFS1_SPI2RXIF_MASK;
+void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
+    uint8_t receivedByte = SPI2BUF;
+    
+    // Process command directly
+    if(receivedByte >= NAV_CMD_MOVE && receivedByte <= NAV_CMD_TURN_360) {
+        ES_Event_t CmdEvent;
+        CmdEvent.EventType = ES_NEW_PLANNER_CMD;
+        CmdEvent.EventParam = receivedByte;
+        DB_printf("Received command: %d\r\n", receivedByte);
+        PostNavigatorHSM(CmdEvent);
+    } else if (receivedByte == NAV_CMD_QUERY_STATUS) {
+        // Update status based on Navigator state
+        NavigatorState_t currentState = QueryNavigatorHSM();
+        switch (currentState) {
+            case Init:
+                CurrentStatus = NAV_STATUS_INIT;
+                break;
+            case Idle:
+                CurrentStatus = NAV_STATUS_IDLE;
+                break;
+            case LineFollow:
+                CurrentStatus = NAV_STATUS_LINE_FOLLOW;
+                break;
+            case AlignBeacon:
+                CurrentStatus = NAV_STATUS_ALIGN_BEACON;
+                break;
+            case CheckIntersection:
+                CurrentStatus = NAV_STATUS_CHECK_INTERSECTION;
+                break;
+            case TurnLeft:
+                CurrentStatus = NAV_STATUS_TURN_LEFT;
+                break;
+            case TurnRight:
+                CurrentStatus = NAV_STATUS_TURN_RIGHT;
+                break;
+            case LineDiscover:
+                CurrentStatus = NAV_STATUS_LINE_DISCOVER;
+                break;
+            case CheckCrate:
+                CurrentStatus = NAV_STATUS_CHECK_CRATE;
+                break;
+            default:
+                CurrentStatus = NAV_STATUS_ERROR;
+                break;
+        }
+    }
 
-    // Post event to Navigator state machine
-    ES_Event_t CMD_Event;
-    CMD_Event.EventType = ES_GEN;
-    CMD_Event.EventParam = ReceivedCmd;
-    PostNavigatorHSM(CMD_Event);
+    // Always update status for next transfer
+    SPI2BUF = CurrentStatus;
 }

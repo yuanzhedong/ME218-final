@@ -84,7 +84,7 @@ void InitSPI(void)
     // Step 3: Disable SPI Module
     SPI1CONbits.ON = 0;
     // Step 4: Clear the receive buffer
-    SPI1BUF;
+    uint8_t dummpy = SPI1BUF;
     // Step 5: Enable Enhanced Buffer
     SPI1CONbits.ENHBUF = 0;
     // Step 6: Set Baudrate
@@ -108,24 +108,174 @@ void InitSPI(void)
     SPI1CONbits.ON = 1;
 }
 
-void SendSPICommand(uint16_t command)
-{
-    while (SPI1STATbits.SPITBF)
-        ; // Wait until the buffer is not full
-    SPI1BUF = command;
+bool SendSPICommand(NavCommand_t command) {
+    // Check if previous transfer is complete
+    if(SPI1STATbits.SPIBUSY) {
+        return false;
+    }
+    
+    // Send header first
+    while(SPI1STATbits.SPITBF);
+    SPI1BUF = SPI_HEADER_BYTE;
+    LastSentCmd = command;
+    LastTransferTime = ES_GetTime();
+    
+    return true;
 }
 
-void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void)
-{
-    CurrentNavigatorStatus = (uint16_t)SPI1BUF;
+void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
+    static uint8_t byteCount = 0;
+    static uint8_t receivedStatus = 0;
+    
+    uint8_t receivedByte = SPI1BUF;
     IFS1CLR = _IFS1_SPI1RXIF_MASK;
 
-    if ((PrevNavigatorStatus != CurrentNavigatorStatus) && (CurrentNavigatorStatus != 0xFF))
-    {
-        ES_Event_t CMD_Event;
-        CMD_Event.EventType = ES_NAVIGATOR_STATUS;
-        CMD_Event.EventParam = CurrentNavigatorStatus;
-        PostSPIMasterService(CMD_Event);
+    // Check for timeout
+    if((ES_GetTime() - LastTransferTime) > SPI_TIMEOUT_MS) {
+        byteCount = 0;
+        // Handle timeout
+        ES_Event_t TimeoutEvent;
+        TimeoutEvent.EventType = ES_SPI_TIMEOUT;
+        PostSPIMasterService(TimeoutEvent);
+        return;
+    }
+
+    switch(byteCount) {
+        case 0:
+            // Send command after header acknowledged
+            while(SPI1STATbits.SPITBF);
+            SPI1BUF = LastSentCmd;
+            byteCount++;
+            break;
+            
+        case 1:
+            // Store received status
+            receivedStatus = receivedByte;
+            byteCount = 0;
+            
+            // Only post if status is valid and changed
+            if(receivedStatus >= NAV_STATUS_OK && 
+               receivedStatus <= NAV_STATUS_ERROR &&
+               receivedStatus != PrevNavigatorStatus) {
+                   
+                ES_Event_t StatusEvent;
+                StatusEvent.EventType = ES_NAVIGATOR_STATUS;
+                StatusEvent.EventParam = receivedStatus;
+                PostSPIMasterService(StatusEvent);
+                PrevNavigatorStatus = receivedStatus;
+            }
+            break;
+    }
+}
+Updated Follower Service:
+c
+
+Copy
+// SPIFollowerService.c
+#include "SPICommon.h"
+
+static uint8_t CurrentStatus = NAV_STATUS_OK;
+static uint32_t LastReceiveTime = 0;
+
+void InitSPI(void) {
+    // Previous initialization code...
+    
+    // Clear receive buffer properly
+    uint8_t dummy = SPI2BUF;
+    
+    // Initialize last receive time
+    LastReceiveTime = ES_GetTime();
+}
+
+void UpdateNavigatorStatus(NavStatus_t newStatus) {
+    CurrentStatus = newStatus;
+}
+
+void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPISlaveISR(void) {
+    static uint8_t byteCount = 0;
+    
+    uint8_t receivedByte = SPI2BUF;
+    IFS1CLR = _IFS1_SPI2RXIF_MASK;
+
+    // Check for timeout
+    if((ES_GetTime() - LastReceiveTime) > SPI_TIMEOUT_MS) {
+        byteCount = 0;
+    }
+    LastReceiveTime = ES_GetTime();
+
+    switch(byteCount) {
+        case 0:
+            if(receivedByte == SPI_HEADER_BYTE) {
+                byteCount++;
+                // Prepare to send status
+                SPI2BUF = CurrentStatus;
+            }
+            break;
+            
+        case 1:
+            // Process received command
+            if(receivedByte >= NAV_CMD_MOVE && 
+               receivedByte <= NAV_CMD_TURN_360) {
+                ES_Event_t CmdEvent;
+                CmdEvent.EventType = ES_NEW_PLANNER_CMD;
+                CmdEvent.EventParam = receivedByte;
+                PostNavigatorHSM(CmdEvent);
+            }
+            byteCount = 0;
+            break;
+    }
+}
+
+ES_Event_t RunSPIFollowerService(ES_Event_t ThisEvent) {
+    ES_Event_t ReturnEvent;
+    ReturnEvent.EventType = ES_NO_EVENT;
+    
+    switch(ThisEvent.EventType) {
+        case ES_TIMEOUT:
+            if(ThisEvent.EventParam == WATCHDOG_TIMER) {
+                // Check for communication timeout
+                if((ES_GetTime() - LastReceiveTime) > SPI_TIMEOUT_MS) {
+                    // Handle communication loss
+                    ES_Event_t TimeoutEvent;
+                    TimeoutEvent.EventType = ES_SPI_TIMEOUT;
+                    PostNavigatorHSM(TimeoutEvent);
+                }
+            }
+            break;
+    }
+    
+    return ReturnEvent;
+}
+
+
+bool SendSPICommand(NavCommand_t command) {
+    // Check if previous transfer is complete
+    if(SPI2STATbits.SPIBUSY) {
+        return false;
+    }
+    
+    // Send header first
+    while(SPI2STATbits.SPITBF);
+    SPI2BUF = SPI_HEADER_BYTE;
+    LastSentCmd = command;
+    LastTransferTime = ES_GetTime();
+    
+    return true;
+}
+
+
+
+void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
+    CurrentNavigatorStatus = SPI1BUF;
+    IFS1CLR = _IFS1_SPI1RXIF_MASK;
+
+    // Only post if status changed
+    if (PrevNavigatorStatus != CurrentNavigatorStatus) {
+        ES_Event_t StatusEvent;
+        StatusEvent.EventType = ES_NAVIGATOR_STATUS;
+        StatusEvent.EventParam = CurrentNavigatorStatus;
+        DB_printf("Received status: %d\r\n", CurrentNavigatorStatus);
+        PostSPIMasterService(StatusEvent);
         PrevNavigatorStatus = CurrentNavigatorStatus;
     }
 }

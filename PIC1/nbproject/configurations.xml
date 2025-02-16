@@ -45,6 +45,7 @@
       <itemPath>ProjectHeaders/EventCheckers.h</itemPath>
       <itemPath>ProjectHeaders/TestHarnessService0.h</itemPath>
       <itemPath>ProjectHeaders/NavigatorHSM.h</itemPath>
+      <itemPath>ProjectHeaders/SPIFollowerService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -62,6 +63,7 @@
       <itemPath>ProjectSource/TestHarnessService0.c</itemPath>
       <itemPath>ProjectSource/main.c</itemPath>
       <itemPath>ProjectSource/NavigatorHSM.c</itemPath>
+      <itemPath>ProjectSource/SPIFollowerService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
