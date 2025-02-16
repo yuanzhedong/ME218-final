@@ -34,7 +34,7 @@ bool InitSPIMasterService(uint8_t Priority)
     CurrentNavigatorStatus = NAV_STATUS_IDLE;
 
     // Start a timer to query the slave periodically
-    ES_Timer_InitTimer(SPI_QUERY_TIMER, 200);
+    ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000);
 
     // Post the initial transition event
     ES_Event_t ThisEvent;
@@ -64,7 +64,7 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     {
         // Query the slave for its status
         SendSPICommand(DEBUG_CMD);
-        ES_Timer_InitTimer(SPI_QUERY_TIMER, 200); // Restart the timer
+        ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000); // Restart the timer
     }
 
     return ReturnEvent;
@@ -76,7 +76,8 @@ void InitSPI(void)
     ANSELBbits.ANSB14 = 0;
     // Step 1: Map SPI Outputs to all desired pins
     TRISBbits.TRISB4 = 0;
-    RPB4R = 0b0011; // Map SS1 to RB4
+    //RPB4R = 0b0011; // Map SS1 to RB4
+    LATBbits.LATB4 = 1; // Pull SS high
     TRISBbits.TRISB8 = 0;
     RPB8R = 0b0011;        // Map SDO to RB8
     TRISBbits.TRISB14 = 0; // Set SCK1 (RB14) as output
@@ -114,17 +115,35 @@ void InitSPI(void)
 
 bool SendSPICommand(uint8_t command) {
     // Check if previous transfer is complete
+    LATBbits.LATB4 = 0; // Pull SS low
+
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+
+    for (volatile uint32_t i = 0; i < 1000000; i++);
     if(SPI1STATbits.SPIBUSY) {
         DB_printf("SPI is busy\r\n");
         return false;
     }
     
+    // Add a delay of 1 second
+    
+
     // Send command directly
     while(SPI1STATbits.SPITBF);
     DB_printf("Sending command: %d\r\n", command);
     SPI1BUF = command;
     LastSentCmd = command;
-    LastTransferTime = ES_Timer_GetTime();    
+    LastTransferTime = ES_Timer_GetTime();
+    uint8_t receivedByte = SPI1BUF;
+
+        for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    LATBbits.LATB4 = 1; // Pull SS high    
     return true;
 }
 
