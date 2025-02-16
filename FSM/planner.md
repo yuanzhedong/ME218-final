@@ -3,7 +3,8 @@ stateDiagram-v2
     state "Strategy Planner FSM" as PlannerFSM {
         [*] --> InitPlanner
         
-        InitPlanner --> SideDetection: Init Complete
+        InitPlanner --> PickupCrate: Init Complete
+        PickupCrate --> SideDetection: Has Crate
         SideDetection --> NavigateToColumn1: Side Detected
         note right of InitPlanner
             Initialize variables
@@ -17,17 +18,21 @@ stateDiagram-v2
             Follow column1 line
         end note
 
+
         state ProcessColumn {
-            [*] --> GoToCrate
-            GoToCrate --> PickupCrate: At Crate
-            PickupCrate --> GoToStack: Has Crate
+            [*] --> GoToStack
             GoToStack --> DropCrate: At Stack
             DropCrate --> UpdateProgress: Dropped
             UpdateProgress --> GoToCrate: More Crates
+            GoToCrate --> PickupCrate: At Crate
+            PickupCrate --> GoToStack: Has Crate
             UpdateProgress --> [*]: Column Done
         }
 
-        ProcessColumn --> NavigateToColumn2: Column1 Complete
+        ProcessColumn --> GoToCrate: Column1 Complete
+        GoToCrate --> PickupCrate: At Crate
+        PickupCrate --> NavigateToColumn2: Has Crate
+
         note right of ProcessColumn
             Move to crates
             Pickup crate

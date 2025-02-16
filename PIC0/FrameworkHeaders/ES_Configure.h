@@ -261,7 +261,11 @@ typedef enum
   /* User-defined events start here */
   ES_NEW_KEY,               /* signals a new key received from terminal */
   ES_LOCK,
-  ES_UNLOCK
+  ES_UNLOCK,
+  ES_ENTRY,
+  ES_ENTRY_HISTORY,
+  ES_EXIT,
+  
 }ES_EventType_t;
 
 /****************************************************************************/
