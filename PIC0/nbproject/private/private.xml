@@ -3,10 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/zli69/Documents/Stanford/ME218B/ME218-final/PIC0/ProjectSource/TopHSMTemplate.c</file>
-            <file>file:/D:/zli69/Documents/Stanford/ME218B/ME218-final/PIC0/ProjectHeaders/TopHSMTemplate.h</file>
-            <file>file:/D:/zli69/Documents/Stanford/ME218B/ME218-final/PIC0/FrameworkHeaders/ES_Configure.h</file>
-            <file>file:/D:/zli69/Documents/Stanford/ME218B/ME218-final/PIC0/ProjectHeaders/TestHarnessService0.h</file>
+            <file>file:/U:/zhiyuanl/TermBProject/ME218-final/PIC0/ProjectSource/PlannerHSM.c</file>
+            <file>file:/U:/zhiyuanl/TermBProject/ME218-final/PIC0/FrameworkHeaders/ES_Configure.h</file>
+            <file>file:/U:/zhiyuanl/TermBProject/ME218-final/PIC0/ProjectSource/KeyBoardService.c</file>
         </group>
     </open-files>
 </project-private>

@@ -194,8 +194,7 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
     case ES_TIMEOUT:   // re-start timer & announce
     {
       ES_Timer_InitTimer(SERVICE0_TIMER, FIVE_SEC);
-      DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n",
-          ThisEvent.EventParam, MyPriority);
+      //DB_printf("ES_TIMEOUT received from Timer %d in Service %d\r\n", ThisEvent.EventParam, MyPriority);
     }
     break;
     case ES_SHORT_TIMEOUT:   // lower the line & announce
@@ -205,8 +204,7 @@ ES_Event_t RunTestHarnessService0(ES_Event_t ThisEvent)
     break;
     case ES_NEW_KEY:   // announce
     {
-      DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",
-          (char)ThisEvent.EventParam);
+      //DB_printf("ES_NEW_KEY received with -> %c <- in Service 0\r\n",(char)ThisEvent.EventParam);
       if ('d' == ThisEvent.EventParam)
       {
         ThisEvent.EventParam = DeferredChar++;   //

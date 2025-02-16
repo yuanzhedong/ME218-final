@@ -7,19 +7,19 @@
 #include "PlannerHSM.h"
 
 /*----------------------------- Module Defines ----------------------------*/
-#define INIT 'i'
-#define SEARCH_PICKUP 'p'
-#define SIDE_DETECTION 's'
-#define NAVIGATE_COLUMN1 'n'
+#define INIT_COMPLETE 'i'
+#define HAS_CRATE 'p'
+#define SIDE_DETECTED 's'
+#define AT_COLUMN1_INTERSECTION 'n'
 #define PROCESS_COLUMN 'c'
-#define GO_TO_STACK 'g'
-#define DROP_CRATE 'd'
+#define AT_STACK 'g'
+#define DROPPED 'd'
 #define UPDATE_PROGRESS1 'u'
 #define UPDATE_PROGRESS2 'v'
-#define GO_TO_CRATE 't'
+#define AT_CRATE 't'
 #define PICKUP_CRATE 'k'
-#define NAVIGATE_COLUMN2 'm'
-#define GAME_OVER 'o'
+#define AT_COLUMN2_INTERSECTION 'm'
+#define COLUMN2_COMPLETE 'o'
 
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
@@ -45,45 +45,44 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
     ES_Event_t CurEvent;
 
     if (ThisEvent.EventType == ES_NEW_KEY)
-    {
+    {   
         char key = ThisEvent.EventParam;
         switch (key)
         {
-            case INIT:
+            case INIT_COMPLETE:
                 CurEvent.EventType = ES_INIT_COMPLETE;
                 break;
-            case SEARCH_PICKUP:
+            case HAS_CRATE:
                 CurEvent.EventType = ES_HAS_CRATE;
                 break;
-            case SIDE_DETECTION:
+            case SIDE_DETECTED:
                 CurEvent.EventType = ES_SIDE_DETECTED;
                 break;
-            case NAVIGATE_COLUMN1:
+            case AT_COLUMN1_INTERSECTION:
                 CurEvent.EventType = ES_AT_COLUMN1_INTERSECTION;
                 break;
-            case GO_TO_STACK:
+            case AT_STACK:
                 CurEvent.EventType = ES_AT_STACK;
                 break;
-            case DROP_CRATE:
+            case DROPPED:
                 CurEvent.EventType = ES_DROPPED;
                 break;
-            case GO_TO_CRATE:
+            case AT_CRATE:
                 CurEvent.EventType = ES_AT_CRATE;
                 break;
             case PICKUP_CRATE:
                 CurEvent.EventType = ES_HAS_CRATE;
                 break;
-            case NAVIGATE_COLUMN2:
+            case AT_COLUMN2_INTERSECTION:
                 CurEvent.EventType = ES_AT_COLUMN2_INTERSECTION;
                 break;
-            case GAME_OVER:
+            case COLUMN2_COMPLETE:
                 CurEvent.EventType = ES_COLUMN2_COMPLETE;
                 break;
             default:
                 return ReturnEvent;
         }
         
-        DB_printf("Posting Event: %d from Keyboard Input\r\n", CurEvent.EventType);
         PostPlannerHSM(CurEvent);
     }
     return ReturnEvent;
