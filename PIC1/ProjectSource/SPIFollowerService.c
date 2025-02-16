@@ -105,6 +105,7 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
         PostNavigatorHSM(CmdEvent);
     } else if (receivedByte == NAV_CMD_QUERY_STATUS) {
         // Update status based on Navigator state
+        DB_printf("Received status query\r\n");
         NavigatorState_t currentState = QueryNavigatorHSM();
         switch (currentState) {
             case Init:

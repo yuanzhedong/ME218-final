@@ -220,143 +220,143 @@ static ES_Event_t DuringCheckCrate(ES_Event_t Event) {
 ****************************************************************************/
 ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
     bool MakeTransition = false; /* are we making a state transition? */
-    NavigatorState_t NextState = CurrentState;
-    ES_Event_t EntryEventKind = {ES_ENTRY, 0}; // default to normal entry to new state
-    ES_Event_t ReturnEvent = CurrentEvent; // assume we are not consuming event
+    //NavigatorState_t NextState = CurrentState;
+    //ES_Event_t EntryEventKind = {ES_ENTRY, 0}; // default to normal entry to new state
+    ES_Event_t ReturnEvent = { ES_NO_EVENT, 0 }; // assume no error
 
-    switch (CurrentState) {
-        case Init:
-            ReturnEvent = DuringInit(CurrentEvent);
-            if (ReturnEvent.EventType == ES_INIT) {
-                NextState = Idle;
-                MakeTransition = true;
-            }
-            break;
+    // switch (CurrentState) {
+    //     case Init:
+    //         ReturnEvent = DuringInit(CurrentEvent);
+    //         if (ReturnEvent.EventType == ES_INIT) {
+    //             NextState = Idle;
+    //             MakeTransition = true;
+    //         }
+    //         break;
 
-        case Idle:
-            ReturnEvent = DuringIdle(CurrentEvent);
-            if (ReturnEvent.EventType != ES_NO_EVENT) {
-                switch (CurrentEvent.EventType) {
-                    case ES_FORWARD:
-                        NextState = LineFollow;
-                        MakeTransition = true;
-                        break;
-                    case ES_ALIGN_BEACON:
-                        NextState = AlignBeacon;
-                        MakeTransition = true;
-                        break;
-                }
-            }
-            break;
+    //     case Idle:
+    //         ReturnEvent = DuringIdle(CurrentEvent);
+    //         if (ReturnEvent.EventType != ES_NO_EVENT) {
+    //             switch (CurrentEvent.EventType) {
+    //                 case ES_FORWARD:
+    //                     NextState = LineFollow;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_ALIGN_BEACON:
+    //                     NextState = AlignBeacon;
+    //                     MakeTransition = true;
+    //                     break;
+    //             }
+    //         }
+    //         break;
 
-        case LineFollow:
-            ReturnEvent = DuringLineFollow(CurrentEvent);
-            if (ReturnEvent.EventType != ES_NO_EVENT) {
-                switch (CurrentEvent.EventType) {
-                    case ES_CRATE_DETECTED:
-                        NextState = CheckCrate;
-                        MakeTransition = true;
-                        break;
-                    case ES_CROSS_DETECTED:
-                        NextState = CheckIntersection;
-                        MakeTransition = true;
-                        break;
-                    case ES_TJUNCTION_DETECTED:
-                        NextState = CheckIntersection;
-                        MakeTransition = true;
-                        break;
-                    case ES_STOP:
-                        NextState = Idle;
-                        MakeTransition = true;
-                        break;
-                    case ES_ERROR:
-                        NextState = LineDiscover;
-                        MakeTransition = true;
-                        break;
-                }
-            }
-            break;
+    //     case LineFollow:
+    //         ReturnEvent = DuringLineFollow(CurrentEvent);
+    //         if (ReturnEvent.EventType != ES_NO_EVENT) {
+    //             switch (CurrentEvent.EventType) {
+    //                 case ES_CRATE_DETECTED:
+    //                     NextState = CheckCrate;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_CROSS_DETECTED:
+    //                     NextState = CheckIntersection;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_TJUNCTION_DETECTED:
+    //                     NextState = CheckIntersection;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_STOP:
+    //                     NextState = Idle;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_ERROR:
+    //                     NextState = LineDiscover;
+    //                     MakeTransition = true;
+    //                     break;
+    //             }
+    //         }
+    //         break;
 
-        case AlignBeacon:
-            ReturnEvent = DuringAlignBeacon(CurrentEvent);
-            if (ReturnEvent.EventType == ES_STOP || ReturnEvent.EventType == ES_ALIGNED) {
-                NextState = Idle;
-                MakeTransition = true;
-            }
-            break;
+    //     case AlignBeacon:
+    //         ReturnEvent = DuringAlignBeacon(CurrentEvent);
+    //         if (ReturnEvent.EventType == ES_STOP || ReturnEvent.EventType == ES_ALIGNED) {
+    //             NextState = Idle;
+    //             MakeTransition = true;
+    //         }
+    //         break;
 
-        case CheckIntersection:
-            ReturnEvent = DuringCheckIntersection(CurrentEvent);
-            if (ReturnEvent.EventType != ES_NO_EVENT) {
-                switch (CurrentEvent.EventType) {
-                    case ES_TURN_LEFT:
-                        NextState = TurnLeft;
-                        MakeTransition = true;
-                        break;
-                    case ES_TURN_RIGHT:
-                        NextState = TurnRight;
-                        MakeTransition = true;
-                        break;
-                    case ES_FORWARD:
-                    case ES_BACKWARD:
-                        NextState = LineFollow;
-                        MakeTransition = true;
-                        break;
-                    case ES_STOP:
-                        NextState = Idle;
-                        MakeTransition = true;
-                        break;
-                }
-            }
-            break;
+    //     case CheckIntersection:
+    //         ReturnEvent = DuringCheckIntersection(CurrentEvent);
+    //         if (ReturnEvent.EventType != ES_NO_EVENT) {
+    //             switch (CurrentEvent.EventType) {
+    //                 case ES_TURN_LEFT:
+    //                     NextState = TurnLeft;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_TURN_RIGHT:
+    //                     NextState = TurnRight;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_FORWARD:
+    //                 case ES_BACKWARD:
+    //                     NextState = LineFollow;
+    //                     MakeTransition = true;
+    //                     break;
+    //                 case ES_STOP:
+    //                     NextState = Idle;
+    //                     MakeTransition = true;
+    //                     break;
+    //             }
+    //         }
+    //         break;
 
-        case TurnLeft:
-            ReturnEvent = DuringTurnLeft(CurrentEvent);
-            if (ReturnEvent.EventType == ES_TURN_COMPLETE || ReturnEvent.EventType == ES_STOP) {
-                NextState = Idle;
-                MakeTransition = true;
-            }
-            break;
+    //     case TurnLeft:
+    //         ReturnEvent = DuringTurnLeft(CurrentEvent);
+    //         if (ReturnEvent.EventType == ES_TURN_COMPLETE || ReturnEvent.EventType == ES_STOP) {
+    //             NextState = Idle;
+    //             MakeTransition = true;
+    //         }
+    //         break;
 
-        case TurnRight:
-            ReturnEvent = DuringTurnRight(CurrentEvent);
-            if (ReturnEvent.EventType == ES_TURN_COMPLETE || ReturnEvent.EventType == ES_STOP) {
-                NextState = Idle;
-                MakeTransition = true;
-            }
-            break;
+    //     case TurnRight:
+    //         ReturnEvent = DuringTurnRight(CurrentEvent);
+    //         if (ReturnEvent.EventType == ES_TURN_COMPLETE || ReturnEvent.EventType == ES_STOP) {
+    //             NextState = Idle;
+    //             MakeTransition = true;
+    //         }
+    //         break;
 
-        case LineDiscover:
-            ReturnEvent = DuringLineDiscover(CurrentEvent);
-            if (ReturnEvent.EventType == ES_RECOVERED) {
-                NextState = LineFollow;
-                MakeTransition = true;
-            } else if (ReturnEvent.EventType == ES_STOP) {
-                NextState = Idle;
-                MakeTransition = true;
-            }
-            break;
+    //     case LineDiscover:
+    //         ReturnEvent = DuringLineDiscover(CurrentEvent);
+    //         if (ReturnEvent.EventType == ES_RECOVERED) {
+    //             NextState = LineFollow;
+    //             MakeTransition = true;
+    //         } else if (ReturnEvent.EventType == ES_STOP) {
+    //             NextState = Idle;
+    //             MakeTransition = true;
+    //         }
+    //         break;
 
-        case CheckCrate:
-            ReturnEvent = DuringCheckCrate(CurrentEvent);
-            if (ReturnEvent.EventType == ES_FORWARD || ReturnEvent.EventType == ES_BACKWARD) {
-                NextState = LineFollow;
-                MakeTransition = true;
-            } else if (ReturnEvent.EventType == ES_STOP) {
-                NextState = Idle;
-                MakeTransition = true;
-            }
-            break;
-    }
+    //     case CheckCrate:
+    //         ReturnEvent = DuringCheckCrate(CurrentEvent);
+    //         if (ReturnEvent.EventType == ES_FORWARD || ReturnEvent.EventType == ES_BACKWARD) {
+    //             NextState = LineFollow;
+    //             MakeTransition = true;
+    //         } else if (ReturnEvent.EventType == ES_STOP) {
+    //             NextState = Idle;
+    //             MakeTransition = true;
+    //         }
+    //         break;
+    // }
 
-    if (MakeTransition) {
-        CurrentEvent.EventType = ES_EXIT;
-        RunNavigatorHSM(CurrentEvent);
+    // if (MakeTransition) {
+    //     CurrentEvent.EventType = ES_EXIT;
+    //     RunNavigatorHSM(CurrentEvent);
 
-        CurrentState = NextState;
+    //     CurrentState = NextState;
 
-        RunNavigatorHSM(EntryEventKind);
-    }
+    //     RunNavigatorHSM(EntryEventKind);
+    // }
 
     return ReturnEvent;
 }
