@@ -3,8 +3,8 @@ stateDiagram-v2
     state "Strategy Planner FSM" as PlannerFSM {
         [*] --> InitPlanner
         
-        InitPlanner --> PickupCrate: Init Complete
-        PickupCrate --> SideDetection: Has Crate
+        InitPlanner --> SearchPickupCrate: Init Complete
+        SearchPickupCrate --> SideDetection: Has Crate
         SideDetection --> NavigateToColumn1: Side Detected
         note right of InitPlanner
             Initialize variables
