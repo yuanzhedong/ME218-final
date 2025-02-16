@@ -33,7 +33,7 @@ typedef enum {
     NAV_STATUS_LINE_DISCOVER = 0x1B,
     NAV_STATUS_CHECK_CRATE = 0x1C,
     NAV_STATUS_INIT = 0x1D,
-} NavStatus_t
+} NavStatus_t;
 
 bool InitSPIMasterService(uint8_t Priority);
 bool PostSPIMasterService(ES_Event_t ThisEvent);
