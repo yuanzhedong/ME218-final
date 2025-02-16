@@ -83,6 +83,7 @@ void InitSPI(void)
     SPI2CONbits.SSEN = 1;  // Enable SS pin
 
     // Step 8: Initialize Interrupts
+    SPI2CONbits.SRXISEL = 0b01; // Interrupt when buffer is full
     IFS1CLR = _IFS1_SPI2RXIF_MASK;
     IPC9bits.SPI2IP = 6;
     IEC1SET = _IEC1_SPI2RXIE_MASK;
@@ -95,7 +96,8 @@ void InitSPI(void)
 
 void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     uint8_t receivedByte = SPI2BUF;
-    
+    DB_printf("Received byte: %d\r\n", receivedByte); // Add debug print
+
     // Process command directly
     if(receivedByte >= NAV_CMD_MOVE && receivedByte <= NAV_CMD_TURN_360) {
         ES_Event_t CmdEvent;

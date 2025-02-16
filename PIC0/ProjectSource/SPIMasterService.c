@@ -79,9 +79,9 @@ void InitSPI(void)
     RPB4R = 0b0011; // Map SS1 to RB4
     TRISBbits.TRISB8 = 0;
     RPB8R = 0b0011;        // Map SDO to RB8
-    TRISBbits.TRISB14 = 0; // set SCK1 (RB14) as output
+    TRISBbits.TRISB14 = 0; // Set SCK1 (RB14) as output
     // Step 2: Map SDI
-    TRISBbits.TRISB5 = 1; // input
+    TRISBbits.TRISB5 = 1; // Input
     SDI1R = 0b0001;       // Map SDI1 to RB5
     // Step 3: Disable SPI Module
     SPI1CONbits.ON = 0;
@@ -99,15 +99,17 @@ void InitSPI(void)
     SPI1CONbits.CKE = 0;    // Reads on 2nd edge
     SPI1CONbits.CKP = 1;    // SCK idles high
     SPI1CONbits.FRMPOL = 0; // CS is active low
-    SPI1CON2bits.AUDEN = 0; // |
+    SPI1CON2bits.AUDEN = 0;
     SPI1CONbits.MODE16 = 0; // Enable 8 bit transfers
-    SPI1CONbits.MODE32 = 0; // |
+    SPI1CONbits.MODE32 = 0; 
     // Step 9: Initialize Interrupts
+    SPI1CONbits.SRXISEL = 0b01; // Interrupt when buffer is full
     IFS1CLR = _IFS1_SPI1RXIF_MASK;
     IPC7bits.SPI1IP = 6;
     IEC1SET = _IEC1_SPI1RXIE_MASK;
     // Step 10: Enable SPI
     SPI1CONbits.ON = 1;
+    __builtin_enable_interrupts();
 }
 
 bool SendSPICommand(uint8_t command) {
