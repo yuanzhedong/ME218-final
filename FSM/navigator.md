@@ -24,10 +24,11 @@ stateDiagram-v2
     LineFollow --> LineDiscover: ERROR
     LineFollow --> CheckIntersection: TJUNCTION_DETECTED
     note right of LineFollow
-        Follow black line
-        PID control
-        Monitor sensors
-        Through ERROR if line can't be detected
+      Assume there's a LineFollowService
+      Enter:
+        When entering this state, FSM will tell LineFollowService to start the motor and follow black tape
+      Exit:
+        When exiting this state, FSM will tell LineFollowService to stop the motor
     end note
 
     CheckIntersection --> TurnLeft: TURN_LEFT
