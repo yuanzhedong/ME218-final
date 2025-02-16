@@ -18,21 +18,21 @@ stateDiagram-v2
             Follow column1 line
         end note
 
-
         state ProcessColumn {
             [*] --> GoToStack
             GoToStack --> DropCrate: At Stack
-            DropCrate --> UpdateProgress: Dropped
-            UpdateProgress --> GoToCrate: More Crates
+            DropCrate --> UpdateProgress2: Dropped
+            UpdateProgress2 --> GoToCrate: More Crates
             GoToCrate --> PickupCrate: At Crate
-            PickupCrate --> GoToStack: Has Crate
-            UpdateProgress --> [*]: Column Done
+
+            PickupCrate --> UpdateProgress1: Has Crate
+            UpdateProgress1 --> GoToStack: Colunm1 Continue
+
+            UpdateProgress2 --> [*]: Column Done
+            UpdateProgress1 --> [*]: Column Done
         }
 
-        ProcessColumn --> GoToCrate: Column1 Complete
-        GoToCrate --> PickupCrate: At Crate
-        PickupCrate --> NavigateToColumn2: Has Crate
-
+        ProcessColumn --> NavigateToColumn2: Column1 Complete
         note right of ProcessColumn
             Move to crates
             Pickup crate
