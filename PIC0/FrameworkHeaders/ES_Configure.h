@@ -262,8 +262,10 @@ typedef enum
   ES_NEW_KEY,               /* signals a new key received from terminal */
   ES_LOCK,
   ES_UNLOCK,
-  ES_TAPE_FOLLOW,
-  ES_TAPE_STOP,
+
+
+  ES_SPI_TIMEOUT,
+
 }ES_EventType_t;
 
 /****************************************************************************/
@@ -321,7 +323,7 @@ typedef enum
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC TIMER_UNUSED
+#define TIMER14_RESP_FUNC PostSPIMasterService
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
 /****************************************************************************/
@@ -332,6 +334,7 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
+#define SPI_QUERY_TIMER 14
 
 
 #endif /* ES_CONFIGURE_H */

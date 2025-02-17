@@ -6,18 +6,20 @@
 #include "dbprintf.h"
 
 /*----------------------------- Module Defines ----------------------------*/
-#define SPI_MASTER_CMD 0xAA
-#define QUERY_TIMER 1
 
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
 volatile static uint16_t ReceivedCmd;
 volatile static uint16_t CurrentNavigatorStatus;
 volatile static uint16_t PrevNavigatorStatus;
+static uint32_t LastTransferTime;
+static uint8_t LastSentCmd;
+
+#define DEBUG_CMD NAV_CMD_QUERY_STATUS
 
 /*---------------------------- Module Functions ---------------------------*/
 void InitSPI(void);
-void SendSPICommand(uint16_t command);
+bool SendSPICommand(uint8_t command);
 void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void);
 
 /*------------------------------ Module Code ------------------------------*/
@@ -27,12 +29,12 @@ bool InitSPIMasterService(uint8_t Priority)
     InitSPI(); // Initialize SPI as master
 
     // Initialize Commands
-    SPI1BUF = SPI_MASTER_CMD;
-    PrevNavigatorStatus = 0xFF;
-    CurrentNavigatorStatus = 0xFF;
+    SPI1BUF = DEBUG_CMD;
+    PrevNavigatorStatus = NAV_STATUS_IDLE;
+    CurrentNavigatorStatus = NAV_STATUS_IDLE;
 
     // Start a timer to query the slave periodically
-    ES_Timer_InitTimer(QUERY_TIMER, 200);
+    ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000);
 
     // Post the initial transition event
     ES_Event_t ThisEvent;
@@ -58,11 +60,11 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
     // Handle events here
-    if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == QUERY_TIMER)
+    if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == SPI_QUERY_TIMER)
     {
         // Query the slave for its status
-        SendSPICommand(SPI_MASTER_CMD);
-        ES_Timer_InitTimer(QUERY_TIMER, 200); // Restart the timer
+        SendSPICommand(DEBUG_CMD);
+        ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000); // Restart the timer
     }
 
     return ReturnEvent;
@@ -74,12 +76,13 @@ void InitSPI(void)
     ANSELBbits.ANSB14 = 0;
     // Step 1: Map SPI Outputs to all desired pins
     TRISBbits.TRISB4 = 0;
-    RPB4R = 0b0011; // Map SS1 to RB4
+    //RPB4R = 0b0011; // Map SS1 to RB4
+    LATBbits.LATB4 = 1; // Pull SS high
     TRISBbits.TRISB8 = 0;
     RPB8R = 0b0011;        // Map SDO to RB8
-    TRISBbits.TRISB14 = 0; // set SCK1 (RB14) as output
+    TRISBbits.TRISB14 = 0; // Set SCK1 (RB14) as output
     // Step 2: Map SDI
-    TRISBbits.TRISB5 = 1; // input
+    TRISBbits.TRISB5 = 1; // Input
     SDI1R = 0b0001;       // Map SDI1 to RB5
     // Step 3: Disable SPI Module
     SPI1CONbits.ON = 0;
@@ -97,185 +100,104 @@ void InitSPI(void)
     SPI1CONbits.CKE = 0;    // Reads on 2nd edge
     SPI1CONbits.CKP = 1;    // SCK idles high
     SPI1CONbits.FRMPOL = 0; // CS is active low
-    SPI1CON2bits.AUDEN = 0; // |
+    SPI1CON2bits.AUDEN = 0;
     SPI1CONbits.MODE16 = 0; // Enable 8 bit transfers
-    SPI1CONbits.MODE32 = 0; // |
+    SPI1CONbits.MODE32 = 0; 
     // Step 9: Initialize Interrupts
+    SPI1CONbits.SRXISEL = 0b01; // Interrupt when buffer is full
     IFS1CLR = _IFS1_SPI1RXIF_MASK;
     IPC7bits.SPI1IP = 6;
     IEC1SET = _IEC1_SPI1RXIE_MASK;
     // Step 10: Enable SPI
     SPI1CONbits.ON = 1;
+    __builtin_enable_interrupts();
 }
 
-bool SendSPICommand(NavCommand_t command) {
+bool SendSPICommand(uint8_t command) {
     // Check if previous transfer is complete
+    LATBbits.LATB4 = 0; // Pull SS low
+
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+
+    for (volatile uint32_t i = 0; i < 1000000; i++);
     if(SPI1STATbits.SPIBUSY) {
+        DB_printf("SPI is busy\r\n");
         return false;
     }
     
-    // Send header first
-    while(SPI1STATbits.SPITBF);
-    SPI1BUF = SPI_HEADER_BYTE;
-    LastSentCmd = command;
-    LastTransferTime = ES_GetTime();
+    // Add a delay of 1 second
     
+
+    // Send command directly
+    while(SPI1STATbits.SPITBF);
+    DB_printf("Sending command: %d\r\n", command);
+    SPI1BUF = command;
+    LastSentCmd = command;
+    LastTransferTime = ES_Timer_GetTime();
+    uint8_t receivedByte = SPI1BUF;
+
+        for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+
+    for (volatile uint32_t i = 0; i < 1000000; i++);
+    LATBbits.LATB4 = 1; // Pull SS high    
     return true;
 }
 
 void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
-    static uint8_t byteCount = 0;
-    static uint8_t receivedStatus = 0;
     
     uint8_t receivedByte = SPI1BUF;
     IFS1CLR = _IFS1_SPI1RXIF_MASK;
 
     // Check for timeout
-    if((ES_GetTime() - LastTransferTime) > SPI_TIMEOUT_MS) {
-        byteCount = 0;
+    if((ES_Timer_GetTime() - LastTransferTime) > SPI_TIMEOUT_MS) {
         // Handle timeout
-        ES_Event_t TimeoutEvent;
-        TimeoutEvent.EventType = ES_SPI_TIMEOUT;
-        PostSPIMasterService(TimeoutEvent);
+        DB_printf("SPI Timeout\r\n");
         return;
+    } else {
+        ReceivedCmd = receivedByte;
+        ES_Event_t CmdEvent;
+        DB_printf("Received status: %d\r\n", ReceivedCmd);
     }
-
-    switch(byteCount) {
-        case 0:
-            // Send command after header acknowledged
-            while(SPI1STATbits.SPITBF);
-            SPI1BUF = LastSentCmd;
-            byteCount++;
-            break;
-            
-        case 1:
-            // Store received status
-            receivedStatus = receivedByte;
-            byteCount = 0;
-            
-            // Only post if status is valid and changed
-            if(receivedStatus >= NAV_STATUS_OK && 
-               receivedStatus <= NAV_STATUS_ERROR &&
-               receivedStatus != PrevNavigatorStatus) {
-                   
-                ES_Event_t StatusEvent;
-                StatusEvent.EventType = ES_NAVIGATOR_STATUS;
-                StatusEvent.EventParam = receivedStatus;
-                PostSPIMasterService(StatusEvent);
-                PrevNavigatorStatus = receivedStatus;
-            }
-            break;
-    }
-}
-Updated Follower Service:
-c
-
-Copy
-// SPIFollowerService.c
-#include "SPICommon.h"
-
-static uint8_t CurrentStatus = NAV_STATUS_OK;
-static uint32_t LastReceiveTime = 0;
-
-void InitSPI(void) {
-    // Previous initialization code...
-    
-    // Clear receive buffer properly
-    uint8_t dummy = SPI2BUF;
-    
-    // Initialize last receive time
-    LastReceiveTime = ES_GetTime();
+    LastTransferTime = ES_Timer_GetTime();
 }
 
-void UpdateNavigatorStatus(NavStatus_t newStatus) {
-    CurrentStatus = newStatus;
-}
-
-void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPISlaveISR(void) {
-    static uint8_t byteCount = 0;
-    
-    uint8_t receivedByte = SPI2BUF;
-    IFS1CLR = _IFS1_SPI2RXIF_MASK;
-
-    // Check for timeout
-    if((ES_GetTime() - LastReceiveTime) > SPI_TIMEOUT_MS) {
-        byteCount = 0;
-    }
-    LastReceiveTime = ES_GetTime();
-
-    switch(byteCount) {
-        case 0:
-            if(receivedByte == SPI_HEADER_BYTE) {
-                byteCount++;
-                // Prepare to send status
-                SPI2BUF = CurrentStatus;
-            }
-            break;
-            
-        case 1:
-            // Process received command
-            if(receivedByte >= NAV_CMD_MOVE && 
-               receivedByte <= NAV_CMD_TURN_360) {
-                ES_Event_t CmdEvent;
-                CmdEvent.EventType = ES_NEW_PLANNER_CMD;
-                CmdEvent.EventParam = receivedByte;
-                PostNavigatorHSM(CmdEvent);
-            }
-            byteCount = 0;
-            break;
-    }
-}
-
-ES_Event_t RunSPIFollowerService(ES_Event_t ThisEvent) {
-    ES_Event_t ReturnEvent;
-    ReturnEvent.EventType = ES_NO_EVENT;
-    
-    switch(ThisEvent.EventType) {
-        case ES_TIMEOUT:
-            if(ThisEvent.EventParam == WATCHDOG_TIMER) {
-                // Check for communication timeout
-                if((ES_GetTime() - LastReceiveTime) > SPI_TIMEOUT_MS) {
-                    // Handle communication loss
-                    ES_Event_t TimeoutEvent;
-                    TimeoutEvent.EventType = ES_SPI_TIMEOUT;
-                    PostNavigatorHSM(TimeoutEvent);
-                }
-            }
-            break;
-    }
-    
-    return ReturnEvent;
+void UpdateNavigatorStatus(uint8_t newStatus) {
+    CurrentNavigatorStatus = newStatus;
 }
 
 
-bool SendSPICommand(NavCommand_t command) {
-    // Check if previous transfer is complete
-    if(SPI2STATbits.SPIBUSY) {
-        return false;
-    }
+// bool SendSPICommand(NavCommand_t command) {
+//     // Check if previous transfer is complete
+//     if(SPI2STATbits.SPIBUSY) {
+//         return false;
+//     }
     
-    // Send header first
-    while(SPI2STATbits.SPITBF);
-    SPI2BUF = SPI_HEADER_BYTE;
-    LastSentCmd = command;
-    LastTransferTime = ES_GetTime();
+//     // Send header first
+//     while(SPI2STATbits.SPITBF);
+//     SPI2BUF = SPI_HEADER_BYTE;
+//     LastSentCmd = command;
+//     LastTransferTime = ES_GetTime();
     
-    return true;
-}
+//     return true;
+// }
 
 
 
-void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
-    CurrentNavigatorStatus = SPI1BUF;
-    IFS1CLR = _IFS1_SPI1RXIF_MASK;
+// void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
+//     CurrentNavigatorStatus = SPI1BUF;
+//     IFS1CLR = _IFS1_SPI1RXIF_MASK;
 
-    // Only post if status changed
-    if (PrevNavigatorStatus != CurrentNavigatorStatus) {
-        ES_Event_t StatusEvent;
-        StatusEvent.EventType = ES_NAVIGATOR_STATUS;
-        StatusEvent.EventParam = CurrentNavigatorStatus;
-        DB_printf("Received status: %d\r\n", CurrentNavigatorStatus);
-        PostSPIMasterService(StatusEvent);
-        PrevNavigatorStatus = CurrentNavigatorStatus;
-    }
-}
+//     // Only post if status changed
+//     if (PrevNavigatorStatus != CurrentNavigatorStatus) {
+//         ES_Event_t StatusEvent;
+//         StatusEvent.EventType = ES_NAVIGATOR_STATUS;
+//         StatusEvent.EventParam = CurrentNavigatorStatus;
+//         DB_printf("Received status: %d\r\n", CurrentNavigatorStatus);
+//         PostSPIMasterService(StatusEvent);
+//         PrevNavigatorStatus = CurrentNavigatorStatus;
+//     }
+// }
