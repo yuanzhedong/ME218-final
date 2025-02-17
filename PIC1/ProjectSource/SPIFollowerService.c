@@ -21,7 +21,7 @@ void TriggerSPIFollowerISR(void); // Function prototype for triggering ISR
 bool InitSPIFollowerService(uint8_t Priority)
 {
     MyPriority = Priority;
-    InitSPI(); // Initialize SPI as slave
+    InitSPI_v2(); // Initialize SPI as slave
 
     // Post the initial transition event
     ES_Event_t ThisEvent;
@@ -96,9 +96,9 @@ void InitSPI(void)
     SPI1CONbits.MODE32 = 0; // 8-bit mode
     // Step 8: Initialize Interrupts
     SPI1CONbits.SRXISEL = 0b01; // Interrupt when buffer is full
-    IFS0CLR = _IFS0_SPI1RXIF_MASK;
+    IFS0CLR = _IFS1_SPI1RXIF_MASK;
     IPC7bits.SPI1IP = 6;
-    IEC0SET = _IEC0_SPI1RXIE_MASK;
+    IEC0SET = _IFS1_SPI1RXIF_MASK;
 
     // Step 9: Enable SPI
     SPI1CONbits.ON = 1;
@@ -153,63 +153,9 @@ void InitSPI_v2(void)
 }
 
 
-void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
-    uint8_t receivedByte = SPI1BUF;
-    IFS0CLR = _IFS0_SPI1RXIF_MASK; // Clear the interrupt flag
-
-    DB_printf("Received byte: %d\r\n", receivedByte); // Add debug print
-
-    // Process command directly
-    if(receivedByte >= NAV_CMD_MOVE && receivedByte <= NAV_CMD_TURN_360) {
-        ES_Event_t CmdEvent;
-        CmdEvent.EventType = ES_NEW_PLANNER_CMD;
-        CmdEvent.EventParam = receivedByte;
-        DB_printf("Received command: %d\r\n", receivedByte);
-        PostNavigatorHSM(CmdEvent);
-    } else if (receivedByte == NAV_CMD_QUERY_STATUS) {
-        // Update status based on Navigator state
-        DB_printf("Received status query\r\n");
-        NavigatorState_t currentState = QueryNavigatorHSM();
-        switch (currentState) {
-            case Init:
-                CurrentStatus = NAV_STATUS_INIT;
-                break;
-            case Idle:
-                CurrentStatus = NAV_STATUS_IDLE;
-                break;
-            case LineFollow:
-                CurrentStatus = NAV_STATUS_LINE_FOLLOW;
-                break;
-            case AlignBeacon:
-                CurrentStatus = NAV_STATUS_ALIGN_BEACON;
-                break;
-            case CheckIntersection:
-                CurrentStatus = NAV_STATUS_CHECK_INTERSECTION;
-                break;
-            case TurnLeft:
-                CurrentStatus = NAV_STATUS_TURN_LEFT;
-                break;
-            case TurnRight:
-                CurrentStatus = NAV_STATUS_TURN_RIGHT;
-                break;
-            case LineDiscover:
-                CurrentStatus = NAV_STATUS_LINE_DISCOVER;
-                break;
-            case CheckCrate:
-                CurrentStatus = NAV_STATUS_CHECK_CRATE;
-                break;
-            default:
-                CurrentStatus = NAV_STATUS_ERROR;
-                break;
-        }
-    }
-
-    // Always update status for next transfer
-    SPI1BUF = CurrentStatus;
-}
-// void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
-//     uint8_t receivedByte = SPI2BUF;
-//     IFS1CLR = _IFS1_SPI2RXIF_MASK; // Clear the interrupt flag
+// void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
+//     uint8_t receivedByte = SPI1BUF;
+//     IFS0CLR = _IFS1_SPI1RXIF_MASK; // Clear the interrupt flag
 
 //     DB_printf("Received byte: %d\r\n", receivedByte); // Add debug print
 
@@ -259,9 +205,64 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
 //     }
 
 //     // Always update status for next transfer
-//     SPI2BUF = CurrentStatus;
+//     SPI1BUF = CurrentStatus;
 // }
+void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
+    uint8_t receivedByte = SPI2BUF;
+    IFS1CLR = _IFS1_SPI2RXIF_MASK; // Clear the interrupt flag
+
+    DB_printf("Received byte: %d\r\n", receivedByte); // Add debug print
+
+    // Process command directly
+    if(receivedByte >= NAV_CMD_MOVE && receivedByte <= NAV_CMD_TURN_360) {
+        ES_Event_t CmdEvent;
+        CmdEvent.EventType = ES_NEW_PLANNER_CMD;
+        CmdEvent.EventParam = receivedByte;
+        DB_printf("Received command: %d\r\n", receivedByte);
+        PostNavigatorHSM(CmdEvent);
+    } else if (receivedByte == NAV_CMD_QUERY_STATUS) {
+        // Update status based on Navigator state
+        DB_printf("Received status query\r\n");
+        NavigatorState_t currentState = QueryNavigatorHSM();
+        switch (currentState) {
+            case Init:
+                CurrentStatus = NAV_STATUS_INIT;
+                break;
+            case Idle:
+                CurrentStatus = NAV_STATUS_IDLE;
+                break;
+            case LineFollow:
+                CurrentStatus = NAV_STATUS_LINE_FOLLOW;
+                break;
+            case AlignBeacon:
+                CurrentStatus = NAV_STATUS_ALIGN_BEACON;
+                break;
+            case CheckIntersection:
+                CurrentStatus = NAV_STATUS_CHECK_INTERSECTION;
+                break;
+            case TurnLeft:
+                CurrentStatus = NAV_STATUS_TURN_LEFT;
+                break;
+            case TurnRight:
+                CurrentStatus = NAV_STATUS_TURN_RIGHT;
+                break;
+            case LineDiscover:
+                CurrentStatus = NAV_STATUS_LINE_DISCOVER;
+                break;
+            case CheckCrate:
+                CurrentStatus = NAV_STATUS_CHECK_CRATE;
+                break;
+            default:
+                CurrentStatus = NAV_STATUS_ERROR;
+                break;
+        }
+    }
+
+    // Always update status for next transfer
+    SPI2BUF = CurrentStatus;
+}
 
 void TriggerSPIFollowerISR(void) {
     IFS1SET = _IFS1_SPI2RXIF_MASK; // Set the interrupt flag to trigger the ISR
+    //IFS1SET = _IFS1_SPI1RXIF_MASK;
 }
