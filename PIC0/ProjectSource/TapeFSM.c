@@ -104,6 +104,7 @@ bool InitTapeFSM(uint8_t Priority)
   ConfigPWM_OC1();
   ConfigPWM_OC3();
   ConfigTimer4();
+  
   /********enable interrupt globally *******************/
   __builtin_enable_interrupts();
   ES_Event_t ThisEvent;
@@ -170,13 +171,22 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
   {
     case Idle:        
     {
-
+      if (ThisEvent.EventType == ES_TAPE_FOLLOW)
+      {
+        CurrentState = Following;
+        enterFollowing();
+      }
+      
     }
     break;
 
     case Following:        // If current state is state one
     {
-
+      if (ThisEvent.EventType == ES_TAPE_STOP)
+      {
+        CurrentState = Idle;
+        exitFollowing();
+      }
     }
     break;
     default:
@@ -210,7 +220,22 @@ TapeState_t QueryTapeFSM(void)
 /***************************************************************************
  private functions
  ***************************************************************************/
+static void enterFollowing(){
+  //step1: turn on the motors
+  OC1RS = K_effort;
+  OC3RS = K_effort;
+  // step2: start control ISR
+  T4CONbits.ON = 1;
+  return;
+}
 static void exitFollowing(){
+  //step1: turn off the motors
+  OC1RS = 0;
+  OC3RS = 0;
+  // step2: stop control ISR
+  T4CONbits.ON = 0;
+  // step3: clean error integral
+  K_error_sum = 0;
   return;
 }
 static void ConfigTimer2() {
@@ -337,3 +362,27 @@ IEC0SET = _IEC0_T4IE_MASK;
   return;
 }
 
+/***********************
+ * ******ISR*************************
+*/
+void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
+  LATBbits.LATB15 = 0;
+    IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
+    // RPM100 = (float)1/CPR * (float) 1/Enc_curr * (float)PIC_freq_kHz/prescalar_IC * 60000 *(float)1/gear_ratio*100;
+    // error_RPM100 = targetRPM100-RPM100;
+    // //anti-windup
+    // if (control_effort<PR2 && control_effort > 2)
+    // {
+    //   error_sum+= error_RPM100/10;
+    // }
+    // control_effort = (float)error_RPM100/3*Kp + (float)error_sum/30*Ki;
+    // if (control_effort > 999)
+    // {
+    //   control_effort = PR2;
+    // }else if (control_effort < 2)
+    // {
+    //   control_effort = 2;
+    // }
+    // OC1RS = control_effort;
+    // LATBbits.LATB15 = 1;
+}
