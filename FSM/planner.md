@@ -24,11 +24,11 @@ stateDiagram-v2
             [*] --> GO_TO_STACK
             GO_TO_STACK --> DROP_CRATE: ES_AT_STACK
             DROP_CRATE --> UPDATE_PROGRESS2: ES_DROPPED
-            UPDATE_PROGRESS2 --> GO_TO_CRATE: ES_MORE_CRATES
+            UPDATE_PROGRESS2 --> GO_TO_CRATE: !(CURRENT_COLUMN == 2 && drop_crate_count == 3)
             GO_TO_CRATE --> PICKUP_CRATE: ES_AT_CRATE
 
             PICKUP_CRATE --> UPDATE_PROGRESS1: ES_HAS_CRATE
-            UPDATE_PROGRESS1 --> GO_TO_STACK: ES_COLUMN1_CONTINUE
+            UPDATE_PROGRESS1 --> GO_TO_STACK: !(CURRENT_COLUMN == 1 && drop_crate_count == 3)
 
             UPDATE_PROGRESS2 --> [*]: ES_COLUMN_DONE
             UPDATE_PROGRESS1 --> [*]: ES_COLUMN_DONE
