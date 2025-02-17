@@ -26,19 +26,21 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "TapeFSM.h"
-
+#include "dbprintf.h"
+#include <sys/attribs.h> 
 /*----------------------------- Module Defines ----------------------------*/
 
 /*---------------------------- Module Functions ---------------------------*/
 /* prototypes for private functions for this machine.They should be functions
    relevant to the behavior of this state machine
 */
-static void exitFollowing(); //the exit function for exiting the Following state back to Idle
-static void ConfigPWM_OC1();
-static void ConfigPWM_OC3();
-static void ConfigTimer2(); //time base for OC
-static void ConfigTimer3();
-static void ConfigTimer4(); //for running control loop
+static void enterFollowing();  
+static void exitFollowing(void); //the exit function for exiting the Following state back to Idle_tapeFSM
+static void ConfigPWM_OC1(void);
+static void ConfigPWM_OC3(void);
+static void ConfigTimer2(void); //time base for OC
+static void ConfigTimer3(void);
+static void ConfigTimer4(void); //for running control loop
 /*---------------------------- Module Variables ---------------------------*/
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
@@ -68,7 +70,7 @@ static bool Dir2 = 0;
 #define Control_interval 2 //in ms
 #define Ki 0.3
 #define Kp 0.1
-static K_error = 0;
+volatile int K_error = 0;
 volatile int K_error_sum = 0;
 volatile int K_effort = 200;//in the unit of ticks for PR2
 // framework stuff
@@ -110,7 +112,7 @@ bool InitTapeFSM(uint8_t Priority)
   ES_Event_t ThisEvent;
   MyPriority = Priority;
   // put us into the Initial PseudoState
-  CurrentState = Idle;
+  CurrentState = Idle_tapeFSM;
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
   if (ES_PostToService(MyPriority, ThisEvent) == true)
@@ -169,22 +171,22 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
 
   switch (CurrentState)
   {
-    case Idle:        
+    case Idle_tapeFSM:        
     {
       if (ThisEvent.EventType == ES_TAPE_FOLLOW)
       {
-        CurrentState = Following;
+        CurrentState = Following_tapeFSM;
         enterFollowing();
       }
       
     }
     break;
 
-    case Following:        // If current state is state one
+    case Following_tapeFSM:        // If current state is state one
     {
       if (ThisEvent.EventType == ES_TAPE_STOP)
       {
-        CurrentState = Idle;
+        CurrentState = Idle_tapeFSM;
         exitFollowing();
       }
     }
@@ -248,7 +250,7 @@ static void ConfigTimer2() {
   // Clear the timer register TMR2 
   TMR2 = 0;
   // Load PR2 with desired 16-bit match value
-  PR2 = PIC_freq / (PWM_freq * prescalar_OC1) - 1;
+  PR2 = PIC_freq / (PWM_freq * prescalar_T2) - 1;
   DB_printf("PR2 is set to %d \n", PR2);
 
   // Clear the T2IF interrupt flag bit in the IFS2 register

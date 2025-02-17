@@ -16,7 +16,7 @@
 // State definitions for use with the query function
 typedef enum
 {
-  Idle, Following
+  Idle_tapeFSM, Following_tapeFSM
 }TapeState_t;
 
 // Public Function Prototypes
