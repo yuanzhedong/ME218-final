@@ -37,11 +37,39 @@ static void exitFollowing(); //the exit function for exiting the Following state
 /*---------------------------- Module Variables ---------------------------*/
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
-static TapeState_t CurrentState;
 
-// with the introduction of Gen2, we need a module level Priority var as well
+#define PWM_freq  10000 //wheel motor PWM frquency in Hz
+#define PIC_freq 20000000
+#define PIC_freq_kHz 20000
+
+
+#define H_bridge1A_TRIS TRISBbits.TRISB11//output
+#define H_bridge1A_LAT LATBbits.LATB11 //latch
+#define H_bridge3A_TRIS TRISBbits.TRISB9//output
+#define H_bridge3A_LAT LATBbits.LATB9 //latch
+#define IC_TIMER_period 50000
+
+//prescalars and priorities
+#define prescalar_OC_M1 2 //for PWM for motor1
+#define prescalar_OC_M2 2 
+#define prescalar_T4 4 //used for running control law
+#define priority_control 5
+
+//output compare stuff (PWM)
+static bool Dir1 = 0; //the direction of the motor, 0 = positive dir
+static bool Dir2 = 0; 
+
+
+//control stuff
+#define Control_interval 2 //in ms
+#define Ki 0.3
+#define Kp 0.1
+static K_error = 0;
+volatile int K_error_sum = 0;
+volatile int K_effort = 200;//in the unit of ticks for PR2
+// framework stuff
 static uint8_t MyPriority;
-
+static TapeState_t CurrentState;
 /*------------------------------ Module Code ------------------------------*/
 /****************************************************************************
  Function
@@ -63,8 +91,12 @@ static uint8_t MyPriority;
 ****************************************************************************/
 bool InitTapeFSM(uint8_t Priority)
 {
+  
+  H_bridge1A_TRIS = 0; //Outputs
+  H_bridge1A_LAT = 0;
+  H_bridge3A_TRIS = 0; //Outputs
+  H_bridge3A_LAT = 0;
   ES_Event_t ThisEvent;
-
   MyPriority = Priority;
   // put us into the Initial PseudoState
   CurrentState = Idle;
