@@ -2,7 +2,7 @@
 
 Planner
 
-Craft related control
+Crate related control
 
 
 # PIC1
