@@ -16,7 +16,7 @@ build/default/debug/FrameworkSource/ES_Timers.o: \
  ProjectHeaders/TestHarnessService0.h FrameworkHeaders/ES_Events.h \
  FrameworkHeaders/ES_Port.h ProjectHeaders/PlannerHSM.h \
  FrameworkHeaders/ES_Configure.h FrameworkHeaders/ES_Framework.h \
- ProjectHeaders/KeyBoardService.h \
+ ProjectHeaders/KeyBoardService.h ProjectHeaders/BeaconIndicatorService.h \
  FrameworkSource/../FrameworkHeaders/ES_General.h \
  FrameworkSource/../FrameworkHeaders/ES_Events.h \
  FrameworkSource/../FrameworkHeaders/ES_PostList.h \
@@ -63,6 +63,8 @@ FrameworkHeaders/ES_Configure.h:
 FrameworkHeaders/ES_Framework.h:
 
 ProjectHeaders/KeyBoardService.h:
+
+ProjectHeaders/BeaconIndicatorService.h:
 
 FrameworkSource/../FrameworkHeaders/ES_General.h:
 

@@ -21,8 +21,8 @@ build/default/debug/FrameworkSource/ES_Framework.o: \
  ProjectHeaders/TestHarnessService0.h FrameworkHeaders/ES_Events.h \
  FrameworkHeaders/ES_Port.h ProjectHeaders/PlannerHSM.h \
  FrameworkHeaders/ES_Configure.h FrameworkHeaders/ES_Framework.h \
- ProjectHeaders/KeyBoardService.h ProjectHeaders/EventCheckWrapper.h \
- ProjectHeaders/EventCheckers.h
+ ProjectHeaders/KeyBoardService.h ProjectHeaders/BeaconIndicatorService.h \
+ ProjectHeaders/EventCheckWrapper.h ProjectHeaders/EventCheckers.h
 
 FrameworkSource/../FrameworkHeaders/ES_Configure.h:
 
@@ -75,6 +75,8 @@ FrameworkHeaders/ES_Configure.h:
 FrameworkHeaders/ES_Framework.h:
 
 ProjectHeaders/KeyBoardService.h:
+
+ProjectHeaders/BeaconIndicatorService.h:
 
 ProjectHeaders/EventCheckWrapper.h:
 

@@ -9,7 +9,7 @@ build/default/debug/ProjectSource/EventCheckers.o: \
  FrameworkHeaders/ES_PostList.h FrameworkHeaders/ES_ServiceHeaders.h \
  ProjectHeaders/TestHarnessService0.h FrameworkHeaders/ES_Port.h \
  ProjectHeaders/PlannerHSM.h ProjectHeaders/KeyBoardService.h \
- ProjectHeaders/EventCheckers.h
+ ProjectHeaders/BeaconIndicatorService.h ProjectHeaders/EventCheckers.h
 
 FrameworkHeaders/ES_Configure.h:
 
@@ -48,5 +48,7 @@ FrameworkHeaders/ES_Port.h:
 ProjectHeaders/PlannerHSM.h:
 
 ProjectHeaders/KeyBoardService.h:
+
+ProjectHeaders/BeaconIndicatorService.h:
 
 ProjectHeaders/EventCheckers.h:

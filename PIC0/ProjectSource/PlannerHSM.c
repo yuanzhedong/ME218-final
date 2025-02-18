@@ -3,6 +3,7 @@
 #include "ES_Framework.h"
 #include "PlannerHSM.h"
 #include "dbprintf.h"
+#include "BeaconIndicatorService.h"
 
 /*----------------------------- Module Variables ---------------------------*/
 static PlannerState_t CurrentState;
@@ -159,7 +160,20 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             break;
 
         case SIDE_DETECTION:
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                ES_Event_t ThisEvent;
+                ThisEvent.EventType = ES_REQUEST_SIDE_DETECTION;
+                PostBeaconIndicatorService(ThisEvent);  
+            } 
             if (CurrentEvent.EventType == ES_SIDE_DETECTED) {
+                Beacon_t detected_beacon = CurrentEvent.EventParam;
+                if (detected_beacon == BEACON_L){
+                    DB_printf("We are at green side!\r");
+                }else if (detected_beacon == BEACON_G){
+                    DB_printf("We are at blue side!\r");
+                }else{
+                    DB_printf("Fail to identify side!\r");
+                }
                 NextState = NAVIGATE_TO_COLUMN1;
                 MakeTransition = true;
             }

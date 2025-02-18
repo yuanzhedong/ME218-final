@@ -7,9 +7,10 @@
 
 ****************************************************************************/
 
-#include "../ProjectHeaders/MyMotorService.h"
-#include "../ProjectHeaders/PIC32_AD_Lib.h"
-#include "RobotFSM.h"
+//#include "../ProjectHeaders/MyMotorService.h"
+//#include "../ProjectHeaders/PIC32_AD_Lib.h"
+//#include "RobotFSM.h"
+#include "PlannerHSM.h"
 
 // Hardware
 #include <sys/attribs.h>
@@ -22,6 +23,7 @@
 #include "ES_Port.h"
 #include "terminal.h"
 #include "dbprintf.h"
+#include "BeaconIndicatorService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 
@@ -34,14 +36,16 @@
 
 // Alignment Constants
 #define ALIGNMENT_TIMEOUT 5000  // 5 seconds for alignment
-#define FREQ_BLUE 3333
-#define FREQ_GREEN 2000
+#define FREQ_G 3333
+#define FREQ_L 2000
+#define FREQ_B 1427
+#define FREQ_R 2000
 
 // Side Detection Colors
-typedef enum { BLUE, GREEN } SideColor_t;
+Beacon_t DetectedBeacon;
 
 static uint8_t MyPriority;
-static MotorState_t CurrentState;
+//static MotorState_t CurrentState;
 static bool aligned = false;
 
 typedef union {
@@ -57,7 +61,7 @@ volatile static uint32_t PulsePR;
 
 /*------------------------------ Module Code ------------------------------*/
 
-bool InitMotorService(uint8_t Priority) {
+bool InitBeaconIndicatorService(uint8_t Priority) {
     clrScrn();
     puts("\rStarting Motor Service\r");
     
@@ -73,7 +77,7 @@ bool InitMotorService(uint8_t Priority) {
 
     // Configure Timer3 & Input Capture (IC3)
     ConfigTimer3();
-    Config_IC3();
+    Config_IC2();
 
     // Initialize Motor Pin state
     LATBbits.LATB2 = 0;
@@ -81,7 +85,7 @@ bool InitMotorService(uint8_t Priority) {
 
     // Set RB11 as input for encoder, mapped to IC3
     TRISBbits.TRISB11 = 1;
-    IC3R = 0b0011;
+    IC2R = 0b0000; //Map IC2 to RA3
 
     MyPriority = Priority;
     
@@ -90,17 +94,17 @@ bool InitMotorService(uint8_t Priority) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
-bool PostMotorService(ES_Event_t ThisEvent) {
+bool PostBeaconIndicatorService(ES_Event_t ThisEvent) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
-ES_Event_t RunMotorService(ES_Event_t ThisEvent) {
+ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
     ES_Event_t ReturnEvent = {ES_NO_EVENT, 0}; 
 
     uint8_t dutyCycle = 100;
 
     switch (ThisEvent.EventType) {
-        case ES_ALIGN:
+        case ES_REQUEST_SIDE_DETECTION:
             puts("\rMotor: Start Aligning\r\n");
 
             // Start rotating CCW
@@ -110,7 +114,7 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent) {
             OC1RS = (PR2 + 1) * (100 - dutyCycle) / 100;
             OC3RS = (PR2 + 1) * dutyCycle / 100;
 
-            ES_Timer_InitTimer(ALIGN_TIMER, ALIGNMENT_TIMEOUT);
+            ES_Timer_InitTimer(BEACON_ALIGN_TIMER, ALIGNMENT_TIMEOUT);
             break;
 
         case ES_STOP:
@@ -122,12 +126,18 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent) {
             break;
 
         case ES_TIMEOUT:
-            if (ThisEvent.EventParam == ALIGN_TIMER) {
-                ES_Event_t Event2Post = {aligned ? ES_ALIGN_SUCCESS : ES_ALIGN_FAIL, 0};
-                PostRobotFSM(Event2Post);
+            if (ThisEvent.EventParam == BEACON_ALIGN_TIMER) {
+                if (aligned){
+                    ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
+                }else{
+//                ES_Event_t StopEvent = {ES_STOP, 0};
+//                PostMotorService(StopEvent); 
+                  DB_printf("Aligned failed, stopping motor.. R\n");  
+                }
+//                ES_Event_t Event2Post = {aligned ? ES_ALIGN_SUCCESS : ES_ALIGN_FAIL, 0};
+//                PostRobotFSM(Event2Post);
 
-                ES_Event_t StopEvent = {ES_STOP, 0};
-                PostMotorService(StopEvent);
+
             }
             break;
 
@@ -186,17 +196,17 @@ void ConfigTimer3() {
     T3CONbits.ON = 1;
 }
 
-void Config_IC3() {
-    IC3CONbits.ON = 0;
-    IC3CONbits.C32 = 0;
-    IC3CONbits.ICTMR = 0;
-    IC3CONbits.ICI = 0b00;
-    IC3CONbits.ICM = 0b011;
+void Config_IC2() {
+    IC2CONbits.ON = 0;
+    IC2CONbits.C32 = 0;
+    IC2CONbits.ICTMR = 0;
+    IC2CONbits.ICI = 0b00;
+    IC2CONbits.ICM = 0b011;
 
-    IFS0CLR = _IFS0_IC3IF_MASK;
-    IPC3bits.IC3IP = 7;
-    IEC0SET = _IEC0_IC3IE_MASK;
-    IC3CONbits.ON = 1;
+    IFS0CLR = _IFS0_IC2IF_MASK;
+    IPC2bits.IC2IP = 7;
+    IEC0SET = _IEC0_IC2IE_MASK;
+    IC2CONbits.ON = 1;
 }
 
 /***************************************************************************
@@ -219,11 +229,26 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void) {
     float freq = TICK_FREQ / PulsePR;
 
     if (PulsePR > 0 && !aligned) {
-        if (freq == FREQ_BLUE) {
-            PostRobotFSM((ES_Event_t){ES_SIDE_DETECTED, BLUE});
-        } else if (freq == FREQ_GREEN) {
-            PostRobotFSM((ES_Event_t){ES_SIDE_DETECTED, GREEN});
+        DB_printf("Detected Frequency: %d\n", freq);
+        int detectedFreq = (int)(freq+0.5);
+        if (abs(detectedFreq - FREQ_G) <= 50) {
+            DB_printf("Aligned with BEACON G\n");
+            DetectedBeacon = BEACON_G;
+        } else if (abs(detectedFreq - FREQ_B) <= 50) {
+            DB_printf("Aligned with BEACON B\n");
+            DetectedBeacon = BEACON_B;
+        } else if (abs(detectedFreq - FREQ_R) <= 50) {
+            DB_printf("Aligned with BEACON R\n");
+            DetectedBeacon = BEACON_R;
+        } else if (abs(detectedFreq - FREQ_L) <= 50) {
+            DB_printf("Aligned with BEACON L\n");
+            DetectedBeacon = BEACON_L;
+        } else {
+            DB_printf("Frequency out of range.\n");
+            DetectedBeacon = BEACON_UNKNOWN;
+            return;
         }
+        DB_printf("Stopping Motor ...\n");
         aligned = true;
     }
 

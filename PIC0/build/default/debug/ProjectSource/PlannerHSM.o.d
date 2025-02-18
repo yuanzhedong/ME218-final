@@ -6,7 +6,7 @@ build/default/debug/ProjectSource/PlannerHSM.o: \
  FrameworkHeaders/ES_Events.h FrameworkHeaders/ES_Configure.h \
  FrameworkHeaders/ES_PostList.h FrameworkHeaders/ES_General.h \
  FrameworkHeaders/ES_Timers.h ProjectHeaders/PlannerHSM.h \
- FrameworkHeaders/dbprintf.h
+ FrameworkHeaders/dbprintf.h ProjectHeaders/BeaconIndicatorService.h
 
 FrameworkHeaders/ES_Configure.h:
 
@@ -35,3 +35,5 @@ FrameworkHeaders/ES_Timers.h:
 ProjectHeaders/PlannerHSM.h:
 
 FrameworkHeaders/dbprintf.h:
+
+ProjectHeaders/BeaconIndicatorService.h:
