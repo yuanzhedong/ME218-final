@@ -228,8 +228,8 @@ TapeState_t QueryTapeFSM(void)
  ***************************************************************************/
 static void enterFollowing(){
   //step1: turn on the motors
-  OC1RS = K_effort;
-  OC3RS = K_effort;
+  OC1RS = PR2 * initialDutyCycle/100;
+  OC3RS = PR2 * initialDutyCycle/100;
   // step2: start control ISR
   T4CONbits.ON = 1;
   return;
@@ -404,6 +404,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
   
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
     K_error = 0;
+
     ADC_MultiRead(CurrADVal);
     DB_printf("%d %d %d %d %d %d \n",CurrADVal[0],CurrADVal[1],CurrADVal[2],CurrADVal[3],CurrADVal[4],CurrADVal[5]);
     // //anti-windup
