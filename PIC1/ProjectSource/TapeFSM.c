@@ -401,7 +401,7 @@ static void ConfigureReflectSensor(){
   //ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
   ANSELBbits.ANSB2 = 1; // Configure RB2 as analog IO
   TRISBbits.TRISB2 = 1; // Configure RB2 as input
-  ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT9HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN9/RB15, AN4/RB2
+  //ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT9HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN9/RB15, AN4/RB2
   
 
   return;
@@ -409,12 +409,10 @@ static void ConfigureReflectSensor(){
 /***********************
  * ******ISR*************************
 */
-void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
   
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
-    ADC_MultiRead(CurrADVal);
+    //ADC_MultiRead(CurrADVal);
     DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
-    //K_error = CurrADVal[0] + CurrADVal[1] + CurrADVal[2] - CurrADVal[3] - CurrADVal[4] - CurrADVal[5];
     // DB_printf("T4 ISR entered \n");
     
     // //anti-windup

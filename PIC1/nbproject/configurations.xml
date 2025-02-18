@@ -47,6 +47,7 @@
       <itemPath>ProjectHeaders/NavigatorHSM.h</itemPath>
       <itemPath>ProjectHeaders/SPIFollowerService.h</itemPath>
       <itemPath>ProjectHeaders/TapeFSM.h</itemPath>
+      <itemPath>ProjectHeaders/KeyboardService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -66,6 +67,7 @@
       <itemPath>ProjectSource/NavigatorHSM.c</itemPath>
       <itemPath>ProjectSource/SPIFollowerService.c</itemPath>
       <itemPath>ProjectSource/TapeFSM.c</itemPath>
+      <itemPath>ProjectSource/KeyboardService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
