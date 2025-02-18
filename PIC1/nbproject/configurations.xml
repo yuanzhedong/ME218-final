@@ -46,6 +46,7 @@
       <itemPath>ProjectHeaders/TestHarnessService0.h</itemPath>
       <itemPath>ProjectHeaders/NavigatorHSM.h</itemPath>
       <itemPath>ProjectHeaders/SPIFollowerService.h</itemPath>
+      <itemPath>ProjectHeaders/TapeFSM.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -64,6 +65,7 @@
       <itemPath>ProjectSource/main.c</itemPath>
       <itemPath>ProjectSource/NavigatorHSM.c</itemPath>
       <itemPath>ProjectSource/SPIFollowerService.c</itemPath>
+      <itemPath>ProjectSource/TapeFSM.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -82,7 +84,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>snap</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.45</languageToolchainVersion>
+        <languageToolchainVersion>4.30</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
