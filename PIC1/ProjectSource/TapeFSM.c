@@ -178,8 +178,7 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
   {
     ES_Timer_InitTimer(TapeTest_TIMER, 2000);
     DB_printf("Tape Test Timer\r\n");
-    ADC_MultiRead(CurrADVal);
-    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    
   }
   
   
@@ -413,6 +412,8 @@ static void ConfigureReflectSensor(){
 void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
   
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
+    ADC_MultiRead(CurrADVal);
+    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
     //K_error = CurrADVal[0] + CurrADVal[1] + CurrADVal[2] - CurrADVal[3] - CurrADVal[4] - CurrADVal[5];
     // DB_printf("T4 ISR entered \n");
     
