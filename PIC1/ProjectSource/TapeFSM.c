@@ -28,6 +28,7 @@
 #include "TapeFSM.h"
 #include "dbprintf.h"
 #include <sys/attribs.h> 
+#include "terminal.h"
 /*----------------------------- Module Defines ----------------------------*/
 
 /*---------------------------- Module Functions ---------------------------*/
@@ -41,6 +42,7 @@ static void ConfigPWM_OC3(void);
 static void ConfigTimer2(void); //time base for OC
 static void ConfigTimer3(void);
 static void ConfigTimer4(void); //for running control loop
+static void ConfigureReflectSensor();//for the reflectance sensor array
 /*---------------------------- Module Variables ---------------------------*/
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
@@ -62,14 +64,15 @@ static void ConfigTimer4(void); //for running control loop
 #define priority_control 5
 
 //output compare stuff (PWM)
-static bool Dir1 = 0; //the direction of the motor, 0 = positive dir
-static bool Dir2 = 0; 
+static bool Dir0 = 0; //the direction of the motor, 0 = positive dir
+static bool Dir1 = 0; 
 
 
 //control stuff
 #define Control_interval 2 //in ms
 #define Ki 0.3
 #define Kp 0.1
+#define initialDutyCycle 70 //initial duty cycle (in %) at which the car starts to follow the line
 volatile int K_error = 0;
 volatile int K_error_sum = 0;
 volatile int K_effort = 200;//in the unit of ticks for PR2
@@ -97,6 +100,7 @@ static TapeState_t CurrentState;
 ****************************************************************************/
 bool InitTapeFSM(uint8_t Priority)
 {
+  ConfigureReflectSensor();//this calls the ADC library
   //TRIS and LAT for direction control pins
   H_bridge1A_TRIS = 0; //Outputs
   H_bridge1A_LAT = 0;
@@ -232,6 +236,10 @@ static void enterFollowing(){
 }
 static void exitFollowing(){
   //step1: turn off the motors
+  H_bridge1A_LAT = 0;
+  H_bridge3A_LAT = 0;
+  Dir0 = 0;
+  Dir1 = 0;
   OC1RS = 0;
   OC3RS = 0;
   // step2: stop control ISR
@@ -363,15 +371,41 @@ IEC0SET = _IEC0_T4IE_MASK;
 
   return;
 }
+static void ConfigureReflectSensor(){
+  static uint32_t CurrADVal[6];//6 sensors
 
+  //Sensors' 0-5 ports: A0, A1, B12, B13, B15, B2
+  ANSELAbits.ANSA0 = 1; // Configure A0 as analog IO
+  TRISAbits.TRISA0 = 0; // Configure A0 as output
+  ADC_ConfigAutoScan(BIT0HI);// AN0/RA0
+  ANSELAbits.ANSA1 = 1; // Configure A1 as analog IO
+  TRISAbits.TRISA1 = 0; // Configure A1 as output
+  ADC_ConfigAutoScan(BIT1HI);// AN0/RA0
+  ANSELBbits.ANSB12 = 1; // Configure RB12 as analog IO
+  TRISBbits.TRISB12 = 0; // Configure RB12 as output
+  ADC_ConfigAutoScan(BIT12HI);// AN12/RB12
+  ANSELBbits.ANSB13 = 1; // Configure RB13 as analog IO
+  TRISBbits.TRISB13 = 0; // Configure RB13 as output
+  ADC_ConfigAutoScan(BIT13HI);// AN13/RB13
+  ANSELBbits.ANSB15 = 1; // Configure RB15 as analog IO
+  TRISBbits.TRISB15 = 0; // Configure RB15 as output
+  ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
+  ANSELBbits.ANSB2 = 1; // Configure RB2 as analog IO
+  TRISBbits.TRISB2 = 0; // Configure RB2 as output
+  ADC_ConfigAutoScan(BIT2HI);// AN2/RB2
+  
+
+  return;
+}
 /***********************
  * ******ISR*************************
 */
 void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
-  LATBbits.LATB15 = 0;
+  
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
-    // RPM100 = (float)1/CPR * (float) 1/Enc_curr * (float)PIC_freq_kHz/prescalar_IC * 60000 *(float)1/gear_ratio*100;
-    // error_RPM100 = targetRPM100-RPM100;
+    K_error = 0;
+    ADC_MultiRead(CurrADVal);
+    DB_printf("%d %d %d %d %d %d \n",CurrADVal[0],CurrADVal[1],CurrADVal[2],CurrADVal[3],CurrADVal[4],CurrADVal[5]);
     // //anti-windup
     // if (control_effort<PR2 && control_effort > 2)
     // {
@@ -386,5 +420,5 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
     //   control_effort = 2;
     // }
     // OC1RS = control_effort;
-    // LATBbits.LATB15 = 1;
+    
 }
