@@ -111,8 +111,9 @@ void InitSPI_v2(void)
     // Step 0: Disable analog function on all SPI pins
     
     // Step 1: Map SPI Inputs/Outputs to all desired pins
-    TRISBbits.TRISB5 = 1;  // Set SDI2 (RB5) as input
-    SDI2R = 0b0100;        // Map SDI2 to RB5
+    TRISBbits.TRISB13 = 1;  // Set SDI2 (RB13) as input
+    ANSELBbits.ANSB13 = 0;  // Disable analog function on SDI2
+    SDI2R = 0b0011;        // Map SDI2 to RB13
     TRISBbits.TRISB8 = 0;  // Set SDO2 (RB8) as output
     RPB8R = 0b0100;        // Map SDO2 to RB8
     TRISBbits.TRISB15 = 1; // Set SCK2 (RB15) as input
@@ -149,6 +150,9 @@ void InitSPI_v2(void)
     // Step 9: Enable SPI
     SPI2CONbits.ON = 1;
 
+
+    SPI1CONbits.MODE16 = 0; // Enable 8 bit transfers
+    SPI1CONbits.MODE32 = 0; 
     lastReceiveTime = ES_Timer_GetTime();
 }
 
@@ -259,7 +263,7 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     }
 
     // Always update status for next transfer
-    SPI2BUF = CurrentStatus;
+    SPI2BUF = 0x02;
 }
 
 void TriggerSPIFollowerISR(void) {

@@ -35,7 +35,7 @@ bool InitSPIMasterService(uint8_t Priority)
 
     // Start a timer to query the slave periodically
     ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000);
-
+    puts("Started SPI Query Timer");
     // Post the initial transition event
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_INIT;
@@ -62,6 +62,7 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     // Handle events here
     if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == SPI_QUERY_TIMER)
     {
+        puts("Querying slave for status");
         // Query the slave for its status
         SendSPICommand(DEBUG_CMD);
         ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000); // Restart the timer
@@ -76,8 +77,8 @@ void InitSPI(void)
     ANSELBbits.ANSB14 = 0;
     // Step 1: Map SPI Outputs to all desired pins
     TRISBbits.TRISB4 = 0;
-    //RPB4R = 0b0011; // Map SS1 to RB4
-    LATBbits.LATB4 = 1; // Pull SS high
+    RPB4R = 0b0011; // Map SS1 to RB4
+    //LATBbits.LATB4 = 1; // Pull SS high
     TRISBbits.TRISB8 = 0;
     RPB8R = 0b0011;        // Map SDO to RB8
     TRISBbits.TRISB14 = 0; // Set SCK1 (RB14) as output
@@ -115,7 +116,7 @@ void InitSPI(void)
 
 bool SendSPICommand(uint8_t command) {
     // Check if previous transfer is complete
-    LATBbits.LATB4 = 0; // Pull SS low
+    //LATBbits.LATB4 = 0; // Pull SS low
 
     for (volatile uint32_t i = 0; i < 1000000; i++);
     for (volatile uint32_t i = 0; i < 1000000; i++);
@@ -143,7 +144,7 @@ bool SendSPICommand(uint8_t command) {
     for (volatile uint32_t i = 0; i < 1000000; i++);
 
     for (volatile uint32_t i = 0; i < 1000000; i++);
-    LATBbits.LATB4 = 1; // Pull SS high    
+    //LATBbits.LATB4 = 1; // Pull SS high    
     return true;
 }
 
