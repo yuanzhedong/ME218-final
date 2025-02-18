@@ -76,6 +76,7 @@ static bool Dir1 = 0;
 volatile int K_error = 0;
 volatile int K_error_sum = 0;
 volatile int K_effort = 200;//in the unit of ticks for PR2
+static uint32_t CurrADVal[6];
 // framework stuff
 static uint8_t MyPriority;
 static TapeState_t CurrentState;
@@ -173,6 +174,7 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
+  
   switch (CurrentState)
   {
     case Idle_tapeFSM:        
@@ -372,7 +374,7 @@ IEC0SET = _IEC0_T4IE_MASK;
   return;
 }
 static void ConfigureReflectSensor(){
-  static uint32_t CurrADVal[6];//6 sensors
+  
 
   //Sensors' 0-5 ports: A0, A1, B12, B13, B15, B2
   ANSELAbits.ANSA0 = 1; // Configure A0 as analog IO
