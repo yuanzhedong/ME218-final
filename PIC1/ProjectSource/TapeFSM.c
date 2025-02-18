@@ -179,7 +179,7 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     ES_Timer_InitTimer(TapeTest_TIMER, 2000);
     DB_printf("Tape Test Timer\r\n");
     ADC_MultiRead(CurrADVal);
-    DB_printf("%d %d %d  \n",CurrADVal[0],CurrADVal[1],CurrADVal[2]);
+    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
   }
   
   
@@ -402,7 +402,7 @@ static void ConfigureReflectSensor(){
   //ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
   ANSELBbits.ANSB2 = 1; // Configure RB2 as analog IO
   TRISBbits.TRISB2 = 1; // Configure RB2 as input
-  ADC_ConfigAutoScan(BIT13HI|BIT15HI|BIT2HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN13/RB13, AN15/RB15, AN2/RB2
+  ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT9HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN9/RB15, AN4/RB2
   
 
   return;
@@ -413,7 +413,7 @@ static void ConfigureReflectSensor(){
 void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
   
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
-    K_error = 0;
+    //K_error = CurrADVal[0] + CurrADVal[1] + CurrADVal[2] - CurrADVal[3] - CurrADVal[4] - CurrADVal[5];
     // DB_printf("T4 ISR entered \n");
     
     // //anti-windup
