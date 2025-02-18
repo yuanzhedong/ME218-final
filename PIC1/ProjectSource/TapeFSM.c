@@ -29,6 +29,7 @@
 #include "dbprintf.h"
 #include <sys/attribs.h> 
 #include "terminal.h"
+#include "PIC32_AD_Lib.h"
 /*----------------------------- Module Defines ----------------------------*/
 
 /*---------------------------- Module Functions ---------------------------*/
@@ -69,7 +70,7 @@ static bool Dir1 = 0;
 
 
 //control stuff
-#define Control_interval 2 //in ms
+#define Control_interval 10 //in ms, max value with prescalar of 4 is 65535*4/20MHz = 13.1ms
 #define Ki 0.3
 #define Kp 0.1
 #define initialDutyCycle 70 //initial duty cycle (in %) at which the car starts to follow the line
@@ -111,7 +112,7 @@ bool InitTapeFSM(uint8_t Priority)
   ConfigPWM_OC1();
   ConfigPWM_OC3();
   ConfigTimer4();
-  
+  ES_Timer_InitTimer(TapeTest_TIMER, 1000);
   /********enable interrupt globally *******************/
   __builtin_enable_interrupts();
   ES_Event_t ThisEvent;
@@ -173,7 +174,14 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
 {
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
-
+  if (ThisEvent.EventType==ES_TIMEOUT&&ThisEvent.EventParam==TapeTest_TIMER)
+  {
+    ES_Timer_InitTimer(TapeTest_TIMER, 2000);
+    DB_printf("Tape Test Timer\r\n");
+    ADC_MultiRead(CurrADVal);
+    DB_printf("%d %d %d  \n",CurrADVal[0],CurrADVal[1],CurrADVal[2]);
+  }
+  
   
   switch (CurrentState)
   {
@@ -378,23 +386,23 @@ static void ConfigureReflectSensor(){
 
   //Sensors' 0-5 ports: A0, A1, B12, B13, B15, B2
   ANSELAbits.ANSA0 = 1; // Configure A0 as analog IO
-  TRISAbits.TRISA0 = 0; // Configure A0 as output
-  ADC_ConfigAutoScan(BIT0HI);// AN0/RA0
+  TRISAbits.TRISA0 = 1; // Configure A0 as input
+  //ADC_ConfigAutoScan(BIT0HI);// AN0/RA0
   ANSELAbits.ANSA1 = 1; // Configure A1 as analog IO
-  TRISAbits.TRISA1 = 0; // Configure A1 as output
-  ADC_ConfigAutoScan(BIT1HI);// AN0/RA0
+  TRISAbits.TRISA1 = 1; // Configure A1 as input
+  //ADC_ConfigAutoScan(BIT1HI);// AN0/RA0
   ANSELBbits.ANSB12 = 1; // Configure RB12 as analog IO
-  TRISBbits.TRISB12 = 0; // Configure RB12 as output
-  ADC_ConfigAutoScan(BIT12HI);// AN12/RB12
+  TRISBbits.TRISB12 = 1; // Configure RB12 as input
+  //ADC_ConfigAutoScan(BIT12HI);// AN12/RB12
   ANSELBbits.ANSB13 = 1; // Configure RB13 as analog IO
-  TRISBbits.TRISB13 = 0; // Configure RB13 as output
-  ADC_ConfigAutoScan(BIT13HI);// AN13/RB13
+  TRISBbits.TRISB13 = 1; // Configure RB13 as input
+  //ADC_ConfigAutoScan(BIT13HI);// AN13/RB13
   ANSELBbits.ANSB15 = 1; // Configure RB15 as analog IO
-  TRISBbits.TRISB15 = 0; // Configure RB15 as output
-  ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
+  TRISBbits.TRISB15 = 1; // Configure RB15 as input
+  //ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
   ANSELBbits.ANSB2 = 1; // Configure RB2 as analog IO
-  TRISBbits.TRISB2 = 0; // Configure RB2 as output
-  ADC_ConfigAutoScan(BIT2HI);// AN2/RB2
+  TRISBbits.TRISB2 = 1; // Configure RB2 as input
+  ADC_ConfigAutoScan(BIT13HI|BIT15HI|BIT2HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN13/RB13, AN15/RB15, AN2/RB2
   
 
   return;
@@ -406,9 +414,8 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
   
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
     K_error = 0;
-
-    ADC_MultiRead(CurrADVal);
-    DB_printf("%d %d %d %d %d %d \n",CurrADVal[0],CurrADVal[1],CurrADVal[2],CurrADVal[3],CurrADVal[4],CurrADVal[5]);
+    // DB_printf("T4 ISR entered \n");
+    
     // //anti-windup
     // if (control_effort<PR2 && control_effort > 2)
     // {
