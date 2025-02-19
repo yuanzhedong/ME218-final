@@ -114,10 +114,7 @@ static bool moveAllowed = false;
 ****************************************************************************/
 bool InitTapeFSM(uint8_t Priority)
 {
-  K_error_max=1023*(sensorWeights[0]+sensorWeights[1]+sensorWeights[2]);
-  K_error_min=-1023*(sensorWeights[3]+sensorWeights[4]+sensorWeights[5]);
-  K_effort_max = 999*targetDutyCycle/100;//this assumes Pr2 is set to 999
-  K_effort_min = -999*targetDutyCycle/100;
+
   ConfigureReflectSensor();//this calls the ADC library
   //TRIS and LAT for direction control pins
   H_bridge1A_TRIS = 0; //Outputs
@@ -130,11 +127,15 @@ bool InitTapeFSM(uint8_t Priority)
   ConfigPWM_OC3();
   T2CONbits.ON = 1;
   ConfigTimer4();
+  //We do not yet turn on T4 because the initial state is Idle state
   //T4CONbits.ON = 1;
   
   /********enable interrupt globally *******************/
   __builtin_enable_interrupts();
-
+  K_error_max=1023*(sensorWeights[0]+sensorWeights[1]+sensorWeights[2]);
+  K_error_min=-1023*(sensorWeights[3]+sensorWeights[4]+sensorWeights[5]);
+  K_effort_max = PR2*targetDutyCycle/100;// PR2 is the max value for OCxRS
+  K_effort_min = -PR2*targetDutyCycle/100;
   ES_Timer_InitTimer(TapeTest_TIMER, 1000);
   ES_Event_t ThisEvent;
   MyPriority = Priority;
@@ -225,6 +226,19 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
         CurrentState = Idle_tapeFSM;
         exitFollowing();
       }
+
+      if (ThisEvent.EventType == ES_NEW_KEY)
+      {
+        if (ThisEvent.EventParam == 'f')
+        {
+          K_error += 100;
+        }else if (ThisEvent.EventParam == 'g')
+        {
+          K_error -= 100;
+        }
+        
+      }
+      
     }
     break;
     default:
@@ -429,8 +443,8 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
     //DB_printf("T4 ISR entered \n");
     ADC_MultiRead(CurrADVal);
-    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
-    K_error = CurrADVal[0]*sensorWeights[0] + CurrADVal[1]*sensorWeights[1] + CurrADVal[2]*sensorWeights[2] - CurrADVal[3]*sensorWeights[3] - CurrADVal[4]*sensorWeights[4] - CurrADVal[5]*sensorWeights[5];
+    //DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    //K_error = CurrADVal[0]*sensorWeights[0] + CurrADVal[1]*sensorWeights[1] + CurrADVal[2]*sensorWeights[2] - CurrADVal[3]*sensorWeights[3] - CurrADVal[4]*sensorWeights[4] - CurrADVal[5]*sensorWeights[5];
     
     //anti-windup
     if (K_effort < K_effort_max && K_effort > K_effort_min)
@@ -440,7 +454,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
 
     //calculate control effort based on error 
     K_effort = (float)K_error/K_error_max*Kp + (float)K_error_sum/K_error_max*Ki;
-
+    DB_printf("K_error: %d, K_effort: %d \n", K_error, K_effort);
     //actuate the motors
     if (moveAllowed)
     {
