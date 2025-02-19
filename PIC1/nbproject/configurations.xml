@@ -44,6 +44,10 @@
       <itemPath>ProjectHeaders/EventCheckWrapper.h</itemPath>
       <itemPath>ProjectHeaders/EventCheckers.h</itemPath>
       <itemPath>ProjectHeaders/TestHarnessService0.h</itemPath>
+      <itemPath>ProjectHeaders/TapeFSM.h</itemPath>
+      <itemPath>ProjectHeaders/KeyboardService.h</itemPath>
+      <itemPath>ProjectHeaders/NavigatorHSM.h</itemPath>
+      <itemPath>ProjectHeaders/SPIFollowerService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -55,6 +59,11 @@
       <itemPath>ProjectSource/EventCheckers.c</itemPath>
       <itemPath>ProjectSource/TestHarnessService0.c</itemPath>
       <itemPath>ProjectSource/main.c</itemPath>
+      <itemPath>ProjectSource/KeyboardService.c</itemPath>
+      <itemPath>ProjectSource/TapeFSM.c</itemPath>
+      <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
+      <itemPath>ProjectSource/SPIFollowerService.c</itemPath>
+      <itemPath>ProjectSource/NavigatorHSM.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -76,9 +85,9 @@
         <targetDevice>PIC32MX170F256B</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool>snap</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>4.10</languageToolchainVersion>
+        <languageToolchainVersion>4.30</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
