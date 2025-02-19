@@ -278,9 +278,6 @@ typedef enum
   ES_COLUMN2_COMPLETE,
   ES_REQUEST_SIDE_DETECTION,
   ES_STOP
-  
-  
-  
 }ES_EventType_t;
 
 /****************************************************************************/

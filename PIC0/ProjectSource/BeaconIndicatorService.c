@@ -47,6 +47,7 @@ Beacon_t DetectedBeacon;
 static uint8_t MyPriority;
 //static MotorState_t CurrentState;
 static bool aligned = false;
+static int detectedFreq;
 
 typedef union {
     uint32_t FullTime;
@@ -58,12 +59,13 @@ volatile static uint16_t NumRollover;
 volatile static Timer32_t CurrentVal;
 volatile static uint32_t PrevVal;
 volatile static uint32_t PulsePR;
+uint8_t FreqTolerance = 30;
 
 /*------------------------------ Module Code ------------------------------*/
 
 bool InitBeaconIndicatorService(uint8_t Priority) {
     clrScrn();
-    puts("\rStarting Motor Service\r");
+    puts("\rStarting Beacon Indicator Service\r");
     
     // Set motor control pins as digital outputs
     TRISBbits.TRISB2 = 0;
@@ -105,7 +107,7 @@ ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
 
     switch (ThisEvent.EventType) {
         case ES_REQUEST_SIDE_DETECTION:
-            puts("\rMotor: Start Aligning\r\n");
+            DB_printf("\r Receive Side detection request: Start Aligning\r\n");
 
             // Start rotating CCW
             LATBbits.LATB2 = 1;
@@ -118,7 +120,7 @@ ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
             break;
 
         case ES_STOP:
-            puts("\rMotor: Stop\r\n");
+            DB_printf("\rMotor: Stop\r\n");
             LATBbits.LATB2 = 0;
             LATBbits.LATB9 = 0;
             OC1RS = 0;
@@ -128,11 +130,14 @@ ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
         case ES_TIMEOUT:
             if (ThisEvent.EventParam == BEACON_ALIGN_TIMER) {
                 if (aligned){
+                    DB_printf("Aligned succeed,R\n");
+                    DB_printf("Detected Frequency: %d\n", detectedFreq);
                     ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
+                    PostPlannerHSM(Event2Post);
                 }else{
-//                ES_Event_t StopEvent = {ES_STOP, 0};
-//                PostMotorService(StopEvent); 
-                  DB_printf("Aligned failed, stopping motor.. R\n");  
+                  DB_printf("Aligned failed, stopping motor.. R\n"); 
+                  ES_Event_t Event2Post = {ES_SIDE_DETECTED, BEACON_UNKNOWN};
+                  PostPlannerHSM(Event2Post);
                 }
 //                ES_Event_t Event2Post = {aligned ? ES_ALIGN_SUCCESS : ES_ALIGN_FAIL, 0};
 //                PostRobotFSM(Event2Post);
@@ -213,9 +218,9 @@ void Config_IC2() {
  * Interrupt Service Routines
  ***************************************************************************/
 
-void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void) {
-    CapturedTime = IC3BUF;
-    IFS0CLR = _IFS0_IC3IF_MASK;
+void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
+    CapturedTime = IC2BUF;
+    IFS0CLR = _IFS0_IC2IF_MASK;
 
     if ((IFS0bits.T3IF == 1) && (CapturedTime < 0x8000)) {
         NumRollover++;
@@ -227,29 +232,28 @@ void __ISR(_INPUT_CAPTURE_3_VECTOR, IPL7SOFT) IC3ISR(void) {
     PulsePR = CurrentVal.FullTime - PrevVal;
 
     float freq = TICK_FREQ / PulsePR;
-
+    //DB_printf("PulsePR is: %d\n", PulsePR);
     if (PulsePR > 0 && !aligned) {
+        detectedFreq = (int)(freq+0.5);
         DB_printf("Detected Frequency: %d\n", freq);
-        int detectedFreq = (int)(freq+0.5);
-        if (abs(detectedFreq - FREQ_G) <= 50) {
-            DB_printf("Aligned with BEACON G\n");
+        
+        if (abs(detectedFreq - FREQ_G) <= FreqTolerance) {
+            //DB_printf("Aligned with BEACON G\n");
             DetectedBeacon = BEACON_G;
-        } else if (abs(detectedFreq - FREQ_B) <= 50) {
-            DB_printf("Aligned with BEACON B\n");
+            aligned = true;
+        } else if (abs(detectedFreq - FREQ_B) <= FreqTolerance) {
+            //DB_printf("Aligned with BEACON B\n");
             DetectedBeacon = BEACON_B;
-        } else if (abs(detectedFreq - FREQ_R) <= 50) {
-            DB_printf("Aligned with BEACON R\n");
+            aligned = true;
+        } else if (abs(detectedFreq - FREQ_R) <= FreqTolerance) {
+            //DB_printf("Aligned with BEACON R\n");
             DetectedBeacon = BEACON_R;
-        } else if (abs(detectedFreq - FREQ_L) <= 50) {
-            DB_printf("Aligned with BEACON L\n");
+            aligned = true;
+        } else if (abs(detectedFreq - FREQ_L) <= FreqTolerance) {
+            //DB_printf("Aligned with BEACON L\n");
             DetectedBeacon = BEACON_L;
-        } else {
-            DB_printf("Frequency out of range.\n");
-            DetectedBeacon = BEACON_UNKNOWN;
-            return;
+            aligned = true;
         }
-        DB_printf("Stopping Motor ...\n");
-        aligned = true;
     }
 
     PrevVal = CurrentVal.FullTime;

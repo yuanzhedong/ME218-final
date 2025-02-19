@@ -138,6 +138,8 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
     if (CurrentEvent.EventType != ES_EXIT && CurrentEvent.EventType != ES_ENTRY && CurrentEvent.EventType != ES_NEW_KEY) {
         DB_printf("Current State: %s, Current Column: %d, Drop Crate Count: %d\r\n",
                   GetStateName(CurrentState), CURRENT_COLUMN, drop_crate_count);
+        DB_printf("EventType is %d\n\r",CurrentEvent.EventType);
+        DB_printf("EventParam is %d\n\r",CurrentEvent.EventParam);
 //        DB_printf("CurrentEvent is %d\r\n", CurrentEvent.EventType);
     }
 
@@ -160,12 +162,23 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             break;
 
         case SIDE_DETECTION:
+            DB_printf("fqwertyuio!\r");
             if (CurrentEvent.EventType == ES_ENTRY) {
                 ES_Event_t ThisEvent;
                 ThisEvent.EventType = ES_REQUEST_SIDE_DETECTION;
                 PostBeaconIndicatorService(ThisEvent);  
             } 
+//            DB_printf("12345678f!\r");
+//            DB_printf("Hi there, EventType is %d\n\r",CurrentEvent.EventType);
+//            DB_printf("Hi there, EventParam is %d\n\r",CurrentEvent.EventParam);
+//            DB_printf("Hi there, ES_SIDE_DETECTED is %d\n\r",ES_SIDE_DETECTED);
+//            bool flag;
+//            flag = ES_SIDE_DETECTED == CurrentEvent.EventType;
+//            DB_printf("Flag value: %s\n", flag ? "true" : "false");
+
+            
             if (CurrentEvent.EventType == ES_SIDE_DETECTED) {
+                DB_printf("kkkkkkkklllllllllllllllllllljij!\r");
                 Beacon_t detected_beacon = CurrentEvent.EventParam;
                 if (detected_beacon == BEACON_L){
                     DB_printf("We are at green side!\r");
@@ -174,8 +187,10 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 }else{
                     DB_printf("Fail to identify side!\r");
                 }
+                DB_printf("111111111111111111111!\r");
                 NextState = NAVIGATE_TO_COLUMN1;
                 MakeTransition = true;
+                DB_printf("222222222222222222222!\r");
             }
             break;
 
