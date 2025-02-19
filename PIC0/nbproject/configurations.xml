@@ -44,10 +44,7 @@
       <itemPath>ProjectHeaders/EventCheckWrapper.h</itemPath>
       <itemPath>ProjectHeaders/EventCheckers.h</itemPath>
       <itemPath>ProjectHeaders/TestHarnessService0.h</itemPath>
-      <itemPath>ProjectHeaders/PlannerHSM.h</itemPath>
-      <itemPath>ProjectHeaders/TopHSMTemplate.h</itemPath>
-      <itemPath>ProjectHeaders/KeyBoardService.h</itemPath>
-      <itemPath>ProjectHeaders/BeaconIndicatorService.h</itemPath>
+      <itemPath>ProjectHeaders/SPIMasterService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -64,10 +61,7 @@
       <itemPath>ProjectSource/EventCheckers.c</itemPath>
       <itemPath>ProjectSource/TestHarnessService0.c</itemPath>
       <itemPath>ProjectSource/main.c</itemPath>
-      <itemPath>ProjectSource/PlannerHSM.c</itemPath>
-      <itemPath>ProjectSource/TopHSMTemplate.c</itemPath>
-      <itemPath>ProjectSource/KeyBoardService.c</itemPath>
-      <itemPath>ProjectSource/BeaconIndicatorService.c</itemPath>
+      <itemPath>ProjectSource/SPIMasterService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -236,38 +230,6 @@
         <property key="stack-smashing" value=""/>
         <property key="wpo-lto" value="false"/>
       </C32Global>
-      <item path="ProjectHeaders/TopHSMTemplate.h" ex="true" overriding="false">
-        <C32>
-        </C32>
-        <C32-AR>
-        </C32-AR>
-        <C32-AS>
-        </C32-AS>
-        <C32-CO>
-        </C32-CO>
-        <C32-LD>
-        </C32-LD>
-        <C32CPP>
-        </C32CPP>
-        <C32Global>
-        </C32Global>
-      </item>
-      <item path="ProjectSource/TopHSMTemplate.c" ex="true" overriding="false">
-        <C32>
-        </C32>
-        <C32-AR>
-        </C32-AR>
-        <C32-AS>
-        </C32-AS>
-        <C32-CO>
-        </C32-CO>
-        <C32-LD>
-        </C32-LD>
-        <C32CPP>
-        </C32CPP>
-        <C32Global>
-        </C32Global>
-      </item>
       <item path="ProjectSource/main.c" ex="false" overriding="false">
         <C32>
         </C32>
