@@ -1,34 +1,42 @@
 ```mermaid
 stateDiagram-v2
-    state "Strategy Planner FSM" as PlannerFSM {
-        [*] --> InitPlanner
+    state "STRATEGY_PLANNER_FSM" as PLANNER_FSM {
+        [*] --> INIT_PLANNER
         
-        InitPlanner --> SideDetection: Init Complete
-        SideDetection --> NavigateToColumn1: Side Detected
-        note right of InitPlanner
+        INIT_PLANNER --> SEARCH_PICKUP_CRATE: ES_INIT_COMPLETE
+        SEARCH_PICKUP_CRATE --> SIDE_DETECTION: ES_HAS_CRATE
+        SIDE_DETECTION --> NAVIGATE_TO_COLUMN1: ES_SIDE_DETECTED
+        
+        note right of INIT_PLANNER
             Initialize variables
-            Set currentColumn = 1
+            Set CURRENT_COLUMN = 1
         end note
 
-        NavigateToColumn1 --> ProcessColumn: At Column1 Intersection
-        note right of NavigateToColumn1
+        NAVIGATE_TO_COLUMN1 --> PROCESS_COLUMN: ES_AT_COLUMN1_INTERSECTION
+        
+        note right of NAVIGATE_TO_COLUMN1
             Follow center line
             Turn at intersection
-            Follow column1 line
+            Follow COLUMN1 line
         end note
 
-        state ProcessColumn {
-            [*] --> GoToCrate
-            GoToCrate --> PickupCrate: At Crate
-            PickupCrate --> GoToStack: Has Crate
-            GoToStack --> DropCrate: At Stack
-            DropCrate --> UpdateProgress: Dropped
-            UpdateProgress --> GoToCrate: More Crates
-            UpdateProgress --> [*]: Column Done
+        state PROCESS_COLUMN {
+            [*] --> GO_TO_STACK
+            GO_TO_STACK --> DROP_CRATE: ES_AT_STACK
+            DROP_CRATE --> UPDATE_PROGRESS2: ES_DROPPED
+            UPDATE_PROGRESS2 --> GO_TO_CRATE: !(CURRENT_COLUMN == 2 && drop_crate_count == 3)
+            GO_TO_CRATE --> PICKUP_CRATE: ES_AT_CRATE
+
+            PICKUP_CRATE --> UPDATE_PROGRESS1: ES_HAS_CRATE
+            UPDATE_PROGRESS1 --> GO_TO_STACK: !(CURRENT_COLUMN == 1 && drop_crate_count == 3)
+
+            UPDATE_PROGRESS2 --> [*]: ES_COLUMN_DONE
+            UPDATE_PROGRESS1 --> [*]: ES_COLUMN_DONE
         }
 
-        ProcessColumn --> NavigateToColumn2: Column1 Complete
-        note right of ProcessColumn
+        PROCESS_COLUMN --> NAVIGATE_TO_COLUMN2: ES_COLUMN1_COMPLETE
+        
+        note right of PROCESS_COLUMN
             Move to crates
             Pickup crate
             Move to stack
@@ -36,25 +44,26 @@ stateDiagram-v2
             Repeat for column
         end note
 
-        NavigateToColumn2 --> ProcessColumn: At Column2 Intersection
-        note right of NavigateToColumn2
+        NAVIGATE_TO_COLUMN2 --> PROCESS_COLUMN: ES_AT_COLUMN2_INTERSECTION
+        
+        note right of NAVIGATE_TO_COLUMN2
             Return to center line
             Follow to next intersection
-            Turn towards Column2
-            reach intersection
+            Turn towards COLUMN2
+            Reach intersection
         end note
 
-        ProcessColumn --> GameOver: Column2 Complete
+        PROCESS_COLUMN --> GAME_OVER: ES_COLUMN2_COMPLETE
         
-        GameOver --> [*]
+        GAME_OVER --> [*]
     }
 
-    note right of PlannerFSM
+    note right of PLANNER_FSM
         Navigator between columns:
-        Column1: Start to Center to Turn to Column1
-        Column2: Stack1 to Center to Turn to Column2
+        COLUMN1: Start to Center to Turn to COLUMN1
+        COLUMN2: STACK1 to Center to Turn to COLUMN2
         Column Processing: Same logic both columns
         Only differs in coordinates
-        Tracks current column number
+        Tracks CURRENT_COLUMN number
     end note
 ```

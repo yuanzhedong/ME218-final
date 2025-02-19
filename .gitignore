@@ -1,0 +1,8 @@
+PIC0/.generated_files/*
+PIC1/.generated_files/*
+PIC0/debug/*
+PIC1/debug/*
+PIC0/dist/*
+PIC1/dist/*
+PIC0/build/*
+PIC1/build/*

@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 2
+#define NUM_SERVICES 5
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -57,24 +57,25 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "SPIMasterService.h"
+
+#define SERV_1_HEADER "PlannerHSM.h"
 // the name of the Init function
-#define SERV_1_INIT InitSPIMasterService
+#define SERV_1_INIT InitPlannerHSM
 // the name of the run function
-#define SERV_1_RUN RunSPIMasterService
-// How big should this services Queue be?
+#define SERV_1_RUN RunPlannerHSM
 #define SERV_1_QUEUE_SIZE 3
 #endif
+
 
 /****************************************************************************/
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "TapeFSM.h"
+#define SERV_2_HEADER "KeyBoardService.h"
 // the name of the Init function
-#define SERV_2_INIT InitTapeFSM
+#define SERV_2_INIT InitKeyboardService
 // the name of the run function
-#define SERV_2_RUN RunTapeFSM
+#define SERV_2_RUN RunKeyboardService
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -83,11 +84,11 @@
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
 // the header file with the public function prototypes
-#define SERV_3_HEADER "TestHarnessService3.h"
+#define SERV_3_HEADER "BeaconIndicatorService.h"
 // the name of the Init function
-#define SERV_3_INIT InitTestHarnessService3
+#define SERV_3_INIT InitBeaconIndicatorService
 // the name of the run function
-#define SERV_3_RUN RunTestHarnessService3
+#define SERV_3_RUN RunBeaconIndicatorService
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 3
 #endif
@@ -96,11 +97,11 @@
 // These are the definitions for Service 4
 #if NUM_SERVICES > 4
 // the header file with the public function prototypes
-#define SERV_4_HEADER "TestHarnessService4.h"
+#define SERV_4_HEADER "SPIMasterService.h"
 // the name of the Init function
-#define SERV_4_INIT InitTestHarnessService4
+#define SERV_4_INIT InitSPIMasterService
 // the name of the run function
-#define SERV_4_RUN RunTestHarnessService4
+#define SERV_4_RUN RunSPIMasterService
 // How big should this services Queue be?
 #define SERV_4_QUEUE_SIZE 3
 #endif
@@ -109,11 +110,11 @@
 // These are the definitions for Service 5
 #if NUM_SERVICES > 5
 // the header file with the public function prototypes
-#define SERV_5_HEADER "TestHarnessService5.h"
+#define SERV_5_HEADER "SPIMasterService.h"
 // the name of the Init function
-#define SERV_5_INIT InitTestHarnessService5
+#define SERV_5_INIT InitSPIMasterService
 // the name of the run function
-#define SERV_5_RUN RunTestHarnessService5
+#define SERV_5_RUN RunSPIMasterService
 // How big should this services Queue be?
 #define SERV_5_QUEUE_SIZE 3
 #endif
@@ -262,11 +263,24 @@ typedef enum
   ES_NEW_KEY,               /* signals a new key received from terminal */
   ES_LOCK,
   ES_UNLOCK,
-
-
-  ES_SPI_TIMEOUT,
-
-}ES_EventType_t;
+  ES_ENTRY,
+  ES_ENTRY_HISTORY,
+  ES_EXIT,
+  ES_INIT_COMPLETE,
+  ES_HAS_CRATE,
+  ES_SIDE_DETECTED,
+  ES_AT_COLUMN1_INTERSECTION,
+  ES_AT_STACK,
+  ES_DROPPED,
+  ES_AT_CRATE,
+  ES_AT_COLUMN2_INTERSECTION,
+  ES_COLUMN_DONE,
+  ES_COLUMN1_COMPLETE,
+  ES_COLUMN2_COMPLETE,
+  ES_REQUEST_SIDE_DETECTION,
+  ES_STOP,
+  ES_SPI_TIMEOUT
+} ES_EventType_t;
 
 /****************************************************************************/
 // These are the definitions for the Distribution lists. Each definition
@@ -322,7 +336,7 @@ typedef enum
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
-#define TIMER13_RESP_FUNC TIMER_UNUSED
+#define TIMER13_RESP_FUNC PostBeaconIndicatorService
 #define TIMER14_RESP_FUNC PostSPIMasterService
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
@@ -334,7 +348,7 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
+#define BEACON_ALIGN_TIMER 13
 #define SPI_QUERY_TIMER 14
-
 
 #endif /* ES_CONFIGURE_H */
