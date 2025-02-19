@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 5
+#define NUM_SERVICES 1
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -57,11 +57,11 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
-#define SERV_1_HEADER "NavigatorHSM.h"
+#define SERV_1_HEADER "TestHarnessService1.h"
 // the name of the Init function
-#define SERV_1_INIT InitNavigatorHSM
+#define SERV_1_INIT InitTestHarnessService1
 // the name of the run function
-#define SERV_1_RUN RunNavigatorHSM
+#define SERV_1_RUN RunTestHarnessService1
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -70,11 +70,11 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
-#define SERV_2_HEADER "SPIFollowerService.h"
+#define SERV_2_HEADER "TestHarnessService2.h"
 // the name of the Init function
-#define SERV_2_INIT InitSPIFollowerService
+#define SERV_2_INIT InitTestHarnessService2
 // the name of the run function
-#define SERV_2_RUN RunSPIFollowerService
+#define SERV_2_RUN RunTestHarnessService2
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -83,11 +83,11 @@
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
 // the header file with the public function prototypes
-#define SERV_3_HEADER "TapeFSM.h"
+#define SERV_3_HEADER "TestHarnessService3.h"
 // the name of the Init function
-#define SERV_3_INIT InitTapeFSM
+#define SERV_3_INIT InitTestHarnessService3
 // the name of the run function
-#define SERV_3_RUN RunTapeFSM
+#define SERV_3_RUN RunTestHarnessService3
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 3
 #endif
@@ -96,11 +96,11 @@
 // These are the definitions for Service 4
 #if NUM_SERVICES > 4
 // the header file with the public function prototypes
-#define SERV_4_HEADER "KeyboardService.h"
+#define SERV_4_HEADER "TestHarnessService4.h"
 // the name of the Init function
-#define SERV_4_INIT InitKeyboardService
+#define SERV_4_INIT InitTestHarnessService4
 // the name of the run function
-#define SERV_4_RUN RunKeyboardService
+#define SERV_4_RUN RunTestHarnessService4
 // How big should this services Queue be?
 #define SERV_4_QUEUE_SIZE 3
 #endif
@@ -254,36 +254,15 @@
 typedef enum
 {
   ES_NO_EVENT = 0,
-  ES_ERROR,         /* used to indicate an error from the service */
-  ES_INIT,          /* used to transition from initial pseudo-state */
-  ES_TIMEOUT,       /* signals that the timer has expired */
-  ES_SHORT_TIMEOUT, /* signals that a short timer has expired */
+  ES_ERROR,                 /* used to indicate an error from the service */
+  ES_INIT,                  /* used to transition from initial pseudo-state */
+  ES_TIMEOUT,               /* signals that the timer has expired */
+  ES_SHORT_TIMEOUT,         /* signals that a short timer has expired */
   /* User-defined events start here */
-  ES_NEW_KEY, /* signals a new key received from terminal */
+  ES_NEW_KEY,               /* signals a new key received from terminal */
   ES_LOCK,
-  ES_UNLOCK,
-  ES_ENTRY,
-  ES_EXIT,
-  ES_FORWARD,
-  ES_BACKWARD,
-  ES_STOP,
-  ES_CRATE_DETECTED,
-  ES_CROSS_DETECTED,
-  ES_TJUNCTION_DETECTED,
-  ES_ALIGN_BEACON,
-  ES_BEACON_ALIGNED,
-  ES_ALIGNED,
-  ES_NOT_ALIGNED,
-  ES_ENTRY_HISTORY,
-  ES_TURN_COMPLETE,
-  ES_TURN_LEFT,
-  ES_TURN_RIGHT,
-  ES_RECOVERED,
-  ES_NEW_PLANNER_CMD,
-
-  ES_TAPE_FOLLOW,
-  ES_TAPE_STOP
-} ES_EventType_t;
+  ES_UNLOCK
+}ES_EventType_t;
 
 /****************************************************************************/
 // These are the definitions for the Distribution lists. Each definition
@@ -335,7 +314,7 @@ typedef enum
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
-#define TIMER9_RESP_FUNC PostTapeFSM
+#define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
@@ -351,6 +330,6 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
-#define TapeTest_TIMER 9
+
 
 #endif /* ES_CONFIGURE_H */
