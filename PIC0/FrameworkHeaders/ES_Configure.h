@@ -63,6 +63,8 @@
 #define SERV_1_INIT InitPlannerHSM
 // the name of the run function
 #define SERV_1_RUN RunPlannerHSM
+#define SERV_1_QUEUE_SIZE 3
+#endif
 
 
 /****************************************************************************/
@@ -95,11 +97,11 @@
 // These are the definitions for Service 4
 #if NUM_SERVICES > 4
 // the header file with the public function prototypes
-#define SERV_4_HEADER "TestHarnessService4.h"
+#define SERV_4_HEADER "SPIMasterService.h"
 // the name of the Init function
-#define SERV_4_INIT InitTestHarnessService4
+#define SERV_4_INIT InitSPIMasterService
 // the name of the run function
-#define SERV_4_RUN RunTestHarnessService4
+#define SERV_4_RUN RunSPIMasterService
 // How big should this services Queue be?
 #define SERV_4_QUEUE_SIZE 3
 #endif
@@ -277,7 +279,7 @@ typedef enum
   ES_COLUMN2_COMPLETE,
   ES_REQUEST_SIDE_DETECTION,
   ES_STOP,
-  ES_SPI_TIMEOUT,
+  ES_SPI_TIMEOUT
 } ES_EventType_t;
 
 /****************************************************************************/
