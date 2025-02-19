@@ -276,9 +276,9 @@ typedef enum
   ES_COLUMN1_COMPLETE,
   ES_COLUMN2_COMPLETE,
   ES_REQUEST_SIDE_DETECTION,
-  ES_STOP
+  ES_STOP,
   ES_SPI_TIMEOUT,
-}ES_EventType_t;
+} ES_EventType_t;
 
 /****************************************************************************/
 // These are the definitions for the Distribution lists. Each definition
