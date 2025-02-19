@@ -18,9 +18,11 @@ stateDiagram-v2
 
     AlignBeacon --> Idle: STOP or Aligned.
 
+    LineFollow --> CheckCrate: CRATE_DETECTED
     LineFollow --> CheckIntersection: CROSS_DETECTED
     LineFollow --> Idle: STOP
     LineFollow --> LineDiscover: ERROR
+    LineFollow --> CheckIntersection: TJUNCTION_DETECTED
     note right of LineFollow
         Follow black line
         PID control
@@ -45,6 +47,13 @@ stateDiagram-v2
 
     LineDiscover --> LineFollow: recovered
     LineDiscover --> Idle: STOP
+
+    CheckCrate --> LineFollow: FORWARD/BACKWARD
+    CheckCrate --> Idle: STOP
+    note right of CheckCrate
+        Set moter duty cycle to zero
+        Wait for cmd
+    end note
 
     
 

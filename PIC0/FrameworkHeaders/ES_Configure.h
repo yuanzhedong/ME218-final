@@ -33,7 +33,11 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
+<<<<<<< HEAD
 #define NUM_SERVICES 4
+=======
+#define NUM_SERVICES 2
+>>>>>>> origin/main
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -57,11 +61,19 @@
 // These are the definitions for Service 1
 #if NUM_SERVICES > 1
 // the header file with the public function prototypes
+<<<<<<< HEAD
 #define SERV_1_HEADER "PlannerHSM.h"
 // the name of the Init function
 #define SERV_1_INIT InitPlannerHSM
 // the name of the run function
 #define SERV_1_RUN RunPlannerHSM
+=======
+#define SERV_1_HEADER "SPIMasterService.h"
+// the name of the Init function
+#define SERV_1_INIT InitSPIMasterService
+// the name of the run function
+#define SERV_1_RUN RunSPIMasterService
+>>>>>>> origin/main
 // How big should this services Queue be?
 #define SERV_1_QUEUE_SIZE 3
 #endif
@@ -70,11 +82,19 @@
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
 // the header file with the public function prototypes
+<<<<<<< HEAD
 #define SERV_2_HEADER "KeyBoardService.h"
 // the name of the Init function
 #define SERV_2_INIT InitKeyboardService
 // the name of the run function
 #define SERV_2_RUN RunKeyboardService
+=======
+#define SERV_2_HEADER "TapeFSM.h"
+// the name of the Init function
+#define SERV_2_INIT InitTapeFSM
+// the name of the run function
+#define SERV_2_RUN RunTapeFSM
+>>>>>>> origin/main
 // How big should this services Queue be?
 #define SERV_2_QUEUE_SIZE 3
 #endif
@@ -278,6 +298,7 @@ typedef enum
   ES_COLUMN2_COMPLETE,
   ES_REQUEST_SIDE_DETECTION,
   ES_STOP
+  ES_SPI_TIMEOUT,
 }ES_EventType_t;
 
 /****************************************************************************/
@@ -334,8 +355,8 @@ typedef enum
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
-#define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC PostBeaconIndicatorService
+#define TIMER13_RESP_FUNC PostBeaconIndicatorService
+#define TIMER14_RESP_FUNC PostSPIMasterService
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
 /****************************************************************************/
@@ -346,7 +367,7 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
-#define BEACON_ALIGN_TIMER 14
-
+#define BEACON_ALIGN_TIMER 13
+#define SPI_QUERY_TIMER 14
 
 #endif /* ES_CONFIGURE_H */
