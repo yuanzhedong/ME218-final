@@ -198,9 +198,11 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
   if (ThisEvent.EventType==ES_TIMEOUT&&ThisEvent.EventParam==TapeTest_TIMER)
   {
-    ES_Timer_InitTimer(TapeTest_TIMER, 2000);
+    ES_Timer_InitTimer(TapeTest_TIMER, 1000);
     DB_printf("Tape Test Timer\r\n");
-    DB_printf("%d \n",-100);
+    //ADC_MultiRead(CurrADVal);
+    //DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    
     
     
   }
@@ -277,6 +279,8 @@ static void enterFollowing(){
   moveAllowed = true;
   // step2: start control ISR
   T4CONbits.ON = 1;
+  OC1RS = 500;
+OC3RS = 500;
   return;
 }
 static void exitFollowing(){
@@ -431,7 +435,7 @@ static void ConfigureReflectSensor(){
   //ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
   ANSELBbits.ANSB2 = 1; // Configure RB2 as analog IO
   TRISBbits.TRISB2 = 1; // Configure RB2 as input
-  //ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT9HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN9/RB15, AN4/RB2
+  ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT9HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN9/RB15, AN4/RB2
   
 
   return;
@@ -443,39 +447,41 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
     //DB_printf("T4 ISR entered \n");
     ADC_MultiRead(CurrADVal);
-    //DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
-    //K_error = CurrADVal[0]*sensorWeights[0] + CurrADVal[1]*sensorWeights[1] + CurrADVal[2]*sensorWeights[2] - CurrADVal[3]*sensorWeights[3] - CurrADVal[4]*sensorWeights[4] - CurrADVal[5]*sensorWeights[5];
+    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    // //K_error = CurrADVal[0]*sensorWeights[0] + CurrADVal[1]*sensorWeights[1] + CurrADVal[2]*sensorWeights[2] - CurrADVal[3]*sensorWeights[3] - CurrADVal[4]*sensorWeights[4] - CurrADVal[5]*sensorWeights[5];
     
-    //anti-windup
-    if (K_effort < K_effort_max && K_effort > K_effort_min)
-    {
-      K_error_sum += (float)K_error/100;
-    }
+    // //anti-windup
+    // if (K_effort < K_effort_max && K_effort > K_effort_min)
+    // {
+    //   K_error_sum += (float)K_error/100;
+    // }
 
-    //calculate control effort based on error 
-    K_effort = (float)K_error/K_error_max*Kp + (float)K_error_sum/K_error_max*Ki;
-    DB_printf("K_error: %d, K_effort: %d \n", K_error, K_effort);
-    //actuate the motors
-    if (moveAllowed)
-    {
-            if (K_effort > 0)
-      {
-        //OC1RS is the left motor and OC3RS is the right motor
-        //if K_effort is positive, that means the sensors on the left read more black than the right
-        //so the left motor should slow down
-        OC1RS = (targetDutyCycle - K_effort)/100*PR2;
-        OC3RS = targetDutyCycle*PR2;
-      }else if (K_effort < 0)
-      {
-        //K_effort is negative, that means the sensors on the right read more black than the left
-        //so the right motor should slow down
-        OC1RS = targetDutyCycle*PR2;
-        OC3RS = (targetDutyCycle + K_effort)/100*PR2;
-      }
+    // //calculate control effort based on error 
+    // K_effort = (float)K_error/K_error_max*Kp + (float)K_error_sum/K_error_max*Ki;
+    // DB_printf("K_error: %d, K_effort: %d \n", K_error, K_effort);
+    // //actuate the motors
+    // if (moveAllowed)
+    // {
+    //         if (K_effort > 0)
+    //   {
+    //     //OC1RS is the left motor and OC3RS is the right motor
+    //     //if K_effort is positive, that means the sensors on the left read more black than the right
+    //     //so the left motor should slow down
+    //     OC1RS = (targetDutyCycle - K_effort)/100*PR2;
+    //     OC3RS = targetDutyCycle*PR2;
+    //   }else if (K_effort < 0)
+    //   {
+    //     //K_effort is negative, that means the sensors on the right read more black than the left
+    //     //so the right motor should slow down
+    //     OC1RS = targetDutyCycle*PR2;
+    //     OC3RS = (targetDutyCycle + K_effort)/100*PR2;
+    //   }
     
-    }
+    // }
     
+//for test only
 
+   
     
     
     
