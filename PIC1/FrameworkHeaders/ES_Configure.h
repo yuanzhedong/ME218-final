@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 3
+#define NUM_SERVICES 5
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -83,11 +83,11 @@
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
 // the header file with the public function prototypes
-#define SERV_3_HEADER "TestHarnessService3.h"
+#define SERV_3_HEADER "TapeFSM.h"
 // the name of the Init function
-#define SERV_3_INIT InitTestHarnessService3
+#define SERV_3_INIT InitTapeFSM
 // the name of the run function
-#define SERV_3_RUN RunTestHarnessService3
+#define SERV_3_RUN RunTapeFSM
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 3
 #endif
@@ -96,11 +96,11 @@
 // These are the definitions for Service 4
 #if NUM_SERVICES > 4
 // the header file with the public function prototypes
-#define SERV_4_HEADER "TestHarnessService4.h"
+#define SERV_4_HEADER "KeyboardService.h"
 // the name of the Init function
-#define SERV_4_INIT InitTestHarnessService4
+#define SERV_4_INIT InitKeyboardService
 // the name of the run function
-#define SERV_4_RUN RunTestHarnessService4
+#define SERV_4_RUN RunKeyboardService
 // How big should this services Queue be?
 #define SERV_4_QUEUE_SIZE 3
 #endif
@@ -280,6 +280,9 @@ typedef enum
   ES_TURN_RIGHT,
   ES_RECOVERED,
   ES_NEW_PLANNER_CMD,
+
+  ES_TAPE_FOLLOW,
+  ES_TAPE_STOP
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -332,7 +335,7 @@ typedef enum
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
-#define TIMER9_RESP_FUNC TIMER_UNUSED
+#define TIMER9_RESP_FUNC PostTapeFSM
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
@@ -348,5 +351,6 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
+#define TapeTest_TIMER 9
 
 #endif /* ES_CONFIGURE_H */

@@ -26,19 +26,26 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "TapeFSM.h"
-
+#include "dbprintf.h"
+#include <sys/attribs.h> 
+#include "terminal.h"
+#include "PIC32_AD_Lib.h"
 /*----------------------------- Module Defines ----------------------------*/
 
 /*---------------------------- Module Functions ---------------------------*/
 /* prototypes for private functions for this machine.They should be functions
    relevant to the behavior of this state machine
 */
-static void exitFollowing(); //the exit function for exiting the Following state back to Idle
-static void ConfigPWM_OC1();
-static void ConfigPWM_OC3();
-static void ConfigTimer2(); //time base for OC
-static void ConfigTimer3();
-static void ConfigTimer4(); //for running control loop
+static void enterFollowing();  
+static void exitFollowing(void); //the exit function for exiting the Following state back to Idle_tapeFSM
+//the configure PWM functions turns on OC at the end: OCxCON.ON = 1
+static void ConfigPWM_OC1(void);
+static void ConfigPWM_OC3(void);
+//the configure timer functions don't turn on the timer, they just configure the timer
+static void ConfigTimer2(void); //time base for OC, 
+static void ConfigTimer3(void); 
+static void ConfigTimer4(void); //for running control loop
+static void ConfigureReflectSensor();//for the reflectance sensor array
 /*---------------------------- Module Variables ---------------------------*/
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
@@ -60,20 +67,32 @@ static void ConfigTimer4(); //for running control loop
 #define priority_control 5
 
 //output compare stuff (PWM)
-static bool Dir1 = 0; //the direction of the motor, 0 = positive dir
-static bool Dir2 = 0; 
+static bool Dir0 = 0; //the direction of the motor, 0 = positive dir
+static bool Dir1 = 0; 
 
 
 //control stuff
-#define Control_interval 2 //in ms
-#define Ki 0.3
-#define Kp 0.1
-static K_error = 0;
-volatile int K_error_sum = 0;
-volatile int K_effort = 200;//in the unit of ticks for PR2
+#define Control_interval 10 //in ms, max value with prescalar of 4 is 65535*4/20MHz = 13.1ms
+#define Kp 10
+#define Ki 3
+#define targetDutyCycle 70 //initial duty cycle (in %) at which the car starts to follow the line
+static uint8_t sensorWeights[] = {3, 2, 1, 1, 2, 3};//weights for the 6 sensors from left to right of sensor array
+//K_error is the error in the sensor readings, K_effort is the control effort
+volatile int16_t K_error = 0;
+static int16_t K_error_max; 
+static int16_t K_error_min;
+volatile float K_error_sum = 0;
+//K_effort is in the units of duty cycle with max = PR2*targetDutyCycle/100 
+//min = -PR2*targetDutyCycle/100
+volatile int16_t K_effort = 0;
+static int16_t K_effort_max;
+static int16_t K_effort_min;
+static uint32_t CurrADVal[6];
 // framework stuff
 static uint8_t MyPriority;
 static TapeState_t CurrentState;
+//FSM stuff
+static bool moveAllowed = false;
 /*------------------------------ Module Code ------------------------------*/
 /****************************************************************************
  Function
@@ -95,22 +114,33 @@ static TapeState_t CurrentState;
 ****************************************************************************/
 bool InitTapeFSM(uint8_t Priority)
 {
+
+  ConfigureReflectSensor();//this calls the ADC library
   //TRIS and LAT for direction control pins
   H_bridge1A_TRIS = 0; //Outputs
   H_bridge1A_LAT = 0;
   H_bridge3A_TRIS = 0; //Outputs
   H_bridge3A_LAT = 0;
+  
   ConfigTimer2();
   ConfigPWM_OC1();
   ConfigPWM_OC3();
+  T2CONbits.ON = 1;
   ConfigTimer4();
+  //We do not yet turn on T4 because the initial state is Idle state
+  //T4CONbits.ON = 1;
   
   /********enable interrupt globally *******************/
   __builtin_enable_interrupts();
+  K_error_max=1023*(sensorWeights[0]+sensorWeights[1]+sensorWeights[2]);
+  K_error_min=-1023*(sensorWeights[3]+sensorWeights[4]+sensorWeights[5]);
+  K_effort_max = PR2*targetDutyCycle/100;// PR2 is the max value for OCxRS
+  K_effort_min = -PR2*targetDutyCycle/100;
+  ES_Timer_InitTimer(TapeTest_TIMER, 1000);
   ES_Event_t ThisEvent;
   MyPriority = Priority;
   // put us into the Initial PseudoState
-  CurrentState = Idle;
+  CurrentState = Idle_tapeFSM;
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
   if (ES_PostToService(MyPriority, ThisEvent) == true)
@@ -166,27 +196,51 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
 {
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
-
+  if (ThisEvent.EventType==ES_TIMEOUT&&ThisEvent.EventParam==TapeTest_TIMER)
+  {
+    ES_Timer_InitTimer(TapeTest_TIMER, 1000);
+    DB_printf("Tape Test Timer\r\n");
+    //ADC_MultiRead(CurrADVal);
+    //DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    
+    
+    
+  }
+  
+  
   switch (CurrentState)
   {
-    case Idle:        
+    case Idle_tapeFSM:        
     {
       if (ThisEvent.EventType == ES_TAPE_FOLLOW)
       {
-        CurrentState = Following;
+        CurrentState = Following_tapeFSM;
         enterFollowing();
       }
       
     }
     break;
 
-    case Following:        // If current state is state one
+    case Following_tapeFSM:        // If current state is state one
     {
       if (ThisEvent.EventType == ES_TAPE_STOP)
       {
-        CurrentState = Idle;
+        CurrentState = Idle_tapeFSM;
         exitFollowing();
       }
+
+      if (ThisEvent.EventType == ES_NEW_KEY)
+      {
+        if (ThisEvent.EventParam == 'f')
+        {
+          K_error += 100;
+        }else if (ThisEvent.EventParam == 'g')
+        {
+          K_error -= 100;
+        }
+        
+      }
+      
     }
     break;
     default:
@@ -221,20 +275,24 @@ TapeState_t QueryTapeFSM(void)
  private functions
  ***************************************************************************/
 static void enterFollowing(){
-  //step1: turn on the motors
-  OC1RS = K_effort;
-  OC3RS = K_effort;
+  //step1: allow motor movement
+  moveAllowed = true;
   // step2: start control ISR
   T4CONbits.ON = 1;
+  OC1RS = 500;
+OC3RS = 500;
   return;
 }
 static void exitFollowing(){
   //step1: turn off the motors
+  moveAllowed = false;
+  H_bridge1A_LAT = 0;
+  H_bridge3A_LAT = 0;
   OC1RS = 0;
   OC3RS = 0;
   // step2: stop control ISR
   T4CONbits.ON = 0;
-  // step3: clean error integral
+  // step3: clean error integral 
   K_error_sum = 0;
   return;
 }
@@ -248,15 +306,13 @@ static void ConfigTimer2() {
   // Clear the timer register TMR2 
   TMR2 = 0;
   // Load PR2 with desired 16-bit match value
-  PR2 = PIC_freq / (PWM_freq * prescalar_OC1) - 1;
+  PR2 = PIC_freq / (PWM_freq * prescalar_T2) - 1;
   DB_printf("PR2 is set to %d \n", PR2);
 
   // Clear the T2IF interrupt flag bit in the IFS2 register
   IFS0CLR = _IFS0_T2IF_MASK;
   // Disable interrupts on Timer 2
   IEC0CLR = _IEC0_T2IE_MASK;
-  // Hold on to turn on the timer
-  // T2CONbits.ON = 1;
   return; 
 }
 static void ConfigPWM_OC1() {
@@ -330,8 +386,6 @@ static void ConfigTimer3() {
 
   // Enable interrupts on Timer 3
   IEC0SET = _IEC0_T3IE_MASK;
-  // Turn on the timer 3
-  T3CONbits.ON = 1;
   return; 
 }
 
@@ -350,7 +404,6 @@ PR4 = Control_interval*1000000/ns_per_tick/prescalar_T4 - 1;
 DB_printf("PR4 is set to %d \n",PR4);
 //clear the current timer count
 TMR4=0;
-T4CONbits.ON = 1;
 //enable interrupt for the timer
 //clear the interrupt flag for TIMER4
 IFS0CLR = _IFS0_T4IF_MASK;
@@ -361,28 +414,78 @@ IEC0SET = _IEC0_T4IE_MASK;
 
   return;
 }
+static void ConfigureReflectSensor(){
+  
 
+  //Sensors' 0-5 ports: A0, A1, B12, B13, B15, B2
+  ANSELAbits.ANSA0 = 1; // Configure A0 as analog IO
+  TRISAbits.TRISA0 = 1; // Configure A0 as input
+  //ADC_ConfigAutoScan(BIT0HI);// AN0/RA0
+  ANSELAbits.ANSA1 = 1; // Configure A1 as analog IO
+  TRISAbits.TRISA1 = 1; // Configure A1 as input
+  //ADC_ConfigAutoScan(BIT1HI);// AN0/RA0
+  ANSELBbits.ANSB12 = 1; // Configure RB12 as analog IO
+  TRISBbits.TRISB12 = 1; // Configure RB12 as input
+  //ADC_ConfigAutoScan(BIT12HI);// AN12/RB12
+  ANSELBbits.ANSB13 = 1; // Configure RB13 as analog IO
+  TRISBbits.TRISB13 = 1; // Configure RB13 as input
+  //ADC_ConfigAutoScan(BIT13HI);// AN13/RB13
+  ANSELBbits.ANSB15 = 1; // Configure RB15 as analog IO
+  TRISBbits.TRISB15 = 1; // Configure RB15 as input
+  //ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
+  ANSELBbits.ANSB2 = 1; // Configure RB2 as analog IO
+  TRISBbits.TRISB2 = 1; // Configure RB2 as input
+  ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT9HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN9/RB15, AN4/RB2
+  
+
+  return;
+}
 /***********************
  * ******ISR*************************
 */
 void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void) {
-  LATBbits.LATB15 = 0;
     IFS0CLR = _IFS0_T4IF_MASK;// Clear the Timer 4 interrupt flag
-    // RPM100 = (float)1/CPR * (float) 1/Enc_curr * (float)PIC_freq_kHz/prescalar_IC * 60000 *(float)1/gear_ratio*100;
-    // error_RPM100 = targetRPM100-RPM100;
+    //DB_printf("T4 ISR entered \n");
+    ADC_MultiRead(CurrADVal);
+    //DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    // //K_error = CurrADVal[0]*sensorWeights[0] + CurrADVal[1]*sensorWeights[1] + CurrADVal[2]*sensorWeights[2] - CurrADVal[3]*sensorWeights[3] - CurrADVal[4]*sensorWeights[4] - CurrADVal[5]*sensorWeights[5];
+    
     // //anti-windup
-    // if (control_effort<PR2 && control_effort > 2)
+    // if (K_effort < K_effort_max && K_effort > K_effort_min)
     // {
-    //   error_sum+= error_RPM100/10;
+    //   K_error_sum += (float)K_error/100;
     // }
-    // control_effort = (float)error_RPM100/3*Kp + (float)error_sum/30*Ki;
-    // if (control_effort > 999)
+
+    // //calculate control effort based on error 
+    // K_effort = (float)K_error/K_error_max*Kp + (float)K_error_sum/K_error_max*Ki;
+    // DB_printf("K_error: %d, K_effort: %d \n", K_error, K_effort);
+    // //actuate the motors
+    // if (moveAllowed)
     // {
-    //   control_effort = PR2;
-    // }else if (control_effort < 2)
-    // {
-    //   control_effort = 2;
+    //         if (K_effort > 0)
+    //   {
+    //     //OC1RS is the left motor and OC3RS is the right motor
+    //     //if K_effort is positive, that means the sensors on the left read more black than the right
+    //     //so the left motor should slow down
+    //     OC1RS = (targetDutyCycle - K_effort)/100*PR2;
+    //     OC3RS = targetDutyCycle*PR2;
+    //   }else if (K_effort < 0)
+    //   {
+    //     //K_effort is negative, that means the sensors on the right read more black than the left
+    //     //so the right motor should slow down
+    //     OC1RS = targetDutyCycle*PR2;
+    //     OC3RS = (targetDutyCycle + K_effort)/100*PR2;
+    //   }
+    
     // }
-    // OC1RS = control_effort;
-    // LATBbits.LATB15 = 1;
+    
+//for test only
+
+   
+    
+    
+    
+    
+
+    
 }
