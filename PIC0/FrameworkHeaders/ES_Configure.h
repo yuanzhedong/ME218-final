@@ -66,7 +66,6 @@
 #define SERV_1_QUEUE_SIZE 3
 #endif
 
-
 /****************************************************************************/
 // These are the definitions for Service 2
 #if NUM_SERVICES > 2
@@ -255,12 +254,12 @@
 typedef enum
 {
   ES_NO_EVENT = 0,
-  ES_ERROR,                 /* used to indicate an error from the service */
-  ES_INIT,                  /* used to transition from initial pseudo-state */
-  ES_TIMEOUT,               /* signals that the timer has expired */
-  ES_SHORT_TIMEOUT,         /* signals that a short timer has expired */
+  ES_ERROR,         /* used to indicate an error from the service */
+  ES_INIT,          /* used to transition from initial pseudo-state */
+  ES_TIMEOUT,       /* signals that the timer has expired */
+  ES_SHORT_TIMEOUT, /* signals that a short timer has expired */
   /* User-defined events start here */
-  ES_NEW_KEY,               /* signals a new key received from terminal */
+  ES_NEW_KEY, /* signals a new key received from terminal */
   ES_LOCK,
   ES_UNLOCK,
   ES_ENTRY,
@@ -279,7 +278,18 @@ typedef enum
   ES_COLUMN2_COMPLETE,
   ES_REQUEST_SIDE_DETECTION,
   ES_STOP,
-  ES_SPI_TIMEOUT
+  ES_SPI_TIMEOUT,
+  ES_FORWARD,
+  ES_BACKWARD,
+  ES_ALIGN_BEACON,
+  ES_ALIGNED,
+  ES_CRATE_DETECTED,
+  ES_CROSS_DETECTED,
+  ES_TJUNCTION_DETECTED,
+  ES_TURN_LEFT,
+  ES_TURN_RIGHT,
+  ES_TURN_COMPLETE,
+  ES_RECOVERED
 } ES_EventType_t;
 
 /****************************************************************************/
