@@ -417,7 +417,7 @@ IEC0SET = _IEC0_T4IE_MASK;
 static void ConfigureReflectSensor(){
   
 
-  //Sensors' 0-5 ports: A0, A1, B12, B13, B15, B2
+  //Sensors' 0-5 ports: A0, A1, B12, B13, B3, B2
   ANSELAbits.ANSA0 = 1; // Configure A0 as analog IO
   TRISAbits.TRISA0 = 1; // Configure A0 as input
   //ADC_ConfigAutoScan(BIT0HI);// AN0/RA0
@@ -430,12 +430,12 @@ static void ConfigureReflectSensor(){
   ANSELBbits.ANSB13 = 1; // Configure RB13 as analog IO
   TRISBbits.TRISB13 = 1; // Configure RB13 as input
   //ADC_ConfigAutoScan(BIT13HI);// AN13/RB13
-  ANSELBbits.ANSB15 = 1; // Configure RB15 as analog IO
-  TRISBbits.TRISB15 = 1; // Configure RB15 as input
+  ANSELBbits.ANSB3 = 1; // Configure RB15 as analog IO
+  TRISBbits.TRISB3 = 1; // Configure RB15 as input
   //ADC_ConfigAutoScan(BIT15HI);// AN15/RB15
   ANSELBbits.ANSB2 = 1; // Configure RB2 as analog IO
   TRISBbits.TRISB2 = 1; // Configure RB2 as input
-  ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT9HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN9/RB15, AN4/RB2
+  ADC_ConfigAutoScan(BIT0HI|BIT1HI|BIT12HI|BIT11HI|BIT5HI|BIT4HI);// AN0/RA0, AN1/RA1, AN12/RB12, AN11/RB13, AN5/RB3, AN4/RB2
   
 
   return;
