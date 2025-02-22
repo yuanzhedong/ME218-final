@@ -27,7 +27,7 @@ stateDiagram-v2
         Follow black line
         PID control
         Monitor sensors
-        Through ERROR if line can't be detected
+        Throw ERROR if line can't be detected
     end note
 
     CheckIntersection --> TurnLeft: TURN_LEFT
@@ -35,7 +35,7 @@ stateDiagram-v2
     CheckIntersection --> LineFollow: FORWARD/BACKWARD
     CheckIntersection --> Idle: STOP
     note right of CheckIntersection
-        Set moter duty cycle to zero
+        Set motor duty cycle to zero
         Wait for cmd
     end note
 
@@ -51,7 +51,7 @@ stateDiagram-v2
     CheckCrate --> LineFollow: FORWARD/BACKWARD
     CheckCrate --> Idle: STOP
     note right of CheckCrate
-        Set moter duty cycle to zero
+        Set motor duty cycle to zero
         Wait for cmd
     end note
 
