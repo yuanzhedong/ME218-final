@@ -232,7 +232,7 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
     PulsePR = CurrentVal.FullTime - PrevVal;
 
     float freq = TICK_FREQ / PulsePR;
-    //DB_printf("PulsePR is: %d\n", PulsePR);
+    DB_printf("PulsePR is: %d\n", PulsePR);
     if (PulsePR > 0 && !aligned) {
         detectedFreq = (int)(freq+0.5);
         DB_printf("Detected Frequency: %d\n", freq);
