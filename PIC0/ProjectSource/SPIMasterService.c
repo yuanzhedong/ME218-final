@@ -22,6 +22,16 @@ void InitSPI(void);
 bool SendSPICommand(uint8_t command);
 void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void);
 
+bool SPIOperate_HasSS1_Risen(void) {
+    bool ReturnVal = true;
+    if (IFS0bits.INT4IF == 1) {
+        IFS0CLR = _IFS0_INT4IF_MASK;
+    } else {
+        ReturnVal = false;
+    }
+    return ReturnVal;
+}
+
 /*------------------------------ Module Code ------------------------------*/
 bool InitSPIMasterService(uint8_t Priority)
 {
@@ -62,9 +72,15 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     // Handle events here
     if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == SPI_QUERY_TIMER)
     {
-        puts("Querying slave for status");
         // Query the slave for its status
         SendSPICommand(DEBUG_CMD);
+        ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000); // Restart the timer
+    }
+
+    if (ThisEvent.EventType == ES_NEW_NAV_CMD)
+    {
+        // Send the new command to the slave
+        SendSPICommand(ThisEvent.EventParam);
         ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000); // Restart the timer
     }
 
@@ -109,6 +125,13 @@ void InitSPI(void)
     IFS1CLR = _IFS1_SPI1RXIF_MASK;
     IPC7bits.SPI1IP = 6;
     IEC1SET = _IEC1_SPI1RXIE_MASK;
+
+    // interrupts for SS1
+    INTCONbits.INT4EP = 1; // Rising edge
+    IFS0CLR = _IFS0_INT4IF_MASK;
+    INT4R = 0b0010; // Map INT4 to RB4
+
+
     // Step 10: Enable SPI
     SPI1CONbits.ON = 1;
     __builtin_enable_interrupts();
@@ -116,35 +139,26 @@ void InitSPI(void)
 
 bool SendSPICommand(uint8_t command) {
     // Check if previous transfer is complete
-    //LATBbits.LATB4 = 0; // Pull SS low
 
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-
-    for (volatile uint32_t i = 0; i < 1000000; i++);
+    for (volatile uint32_t i = 0; i < 10000000; ++i);
+    for (volatile uint32_t i = 0; i < 10000000; ++i);
+    for (volatile uint32_t i = 0; i < 10000000; ++i);
     if(SPI1STATbits.SPIBUSY) {
         DB_printf("SPI is busy\r\n");
         return false;
-    }
-    
-    // Add a delay of 1 second
-    
-
+    }    
     // Send command directly
     while(SPI1STATbits.SPITBF);
-    DB_printf("Sending command: %d\r\n", command);
+    DB_printf("[SPI] Sending command: %d\r\n", command);
     SPI1BUF = command;
+    while (SPI1STATbits.SPITBF);
+    while (!SPIOperate_HasSS1_Risen());
     LastSentCmd = command;
     LastTransferTime = ES_Timer_GetTime();
     uint8_t receivedByte = SPI1BUF;
-
-        for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-    //LATBbits.LATB4 = 1; // Pull SS high    
+    for (volatile uint32_t i = 0; i < 10000000; ++i);
+    for (volatile uint32_t i = 0; i < 10000000; ++i);
+    for (volatile uint32_t i = 0; i < 10000000; ++i);
     return true;
 }
 
@@ -156,12 +170,12 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
     // Check for timeout
     if((ES_Timer_GetTime() - LastTransferTime) > SPI_TIMEOUT_MS) {
         // Handle timeout
-        DB_printf("SPI Timeout\r\n");
+        DB_printf("[SPI] Timeout\r\n");
         return;
     } else {
         ReceivedCmd = receivedByte;
         ES_Event_t CmdEvent;
-        DB_printf("Received status: %d\r\n", ReceivedCmd);
+        DB_printf("[SPI] Received status: %d\r\n", ReceivedCmd);
     }
     LastTransferTime = ES_Timer_GetTime();
 }

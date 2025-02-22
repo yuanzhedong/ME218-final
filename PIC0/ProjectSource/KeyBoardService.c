@@ -5,6 +5,7 @@
 #include "dbprintf.h"
 #include "ES_Port.h"
 #include "PlannerHSM.h"
+#include "SPIMasterService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 #define INIT_COMPLETE 'i'
@@ -20,6 +21,15 @@
 #define PICKUP_CRATE 'k'
 #define AT_COLUMN2_INTERSECTION 'm'
 #define COLUMN2_COMPLETE 'o'
+
+
+
+#define SEND_NAV_CMD_MOVE '1'
+#define SEND_NAV_CMD_TURN_LEFT '2'
+#define SEND_NAV_CMD_TURN_RIGHT '3'
+#define SEND_NAV_CMD_TURN_360 '4'
+#define SEND_NAV_CMD_STOP '5'
+#define SEND_NAV_CMD_QUERY '6'
 
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
@@ -79,6 +89,13 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
             case COLUMN2_COMPLETE:
                 CurEvent.EventType = ES_COLUMN2_COMPLETE;
                 break;
+
+            case SEND_NAV_CMD_MOVE:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_MOVE;
+                PostSPIMasterService(CurEvent);
+                break;
+
             default:
                 return ReturnEvent;
         }
