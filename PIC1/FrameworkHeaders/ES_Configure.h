@@ -345,7 +345,6 @@ typedef enum
 
 /****************************************************************************/
 // Give the timer numbers symbolc names to make it easier to move them
-// to different timers if the need arises. Keep these definitions close to the
 // definitions for the response functions to make it easier to check that
 // the timer number matches where the timer event will be routed
 // These symbolic names should be changed to be relevant to your application
