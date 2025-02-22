@@ -37,11 +37,7 @@ static ES_Event_t DuringTurnLeft(ES_Event_t Event);
 static ES_Event_t DuringTurnRight(ES_Event_t Event);
 static ES_Event_t DuringLineDiscover(ES_Event_t Event);
 static ES_Event_t DuringCheckCrate(ES_Event_t Event);
-static void StartMotors(void);
-static void StopMotors(void);
-static void CheckSensors(void);
-static void ReadIntersectionSensors(void);
-static void StartRecoveryPattern(void);
+
 
 bool InitNavigatorHSM(uint8_t Priority)
 {
@@ -180,8 +176,8 @@ static ES_Event_t DuringCheckIntersection(ES_Event_t Event)
 {
     if (Event.EventType == ES_ENTRY)
     {
-        StopMotors(); // Set duty cycle to zero
-        ReadIntersectionSensors();
+        //StopMotors(); // Set duty cycle to zero
+        //ReadIntersectionSensors();
     }
     else if (Event.EventType == ES_EXIT)
     {
@@ -229,11 +225,11 @@ static ES_Event_t DuringLineDiscover(ES_Event_t Event)
     ES_Event_t ReturnEvent = Event;
     if (Event.EventType == ES_ENTRY)
     {
-        StartRecoveryPattern();
+        //StartRecoveryPattern();
     }
     else
     {
-        if (CheckLineSensors())
+        //if (CheckLineSensors())
         {
             ReturnEvent.EventType = ES_RECOVERED;
         }
