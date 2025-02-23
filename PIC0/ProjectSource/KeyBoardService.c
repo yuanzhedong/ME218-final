@@ -5,6 +5,7 @@
 #include "dbprintf.h"
 #include "ES_Port.h"
 #include "PlannerHSM.h"
+#include "SPIMasterService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 #define INIT_COMPLETE 'i'
@@ -20,6 +21,14 @@
 #define PICKUP_CRATE 'k'
 #define AT_COLUMN2_INTERSECTION 'm'
 #define COLUMN2_COMPLETE 'o'
+
+#define NAV_MOVE_FORWARD '1'
+#define NAV_MOVE_BACKWARD '2'
+#define NAV_TURN_LEFT '3'
+#define NAV_TURN_RIGHT '4'
+#define NAV_STOP '5'
+#define NAV_TURN_180 '6'
+#define NAV_TURN_360 '7'
 
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
@@ -51,39 +60,83 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         {
             case INIT_COMPLETE:
                 CurEvent.EventType = ES_INIT_COMPLETE;
+                PostPlannerHSM(CurEvent);
                 break;
             case HAS_CRATE:
                 CurEvent.EventType = ES_HAS_CRATE;
+                PostPlannerHSM(CurEvent);
                 break;
             case SIDE_DETECTED:
                 CurEvent.EventType = ES_SIDE_DETECTED;
+                PostPlannerHSM(CurEvent);
                 break;
             case AT_COLUMN1_INTERSECTION:
                 CurEvent.EventType = ES_AT_COLUMN1_INTERSECTION;
+                PostPlannerHSM(CurEvent);
                 break;
             case AT_STACK:
                 CurEvent.EventType = ES_AT_STACK;
+                PostPlannerHSM(CurEvent);
                 break;
             case DROPPED:
                 CurEvent.EventType = ES_DROPPED;
+                PostPlannerHSM(CurEvent);
                 break;
             case AT_CRATE:
                 CurEvent.EventType = ES_AT_CRATE;
+                PostPlannerHSM(CurEvent);
                 break;
             case PICKUP_CRATE:
                 CurEvent.EventType = ES_HAS_CRATE;
+                PostPlannerHSM(CurEvent);
                 break;
             case AT_COLUMN2_INTERSECTION:
                 CurEvent.EventType = ES_AT_COLUMN2_INTERSECTION;
+                PostPlannerHSM(CurEvent);
                 break;
             case COLUMN2_COMPLETE:
                 CurEvent.EventType = ES_COLUMN2_COMPLETE;
+                PostPlannerHSM(CurEvent);
                 break;
+            case NAV_MOVE_FORWARD:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_MOVE_FORWARD;
+                PostSPIMasterService(CurEvent);
+                break;
+            case NAV_MOVE_BACKWARD:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_MOVE_BACKWARD;
+                PostSPIMasterService(CurEvent);
+                break;
+            case NAV_TURN_LEFT:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_TURN_LEFT;
+                PostSPIMasterService(CurEvent);
+                break;
+            case NAV_TURN_RIGHT:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_TURN_RIGHT;
+                PostSPIMasterService(CurEvent);
+                break;
+            case NAV_STOP:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_STOP;
+                PostSPIMasterService(CurEvent);
+                break;
+            case NAV_CMD_TURN_180:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_TURN_180;
+                PostSPIMasterService(CurEvent);
+                break;
+            case NAV_CMD_TURN_360:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_TURN_360;
+                PostSPIMasterService(CurEvent);
+                break;
+        
             default:
                 return ReturnEvent;
         }
-        
-        PostPlannerHSM(CurEvent);
     }
     return ReturnEvent;
 }
