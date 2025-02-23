@@ -71,8 +71,8 @@ static uint8_t Dir = 0; // the direction of the motor, 0 = forward, 1 = backward
 
 // control stuff
 #define Control_interval 30 // in ms, max value with prescalar of 16 is 65535*16/20MHz = 52.4288ms
-#define Kp 1000
-#define Ki 600 
+#define Kp 500
+#define Ki 300
 #define Kd 0
 #define targetDutyCycle 100    // initial duty cycle (in %) at which the car starts to follow the line
 static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
