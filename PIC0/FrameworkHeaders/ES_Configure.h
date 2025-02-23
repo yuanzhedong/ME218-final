@@ -289,7 +289,8 @@ typedef enum
   ES_TURN_LEFT,
   ES_TURN_RIGHT,
   ES_TURN_COMPLETE,
-  ES_RECOVERED
+  ES_RECOVERED,
+  ES_NEW_NAV_CMD,
 } ES_EventType_t;
 
 /****************************************************************************/
