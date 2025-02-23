@@ -39,7 +39,7 @@
 static void enterFollowing(int Dir_input); // the entry function for entering the Following state from Idle_tapeFSM
 static void exitFollowing(void);           // the exit function for exiting the Following state back to Idle_tapeFSM
 // the configure PWM functions turns on OC at the end: OCxCON.ON = 1
-static void ConfigPWM_OC1(void);
+static void ConfigPWM_OC4(void);
 static void ConfigPWM_OC3(void);
 // the configure timer functions don't turn on the timer, they just configure the timer
 static void ConfigTimer2(void); // time base for OC,
@@ -55,8 +55,8 @@ static void ConfigureReflectSensor(); // for the reflectance sensor array
 #define PIC_freq_kHz 20000
 #define ns_per_tick 50 // nano-sec per tick for the PBC = 1/PIC_freq
 
-#define H_bridge1A_TRIS TRISBbits.TRISB11 // output
-#define H_bridge1A_LAT LATBbits.LATB11    // latch
+#define H_bridge1A_TRIS TRISBbits.TRISB5 // output
+#define H_bridge1A_LAT LATBbits.LATB5    // latch
 #define H_bridge3A_TRIS TRISBbits.TRISB9  // output
 #define H_bridge3A_LAT LATBbits.LATB9     // latch
 #define IC_TIMER_period 50000
@@ -74,7 +74,7 @@ static uint8_t Dir = 0; // the direction of the motor, 0 = forward, 1 = backward
 #define Kp 1000
 #define Ki 600 
 #define Kd 0
-#define targetDutyCycle 100     // initial duty cycle (in %) at which the car starts to follow the line
+#define targetDutyCycle 100    // initial duty cycle (in %) at which the car starts to follow the line
 static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
 static uint8_t sensorWeights[] = {4, 2, 4, 4, 2, 4}; // weights for the 6 sensors from left to right of sensor array
 // K_error is the error in the sensor readings, K_effort is the control effort
@@ -125,8 +125,8 @@ bool InitTapeFSM(uint8_t Priority)
   H_bridge3A_LAT = 0;
 
   ConfigTimer2();
-  // OC1 and OC3 use Timer2 as the time base
-  ConfigPWM_OC1();
+  // OC4 and OC3 use Timer2 as the time base
+  ConfigPWM_OC4();
   ConfigPWM_OC3();
   T2CONbits.ON = 1;
   ConfigTimer4();
@@ -211,8 +211,8 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     DB_printf("Tape Test Timer\r\n");
     ES_Event_t Event2Post;
     Event2Post.EventType = ES_TAPE_FOLLOW;
-    Event2Post.EventParam = 1; //1 means forward
-    //PostTapeFSM(Event2Post);
+    Event2Post.EventParam = 1; //1 means reverse
+    PostTapeFSM(Event2Post);
     // ADC_MultiRead(CurrADVal);
     // DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
   }
@@ -292,20 +292,20 @@ static void enterFollowing(int Dir_input)
   {
     H_bridge1A_LAT = 0;
     H_bridge3A_LAT = 0;
-    OC1RS = (float)targetDutyCycle / 100 * PR2;
+    OC4RS = (float)targetDutyCycle / 100 * PR2;
     OC3RS = (float)targetDutyCycle / 100 * PR2;
     DB_printf("dir is 0 \n");
-    DB_printf("OC1RS is %d \n", OC1RS);
+    DB_printf("OC4RS is %d \n", OC4RS);
     DB_printf("OC3RS is %d \n", OC3RS);
   }
   else if (Dir == 1)
   {
     H_bridge1A_LAT = 1;
     H_bridge3A_LAT = 1;
-    OC1RS = (float)(100 - targetDutyCycle) / 100 * PR2;
+    OC4RS = (float)(100 - targetDutyCycle) / 100 * PR2;
     OC3RS = (float)(100 - targetDutyCycle) / 100 * PR2;
     DB_printf("dir is 1 \n");
-    DB_printf("OC1RS is %d \n", OC1RS);
+    DB_printf("OC4RS is %d \n", OC4RS);
     DB_printf("OC3RS is %d \n", OC3RS);
 
   }
@@ -318,7 +318,7 @@ static void exitFollowing()
   moveAllowed = false;
   H_bridge1A_LAT = 0;
   H_bridge3A_LAT = 0;
-  OC1RS = 0;
+  OC4RS = 0;
   OC3RS = 0;
   // step2: stop control ISR
   T4CONbits.ON = 0;
@@ -346,28 +346,27 @@ static void ConfigTimer2()
   IEC0CLR = _IEC0_T2IE_MASK;
   return;
 }
-static void ConfigPWM_OC1()
+static void ConfigPWM_OC4() 
 {
 
-  // map OC1 to RB3
-  RPB3R = 0b0101;
+  // map OC4 to RB14
+  RPA4R = 0b0101;
 
-  // Clear OC1CON register:
-  OC1CON = 0;
+  // Clear OC4CON register:
+  OC4CON = 0;
 
   // Configure the Output Compare module for one of two PWM operation modes
-  OC1CONbits.ON = 0;      // Turn off Output Compare module
-  OC1CONbits.OCM = 0b110; // PWM mode without fault pin
-  OC1CONbits.OCTSEL = 0;  // Use Timer2 as the time base
+  OC4CONbits.ON = 0;      // Turn off Output Compare module
+  OC4CONbits.OCM = 0b110; // PWM mode without fault pin
+  OC4CONbits.OCTSEL = 0;  // Use Timer2 as the time base
 
   // Set the PWM duty cycle by writing to the OCxRS register
-  OC1RS = PR2 * 0; // Secondary Compare Register (for duty cycle)
-  OC1R = PR2 * 0;  // Primary Compare Register (initial value)
+  OC4RS = PR2 * 0; // Secondary Compare Register (for duty cycle)
+  OC4R = PR2 * 0;  // Primary Compare Register (initial value)
 
-  // Turn on Timer 2 after OC2 setup
-  T2CONbits.ON = 1;
+
   // Turn ON the Output Compare module
-  OC1CONbits.ON = 1; // Enable Output Compare module
+  OC4CONbits.ON = 1; // Enable Output Compare module
 
   return;
 }
@@ -390,8 +389,6 @@ static void ConfigPWM_OC3()
   OC3RS = PR2 * 0; // Secondary Compare Register (for duty cycle)
   OC3R = PR2 * 0;  // Primary Compare Register (initial value)
 
-  // // Turn on Timer 2 after OC2 setup
-  // T2CONbits.ON = 1;
   // Turn ON the Output Compare module
   OC3CONbits.ON = 1; // Enable Output Compare module
 
@@ -457,13 +454,13 @@ ANSELAbits.ANSA1 = 1; // set RA1 as analog
 TRISAbits.TRISA1 = 1; // set RA1 as input
 ANSELBbits.ANSB2 = 1; // set RB2 as analog
 TRISBbits.TRISB2 = 1; // set RB2 as input
-//ANSELBbits.ANSB15 = 1; // set RB15 as analog
-//TRISBbits.TRISB15 = 1; // set RB15 as input
+ANSELBbits.ANSB3 = 1; // set RB3 as analog
+TRISBbits.TRISB3 = 1; // set RB3 as input
 ANSELBbits.ANSB13 = 1; // set RB13 as analog
 TRISBbits.TRISB13 = 1; // set RB13 as input
 ANSELBbits.ANSB12 = 1; // set RB12 as analog
 TRISBbits.TRISB12 = 1; // set RB12 as input
-  ADC_ConfigAutoScan(BIT0HI | BIT1HI | BIT4HI  | BIT9HI |BIT11HI |BIT12HI); // AN0/RA0, AN1/RA1, AN4/RB2, AN9/RB9, AN11/RB13, AN12/RB12
+  ADC_ConfigAutoScan(BIT0HI | BIT1HI | BIT4HI  | BIT5HI |BIT11HI |BIT12HI); // AN0/RA0, AN1/RA1, AN4/RB2, AN9/RB9, AN11/RB13, AN12/RB12
 
   return;
 }
@@ -473,7 +470,7 @@ TRISBbits.TRISB12 = 1; // set RB12 as input
 void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
 {
   IFS0CLR = _IFS0_T4IF_MASK;             // Clear the Timer 4 interrupt flag
-  static uint16_t K_commandedOC1; // OC1RS commanded for left motor as determined appropriate by the control law
+  static uint16_t K_commandedOC4; // OC4RS commanded for left motor as determined appropriate by the control law
   static uint16_t K_commandedOC3;
   ADC_MultiRead(CurrADVal);
   // DB_printf("T4 ISR entered \n");
@@ -493,42 +490,43 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
   // anti-windup
   if (K_effort_temp < K_effort_max && K_effort_temp > K_effort_min)
   {
-    DB_printf("error sum is summing \n");
+    //DB_printf("error sum is summing \n");
     K_effort = K_effort_temp;
     K_error_sum += (float)K_error / K_error_sum_division_factor; // K_error_sum is a float
   }
   K_error_prev = K_error;
 
   
-  // OC1RS is the left motor and OC3RS is the right motor
+  // OC4RS is the left motor and OC3RS is the right motor
   // if K_effort is positive, that means the sensors on the left read more black than the right
   //Cart has to turn right
   // so the right motor should slow down
   // this stays true for reverse direction as well
     if (K_effort > 0)
     {
-      K_commandedOC1 =  K_effort_max- K_effort;
+      K_commandedOC4 =  K_effort_max - K_effort;
       K_commandedOC3 = K_effort_max ;
     }
     else if (K_effort < 0)
     {
       // K_effort is negative, that means the sensors on the right read more black than the left
       // so the left motor should slow down
-      K_commandedOC1 = K_effort_max + K_effort;
-      K_commandedOC3 = K_effort_max;
+      K_commandedOC4 = K_effort_max;
+      K_commandedOC3 = K_effort_max  + K_effort;
     }
-  DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC1: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC1, K_commandedOC3);
+  DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
 
  //actuate the motors 
  if (moveAllowed){
+  DB_printf("move is allowed, commanding the motors \n");
   switch (Dir)
   {
   case 0://meaning we are moving forward
-    OC1RS = K_commandedOC1;
+    OC4RS = K_commandedOC4;
     OC3RS = K_commandedOC3;
     break;
   case 1://meaning we are moving backward
-    OC1RS = PR2 - K_commandedOC1;
+    OC4RS = PR2 - K_commandedOC4;
     OC3RS = PR2 - K_commandedOC3;
     break;
   default:
