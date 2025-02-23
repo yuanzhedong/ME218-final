@@ -7,9 +7,20 @@
 #include "ES_Framework.h"
 
 /*----------------------------- Public Defines ----------------------------*/
-typedef enum { INIT_PLANNER, SEARCH_PICKUP_CRATE, SIDE_DETECTION, NAVIGATE_TO_COLUMN1,
-               PROCESS_COLUMN, GO_TO_STACK, DROP_CRATE, UPDATE_PROGRESS1, UPDATE_PROGRESS2,
-               GO_TO_CRATE, PICKUP_CRATE, NAVIGATE_TO_COLUMN2, GAME_OVER } PlannerState_t;
+typedef enum {
+    INIT_PLANNER,
+    SEARCH_PICKUP_CRATE,
+    SIDE_DETECTION,
+    NAVIGATE_TO_COLUMN_1,
+    PROCESS_COLUMN,
+    GO_TO_STACK,
+    DROP_CRATE,
+    GO_TO_CRATE,
+    PICKUP_CRATE,
+    NAVIGATE_TO_COLUMN_2,
+    CHECK_ROBO_STATUS
+    GAME_OVER
+} PlannerState_t;
 
 /*----------------------------- Public Functions ----------------------------*/
 bool InitPlannerHSM(uint8_t Priority);

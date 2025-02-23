@@ -4,6 +4,8 @@
 #include "PlannerHSM.h"
 #include "dbprintf.h"
 #include "BeaconIndicatorService.h"
+#include "SPIMasterService.h"
+#include "PlannerPolicyService.h"
 
 /*----------------------------- Module Variables ---------------------------*/
 static PlannerState_t CurrentState;
@@ -16,17 +18,15 @@ static PlannerState_t ProcessColumnSubState = GO_TO_STACK; // Start substate
 const char* GetStateName(PlannerState_t state) {
     switch (state) {
         case INIT_PLANNER: return "INIT_PLANNER";
-        case SEARCH_PICKUP_CRATE: return "SEARCH_PICKUP_CRATE";
         case SIDE_DETECTION: return "SIDE_DETECTION";
-        case NAVIGATE_TO_COLUMN1: return "NAVIGATE_TO_COLUMN1";
+        case NAVIGATE_TO_COLUMN_1: return "NAVIGATE_TO_COLUMN_1";
         case PROCESS_COLUMN: return "PROCESS_COLUMN";
         case GO_TO_STACK: return "GO_TO_STACK";
         case DROP_CRATE: return "DROP_CRATE";
-        case UPDATE_PROGRESS1: return "UPDATE_PROGRESS1";
-        case UPDATE_PROGRESS2: return "UPDATE_PROGRESS2";
+        case CHECK_ROBO_STATUS: return "CHECK_ROBO_STATUS";
         case GO_TO_CRATE: return "GO_TO_CRATE";
         case PICKUP_CRATE: return "PICKUP_CRATE";
-        case NAVIGATE_TO_COLUMN2: return "NAVIGATE_TO_COLUMN2";
+        case NAVIGATE_TO_COLUMN_2: return "NAVIGATE_TO_COLUMN_2";
         case GAME_OVER: return "GAME_OVER";
         default: return "UNKNOWN_STATE";
     }
@@ -138,9 +138,8 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
     if (CurrentEvent.EventType != ES_EXIT && CurrentEvent.EventType != ES_ENTRY && CurrentEvent.EventType != ES_NEW_KEY) {
         DB_printf("Current State: %s, Current Column: %d, Drop Crate Count: %d\r\n",
                   GetStateName(CurrentState), CURRENT_COLUMN, drop_crate_count);
-        DB_printf("EventType is %d\n\r",CurrentEvent.EventType);
-        DB_printf("EventParam is %d\n\r",CurrentEvent.EventParam);
-//        DB_printf("CurrentEvent is %d\r\n", CurrentEvent.EventType);
+        DB_printf("EventType is %d\r\n",CurrentEvent.EventType);
+        DB_printf("EventParam is %d\r\n",CurrentEvent.EventParam);
     }
 
     switch (CurrentState) {
@@ -154,52 +153,80 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             }
             break;
 
-        case SEARCH_PICKUP_CRATE:
-            if (CurrentEvent.EventType == ES_HAS_CRATE) {
-                NextState = SIDE_DETECTION;
-                MakeTransition = true;
-            }
-            break;
-
         case SIDE_DETECTION:
-            //DB_printf("fqwertyuio!\r");
             if (CurrentEvent.EventType == ES_ENTRY) {
                 ES_Event_t ThisEvent;
                 ThisEvent.EventType = ES_REQUEST_SIDE_DETECTION;
-                PostBeaconIndicatorService(ThisEvent);  
+                PostBeaconIndicatorService(ThisEvent);
+                // Request chassis to turn 360 degrees
+                ThisEvent.EventType = ES_NEW_NAV_CMD;
+                ThisEvent.EventParam = NAV_CMD_TURN_360
+                PostSPIMasterService(ThisEvent);
             } 
-//            DB_printf("12345678f!\r");
-//            DB_printf("Hi there, EventType is %d\n\r",CurrentEvent.EventType);
-////            DB_printf("Hi there, EventParam is %d\n\r",CurrentEvent.EventParam);
-//            DB_printf("Hi there, ES_SIDE_DETECTED is %d\n\r",ES_SIDE_DETECTED);
-//            bool flag;
-//            flag = ES_SIDE_DETECTED == CurrentEvent.EventType;
-//            DB_printf("Flag value: %s\n", flag ? "true" : "false");
 
             if (CurrentEvent.EventType == ES_SIDE_DETECTED) {
-                //DB_printf("kkkkkkkklllllllllllllllllllljij!\r");
                 Beacon_t detected_beacon = CurrentEvent.EventParam;
-                if (detected_beacon == BEACON_L){
-                    puts("We are at green side!\r");
-                }else if (detected_beacon == BEACON_G){
-                    puts("We are at blue side!\r");
-                }else{
-                    //DB_printf("Fail to identify side! from DB\r");
-                    puts("Fail to identify side! from put\r");
+
+                if (detected_beacon == BEACON_UNKNOWN) {
+                    puts("Fail to identify side! from put\r\n");
+                    NextState = GAME_OVER;
+                    MakeTransition = true;
+                } else {
+                    puts("We are at green side!\r\n") if (detected_beacon == BEACON_L) else puts("We are at blue side!\r\n");
+                    NextState = NAVIGATE_TO_COLUMN_1;
                 }
-                //DB_printf("111111111111111111111!\r");
-                NextState = NAVIGATE_TO_COLUMN1;
-                MakeTransition = true;
-                //DB_printf("222222222222222222222!\r");
             }
             break;
 
-        case NAVIGATE_TO_COLUMN1:
-            if (CurrentEvent.EventType == ES_AT_COLUMN1_INTERSECTION) {
-                NextState = PROCESS_COLUMN;
-                MakeTransition = true;
+        case NAVIGATE_TO_COLUMN_1:
+            ES_Event_t ThisEvent;
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
+                    ThisEvent.EventParam = NAV_TO_COLUMN_1;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+
+                case ES_AT_COLUMN_INTERCECTION:
+                    ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+
+                case ES_PLANNER_POLICY_COMPLETE:
+                    NextState = PROCESS_COLUMN;
+                    MakeTransition = true;
+                    break;
+
+                default:
+                    // shouldn't go here
+                    // add code to deal with exception
+                    break;
             }
             break;
+
+        case NAVIGATE_TO_COLUMN_2:
+            ES_Event_t ThisEvent;
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
+                    ThisEvent.EventParam = NAV_TO_COLUMN_2;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+                
+                case ES_AT_COLUMN_INTERCECTION:
+                case ES_TURN_COMPLETE:
+                    ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+
+                case ES_PLANNER_POLICY_COMPLETE:
+                    NextState = PROCESS_COLUMN;
+                    MakeTransition = true;
+                    break;
+                default:
+                    break;
+            }
+        
 
         case PROCESS_COLUMN:
             CurrentEvent = DuringPROCESS_COLUMN(CurrentEvent);
