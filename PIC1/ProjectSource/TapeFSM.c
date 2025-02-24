@@ -6,8 +6,8 @@
    1.0.1
 
  Description
-   This is a Tape file for implementing flat state machines under the
-   Gen2 Events and Services Framework.
+   This file doesn't initialize OC for motors
+   This file initializes the ADC for the reflectance sensor array
 
  Notes
 
@@ -38,11 +38,8 @@
 */
 static void enterFollowing(int Dir_input); // the entry function for entering the Following state from Idle_tapeFSM
 static void exitFollowing(void);           // the exit function for exiting the Following state back to Idle_tapeFSM
-// the configure PWM functions turns on OC at the end: OCxCON.ON = 1
-static void ConfigPWM_OC4(void);
-static void ConfigPWM_OC3(void);
+
 // the configure timer functions don't turn on the timer, they just configure the timer
-static void ConfigTimer2(void); // time base for OC,
 static void ConfigTimer3(void);
 static void ConfigTimer4(void);       // for running control loop
 static void ConfigureReflectSensor(); // for the reflectance sensor array
@@ -50,7 +47,6 @@ static void ConfigureReflectSensor(); // for the reflectance sensor array
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
 
-#define PWM_freq 10000 // wheel motor PWM frquency in Hz
 #define PIC_freq 20000000
 #define PIC_freq_kHz 20000
 #define ns_per_tick 50 // nano-sec per tick for the PBC = 1/PIC_freq
@@ -59,10 +55,8 @@ static void ConfigureReflectSensor(); // for the reflectance sensor array
 #define H_bridge1A_LAT LATBbits.LATB5    // latch
 #define H_bridge3A_TRIS TRISBbits.TRISB9  // output
 #define H_bridge3A_LAT LATBbits.LATB9     // latch
-#define IC_TIMER_period 50000
 
 // prescalars and priorities
-#define prescalar_T2 2  // for PWM for the 2 motors
 #define prescalar_T4 16 // used for running control law
 #define priority_control 5
 
@@ -118,16 +112,7 @@ bool InitTapeFSM(uint8_t Priority)
 {
 
   ConfigureReflectSensor(); // this calls the ADC library
-  // TRIS and LAT for direction control pins
-  H_bridge1A_TRIS = 0; // Outputs
-  H_bridge1A_LAT = 0;
-  H_bridge3A_TRIS = 0; // Outputs
-  H_bridge3A_LAT = 0;
 
-  ConfigTimer2();
-  // OC4 and OC3 use Timer2 as the time base
-  ConfigPWM_OC4();
-  ConfigPWM_OC3();
   T2CONbits.ON = 1;
   ConfigTimer4();
   // We do not yet turn on T4 because the initial state is Idle state
@@ -152,6 +137,7 @@ bool InitTapeFSM(uint8_t Priority)
   CurrentState = Idle_tapeFSM;
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
+  DB_printf("TapeFSM initialized \n");
   if (ES_PostToService(MyPriority, ThisEvent) == true)
   {
     return true;
@@ -326,74 +312,8 @@ static void exitFollowing()
   K_error_sum = 0;
   return;
 }
-static void ConfigTimer2()
-{
-  // Clear the ON control bit to disable the timer.
-  T2CONbits.ON = 0;
-  // Clear the TCS control bit to select the internal PBCLK source.
-  T2CONbits.TCS = 0;
-  // Set input clock prescale to be 1:1.
-  T2CONbits.TCKPS = 0b000;
-  // Clear the timer register TMR2
-  TMR2 = 0;
-  // Load PR2 with desired 16-bit match value
-  PR2 = PIC_freq / (PWM_freq * prescalar_T2) - 1;
-  DB_printf("PR2 is set to %d \n", PR2);
-
-  // Clear the T2IF interrupt flag bit in the IFS2 register
-  IFS0CLR = _IFS0_T2IF_MASK;
-  // Disable interrupts on Timer 2
-  IEC0CLR = _IEC0_T2IE_MASK;
-  return;
-}
-static void ConfigPWM_OC4() 
-{
-
-  // map OC4 to RB14
-  RPA4R = 0b0101;
-
-  // Clear OC4CON register:
-  OC4CON = 0;
-
-  // Configure the Output Compare module for one of two PWM operation modes
-  OC4CONbits.ON = 0;      // Turn off Output Compare module
-  OC4CONbits.OCM = 0b110; // PWM mode without fault pin
-  OC4CONbits.OCTSEL = 0;  // Use Timer2 as the time base
-
-  // Set the PWM duty cycle by writing to the OCxRS register
-  OC4RS = PR2 * 0; // Secondary Compare Register (for duty cycle)
-  OC4R = PR2 * 0;  // Primary Compare Register (initial value)
 
 
-  // Turn ON the Output Compare module
-  OC4CONbits.ON = 1; // Enable Output Compare module
-
-  return;
-}
-
-static void ConfigPWM_OC3()
-{
-
-  // map OC3 to RB10
-  RPB10R = 0b0101;
-
-  // Clear OC3CON register:
-  OC3CON = 0;
-
-  // Configure the Output Compare module for one of two PWM operation modes
-  OC3CONbits.ON = 0;      // Turn off Output Compare module
-  OC3CONbits.OCM = 0b110; // PWM mode without fault pin
-  OC3CONbits.OCTSEL = 0;  // Use Timer2 as the time base
-
-  // Set the PWM duty cycle by writing to the OCxRS register
-  OC3RS = PR2 * 0; // Secondary Compare Register (for duty cycle)
-  OC3R = PR2 * 0;  // Primary Compare Register (initial value)
-
-  // Turn ON the Output Compare module
-  OC3CONbits.ON = 1; // Enable Output Compare module
-
-  return;
-}
 
 static void ConfigTimer3()
 {
