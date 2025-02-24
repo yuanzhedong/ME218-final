@@ -143,9 +143,47 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
 {
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
-  /********************************************
-   in here you write your service code
-   *******************************************/
+  switch (ThisEvent.EventType)
+  {
+  case ES_MOTOR_STOP:
+    H_bridge1A_LAT = 0;
+    H_bridge3A_LAT = 0;
+    OC4RS = 0;
+    OC3RS = 0;
+    break;
+  case ES_MOTOR_FWD:
+    OC4RS = (float)PR2 * ThisEvent.EventParam /100;
+    OC3RS = (float)PR2 * ThisEvent.EventParam /100;
+    break;
+  case ES_MOTOR_REV:
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 1;
+    OC4RS = (float)PR2 * (100 - ThisEvent.EventParam) /100;
+    OC3RS = (float)PR2 * (100 - ThisEvent.EventParam) /100;
+    break;
+  case ES_MOTOR_CW_CONTINUOUS:
+    H_bridge1A_LAT = 0;
+    H_bridge3A_LAT = 1;
+    OC4RS = (float)PR2 * ThisEvent.EventParam /100;
+    OC3RS = (float)PR2 * (100 - ThisEvent.EventParam) /100;
+    break;
+  case ES_MOTOR_CCW_CONTINUOUS:
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 0;
+    OC4RS = (float)PR2 * (100 - ThisEvent.EventParam) /100;
+    OC3RS = (float)PR2 * ThisEvent.EventParam /100;
+    break;
+  case ES_MOTOR_CW90:
+  break;
+  case ES_MOTOR_CW180:
+  break;
+  case ES_MOTOR_CCW90:
+  break;
+  case ES_MOTOR_CCW180:
+  break;
+  default:
+    break;
+  }
   return ReturnEvent;
 }
 

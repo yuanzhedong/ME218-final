@@ -159,13 +159,18 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'i':
-        /* code */
+        Event2Post.EventType = ES_MOTOR_STOP;
+        PostMotorService(Event2Post);
         break;
     case 'j':
-        /* code */
+        Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
+        Event2Post.EventParam = 70;
+        PostMotorService(Event2Post);
         break;
     case 'k':
-        /* code */
+        Event2Post.EventType = ES_MOTOR_CCW_CONTINUOUS;
+        Event2Post.EventParam = 70;
+        PostMotorService(Event2Post);
         break;
     case 'l':
         /* code */

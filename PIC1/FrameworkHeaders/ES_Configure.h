@@ -282,7 +282,17 @@ typedef enum
   ES_NEW_PLANNER_CMD,
 
   ES_TAPE_FOLLOW,
-  ES_TAPE_STOP
+  ES_TAPE_STOP,
+  
+  ES_MOTOR_FWD,
+  ES_MOTOR_REV,
+  ES_MOTOR_STOP,
+  ES_MOTOR_CW_CONTINUOUS,
+  ES_MOTOR_CCW_CONTINUOUS,
+  ES_MOTOR_CW90,
+  ES_MOTOR_CW180,
+  ES_MOTOR_CCW90,
+  ES_MOTOR_CCW180,
 } ES_EventType_t;
 
 /****************************************************************************/

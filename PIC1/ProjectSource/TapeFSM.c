@@ -65,11 +65,11 @@ static uint8_t Dir = 0; // the direction of the motor, 0 = forward, 1 = backward
 
 // control stuff
 #define Control_interval 30 // in ms, max value with prescalar of 16 is 65535*16/20MHz = 52.4288ms
-#define Kp 500
-#define Ki 300
+#define Kp 1000
+#define Ki 600
 #define Kd 0
-#define targetDutyCycle 100    // initial duty cycle (in %) at which the car starts to follow the line
-static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
+static uint16_t targetDutyCycle = 60;    // the duty cycle of the motor as passed by the eventparam
+//static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
 static uint8_t sensorWeights[] = {4, 2, 4, 4, 2, 4}; // weights for the 6 sensors from left to right of sensor array
 // K_error is the error in the sensor readings, K_effort is the control effort
 volatile int16_t K_error = 0;
@@ -196,11 +196,14 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     //ES_Timer_InitTimer(TapeTest_TIMER, 1000);
     DB_printf("Tape Test Timer\r\n");
     ES_Event_t Event2Post;
-    Event2Post.EventType = ES_TAPE_FOLLOW;
-    Event2Post.EventParam = 1; //1 means reverse
-    PostTapeFSM(Event2Post);
+    // Event2Post.EventType = ES_TAPE_FOLLOW;
+    // Event2Post.EventParam = 0;
+    // PostTapeFSM(Event2Post);
     // ADC_MultiRead(CurrADVal);
     // DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    Event2Post.EventType = ES_MOTOR_CW90;
+    Event2Post.EventParam = 70;
+    //PostMotorService(Event2Post);
   }
 
   switch (CurrentState)
@@ -418,10 +421,27 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
 
   
   // OC4RS is the left motor and OC3RS is the right motor
-  // if K_effort is positive, that means the sensors on the left read more black than the right
-  //Cart has to turn right
-  // so the right motor should slow down
-  // this stays true for reverse direction as well
+  
+  switch (Dir)
+  {
+  case 0://meaning we are moving forward
+  if (K_effort > 0)
+    {
+    // if K_effort is positive, that means the sensors on the left read more black than the right
+    //Cart has to turn right
+    // so the right motor should slow down
+      K_commandedOC4 =  K_effort_max;
+      K_commandedOC3 = K_effort_max - K_effort ;
+    }
+    else if (K_effort < 0)
+    {
+      // K_effort is negative, that means the sensors on the right read more black than the left
+      // so the left motor should slow down
+      K_commandedOC4 = K_effort_max + K_effort;
+      K_commandedOC3 = K_effort_max;
+    }
+  break;
+  case 1://meaning we are moving backward
     if (K_effort > 0)
     {
       K_commandedOC4 =  K_effort_max - K_effort;
@@ -434,6 +454,11 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
       K_commandedOC4 = K_effort_max;
       K_commandedOC3 = K_effort_max  + K_effort;
     }
+    break;
+  default:
+    break;
+  }
+
   DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
 
  //actuate the motors 
