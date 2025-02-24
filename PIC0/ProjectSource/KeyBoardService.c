@@ -70,8 +70,8 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventType = ES_SIDE_DETECTED;
                 PostPlannerHSM(CurEvent);
                 break;
-            case AT_COLUMN1_INTERSECTION:
-                CurEvent.EventType = ES_AT_COLUMN1_INTERSECTION;
+            case AT_COLUMN_INTERSECTION:
+                CurEvent.EventType = ES_AT_COLUMN_INTERSECTION;
                 PostPlannerHSM(CurEvent);
                 break;
             case AT_STACK:
@@ -90,12 +90,12 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventType = ES_HAS_CRATE;
                 PostPlannerHSM(CurEvent);
                 break;
-            case AT_COLUMN2_INTERSECTION:
-                CurEvent.EventType = ES_AT_COLUMN2_INTERSECTION;
+            case AT_COLUMN_INTERSECTION:
+                CurEvent.EventType = ES_AT_COLUMN_INTERSECTION;
                 PostPlannerHSM(CurEvent);
                 break;
-            case COLUMN2_COMPLETE:
-                CurEvent.EventType = ES_COLUMN2_COMPLETE;
+            case COLUMN_COMPLETE:
+                CurEvent.EventType = ES_COLUMN_COMPLETE;
                 PostPlannerHSM(CurEvent);
                 break;
             case NAV_MOVE_FORWARD:

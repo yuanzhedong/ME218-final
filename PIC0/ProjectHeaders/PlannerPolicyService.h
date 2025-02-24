@@ -11,7 +11,7 @@
 
 // Public Function Prototypes
 bool InitPlannerPolicyService(uint8_t Priority);
-bool PostPlannerPolicyService(ES_Event ThisEvent);
-ES_Event_t RunPlannerPolicyService(ES_Event ThisEvent);
+bool PostPlannerPolicyService(ES_Event_t ThisEvent);
+ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent);
 
 #endif /* PLANNER_POLICY_SERVICE_H */

@@ -160,7 +160,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 PostBeaconIndicatorService(ThisEvent);
                 // Request chassis to turn 360 degrees
                 ThisEvent.EventType = ES_NEW_NAV_CMD;
-                ThisEvent.EventParam = NAV_CMD_TURN_360
+                ThisEvent.EventParam = NAV_CMD_TURN_360;
                 PostSPIMasterService(ThisEvent);
             } 
 
@@ -183,7 +183,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
                     ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
-                    ThisEvent.EventParam = NAV_TO_COLUMN_1;
+                    ThisEvent.EventParam = NAV_TO_COLUM_1_POLICY;
                     PostPlannerPolicyService(ThisEvent);
                     break;
 
@@ -209,7 +209,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
                     ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
-                    ThisEvent.EventParam = NAV_TO_COLUMN_2;
+                    ThisEvent.EventParam = NAV_TO_COLUMN_2_POLICY;
                     PostPlannerPolicyService(ThisEvent);
                     break;
                 
@@ -230,9 +230,9 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
 
         case PROCESS_COLUMN:
             CurrentEvent = DuringPROCESS_COLUMN(CurrentEvent);
-            if (CurrentEvent.EventType == ES_COLUMN_DONE) {
+            if (CurrentEvent.EventType == ES_COLUMN_COMPLETE) {
                 if (CURRENT_COLUMN == 1) {
-                    NextState = NAVIGATE_TO_COLUMN2; // Move to next column
+                    NextState = NAVIGATE_TO_COLUMN_2; // Move to next column
                 } else {
                     NextState = GAME_OVER; // All processing complete
                 }
@@ -240,10 +240,10 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             }
             break;
 
-        case NAVIGATE_TO_COLUMN2:
+        case NAVIGATE_TO_COLUMN_2:
             CURRENT_COLUMN = 2;
             drop_crate_count = 0;
-            if (CurrentEvent.EventType == ES_AT_COLUMN2_INTERSECTION) {
+            if (CurrentEvent.EventType == ES_PLANNER_POLICY_COMPLETE) {
                 NextState = PROCESS_COLUMN;
                 MakeTransition = true;
             }

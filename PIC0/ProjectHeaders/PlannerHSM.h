@@ -18,7 +18,7 @@ typedef enum {
     GO_TO_CRATE,
     PICKUP_CRATE,
     NAVIGATE_TO_COLUMN_2,
-    CHECK_ROBO_STATUS
+    CHECK_ROBO_STATUS,
     GAME_OVER
 } PlannerState_t;
 
