@@ -134,6 +134,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
     PlannerState_t NextState = CurrentState;
     ES_Event_t EntryEventKind = { ES_ENTRY, 0 };
     ES_Event_t ReturnEvent = { ES_NO_EVENT, 0 };
+    ES_Event_t ThisEvent; // Move declaration here
 
     if (CurrentEvent.EventType != ES_EXIT && CurrentEvent.EventType != ES_ENTRY && CurrentEvent.EventType != ES_NEW_KEY) {
         DB_printf("Current State: %s, Current Column: %d, Drop Crate Count: %d\r\n",
@@ -155,7 +156,6 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
 
         case SIDE_DETECTION:
             if (CurrentEvent.EventType == ES_ENTRY) {
-                ES_Event_t ThisEvent;
                 ThisEvent.EventType = ES_REQUEST_SIDE_DETECTION;
                 PostBeaconIndicatorService(ThisEvent);
                 // Request chassis to turn 360 degrees
@@ -172,22 +172,26 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     NextState = GAME_OVER;
                     MakeTransition = true;
                 } else {
-                    puts("We are at green side!\r\n") if (detected_beacon == BEACON_L) else puts("We are at blue side!\r\n");
+                    if (detected_beacon == BEACON_L) {
+                        puts("We are at green side!\r\n");
+                    } else {
+                        puts("We are at blue side!\r\n");
+                    }
                     NextState = NAVIGATE_TO_COLUMN_1;
+                    MakeTransition = true;
                 }
             }
             break;
 
         case NAVIGATE_TO_COLUMN_1:
-            ES_Event_t ThisEvent;
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
                     ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
-                    ThisEvent.EventParam = NAV_TO_COLUM_1_POLICY;
+                    ThisEvent.EventParam = NAV_TO_COLUMN_1_POLICY;
                     PostPlannerPolicyService(ThisEvent);
                     break;
 
-                case ES_AT_COLUMN_INTERCECTION:
+                case ES_AT_COLUMN_INTERSECTION:
                     ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
                     PostPlannerPolicyService(ThisEvent);
                     break;
@@ -205,7 +209,6 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             break;
 
         case NAVIGATE_TO_COLUMN_2:
-            ES_Event_t ThisEvent;
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
                     ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
@@ -213,7 +216,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     PostPlannerPolicyService(ThisEvent);
                     break;
                 
-                case ES_AT_COLUMN_INTERCECTION:
+                case ES_AT_COLUMN_INTERSECTION:
                 case ES_TURN_COMPLETE:
                     ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
                     PostPlannerPolicyService(ThisEvent);
@@ -239,18 +242,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 MakeTransition = true;
             }
             break;
-
-        case NAVIGATE_TO_COLUMN_2:
-            CURRENT_COLUMN = 2;
-            drop_crate_count = 0;
-            if (CurrentEvent.EventType == ES_PLANNER_POLICY_COMPLETE) {
-                NextState = PROCESS_COLUMN;
-                MakeTransition = true;
-            }
-            break;
         
-            
-
         case GAME_OVER:
             // Final state, FSM terminates
             break;

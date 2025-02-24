@@ -2,8 +2,6 @@
 #include "PlannerPolicyService.h"
 #include "ES_Configure.h"
 #include "ES_Framework.h"
-#include "ES_DeferRecall.h"
-#include "ES_ShortTimer.h"
 #include "SPIMasterService.h"
 
 // Module-level variables
@@ -15,21 +13,20 @@ static uint8_t CurrentPolicyIdx=0;
 // Public function to initialize the service
 bool InitPlannerPolicyService(uint8_t Priority) {
     MyPriority = Priority;
-    initPlannerPolicyService();
     // Post the initial transition event
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_INIT;
-    if (ES_PostToService(MyPriority, ThisEvent) == True) {
-        return True;
+    if (ES_PostToService(MyPriority, ThisEvent) == true) {
+        return true;
     } else {
-        return False;
+        return false;
     }
 }
 
-void SetPolicy(uinit8_t policy_idx=0) {
+void SetPolicy(uint8_t policy_idx) {
     // Initialize any parameters here
     CurrentPolicyStep = 0;
-    CurrentPolicyIdx = 0;
+    CurrentPolicyIdx = policy_idx;
 }
 
 // 0 for padding
@@ -39,13 +36,13 @@ uint8_t NAV_POLICIES[][4] = {
 };
 
 // Public function to post events to the service
-uint8_t PostPlannerPolicyService(ES_Event ThisEvent) {
+bool PostPlannerPolicyService(ES_Event_t ThisEvent) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
 void NextAction() {
     ES_Event_t newEvent;
-    newEvent.EventType = ES_REQUEST_NEW_NAV_CMD;
+    newEvent.EventType = ES_NEW_NAV_CMD;
     newEvent.EventParam = NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep];
     PostSPIMasterService(newEvent);
     CurrentPolicyStep += 1;
@@ -60,18 +57,19 @@ void NextAction() {
 }
 
 // Public function to run the service
-ES_Event_ RunPlannerPolicyService(ES_Event_t ThisEvent) {
-    ES_Event ReturnEvent;
+ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
+    ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // Assume no errors
+    uint8_t policy_idx; // Move declaration here
 
     switch (ThisEvent.EventType) {
         case ES_INIT:
             // Initialize the service
-            SetPolicy()
+            //SetPolicy();
             break;
 
         case ES_REQUEST_NEW_PLANNER_POLICY:
-            uint8_t policy_idx = ThisEvent.EventParam;
+            policy_idx = ThisEvent.EventParam;
             if (policy_idx >= sizeof(NAV_POLICIES) / sizeof(NAV_POLICIES[0])) {
                 // Invalid policy index, return an error event
                 ReturnEvent.EventType = ES_ERROR;
@@ -80,8 +78,10 @@ ES_Event_ RunPlannerPolicyService(ES_Event_t ThisEvent) {
             }
             SetPolicy(policy_idx);
             NextAction();
+            break;
+
         case ES_CONTINUE_PLANNER_POLICY:
-            NextAction()
+            NextAction();
             break;
 
         // Add other event cases as needed

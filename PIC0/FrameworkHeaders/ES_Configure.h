@@ -291,7 +291,8 @@ typedef enum
   ES_NEW_NAV_CMD,
   ES_REQUEST_NEW_PLANNER_POLICY,
   ES_CONTINUE_PLANNER_POLICY,
-  ES_PLANNER_POLICY_COMPLETE
+  ES_PLANNER_POLICY_COMPLETE,
+  ES_SEND_NEW_NAV_CMD
 } ES_EventType_t;
 
 /****************************************************************************/
