@@ -127,7 +127,7 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
     switch (ThisEvent.EventParam)
     {
     case 'a':
-       Event2Post.EventType = ES_MOTOR_CCW_CONTINUOUS;
+        Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
         Event2Post.EventParam = 70;
         PostMotorService(Event2Post);
         break;
@@ -138,7 +138,8 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
 
         break;
     case 'd':
-        Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
+
+        Event2Post.EventType = ES_MOTOR_CCW_CONTINUOUS;
         Event2Post.EventParam = 70;
         PostMotorService(Event2Post);
         break;
@@ -186,7 +187,7 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 's':
-        ThisEvent.EventType = ES_MOTOR_REV;
+        ThisEvent.EventType = ES_MOTOR_FWD;
         ThisEvent.EventParam = 70;
         PostMotorService(ThisEvent);
         break;
@@ -200,7 +201,8 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'w':
-        ThisEvent.EventType = ES_MOTOR_FWD;
+
+        ThisEvent.EventType = ES_MOTOR_REV;
         ThisEvent.EventParam = 70;
         PostMotorService(ThisEvent);
         break;
