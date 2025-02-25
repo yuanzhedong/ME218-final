@@ -36,7 +36,7 @@
 /* prototypes for private functions for this machine.They should be functions
    relevant to the behavior of this state machine
 */
-static void enterFollowing(int Dir_input); // the entry function for entering the Following state from Idle_tapeFSM
+static void enterFollowing(int Dir_input, int targetDutyCycle_input); // the entry function for entering the Following state from Idle_tapeFSM
 static void exitFollowing(void);           // the exit function for exiting the Following state back to Idle_tapeFSM
 
 // the configure timer functions don't turn on the timer, they just configure the timer
@@ -196,25 +196,30 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     //ES_Timer_InitTimer(TapeTest_TIMER, 1000);
     DB_printf("Tape Test Timer\r\n");
     ES_Event_t Event2Post;
-    // Event2Post.EventType = ES_TAPE_FOLLOW;
-    // Event2Post.EventParam = 0;
+    // Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    // Event2Post.EventParam = 100;
     // PostTapeFSM(Event2Post);
     // ADC_MultiRead(CurrADVal);
     // DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
-    Event2Post.EventType = ES_MOTOR_CW90;
+    Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
     Event2Post.EventParam = 70;
-    //PostMotorService(Event2Post);
+    PostMotorService(Event2Post);
   }
 
   switch (CurrentState)
   {
   case Idle_tapeFSM:
   {
-    if (ThisEvent.EventType == ES_TAPE_FOLLOW)
+    if (ThisEvent.EventType == ES_TAPE_FOLLOW_FWD)
     {
       CurrentState = Following_tapeFSM;
-      enterFollowing(ThisEvent.EventParam);
+      enterFollowing(0,ThisEvent.EventParam);
+    }else if (ThisEvent.EventType == ES_TAPE_FOLLOW_REV)
+    {
+      CurrentState = Following_tapeFSM;
+      enterFollowing(1,ThisEvent.EventParam);
     }
+    
   }
   break;
 
@@ -224,18 +229,6 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     {
       CurrentState = Idle_tapeFSM;
       exitFollowing();
-    }
-
-    if (ThisEvent.EventType == ES_NEW_KEY)
-    {
-      if (ThisEvent.EventParam == 'f')
-      {
-        K_error += 1000;
-      }
-      else if (ThisEvent.EventParam == 'g')
-      {
-        K_error -= 1000;
-      }
     }
   }
   break;
@@ -270,13 +263,16 @@ TapeState_t QueryTapeFSM(void)
 /***************************************************************************
  private functions
  ***************************************************************************/
-static void enterFollowing(int Dir_input)
+static void enterFollowing(int Dir_input, int targetDutyCycle_input)
 {
   // step1: allow motor movement
   moveAllowed = true;
   // step2: start control ISR
   T4CONbits.ON = 1;
+  // step3: set the direction of the motors
   Dir = Dir_input;
+  // step4: get the duty cycle from the eventparam
+  targetDutyCycle = targetDutyCycle_input;
   if (Dir == 0)
   {
     H_bridge1A_LAT = 0;

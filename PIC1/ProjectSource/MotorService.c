@@ -36,6 +36,7 @@ static void ConfigTimer2(void); // time base for OC,
 // the configure PWM functions turns on OC at the end: OCxCON.ON = 1
 static void ConfigPWM_OC4(void);
 static void ConfigPWM_OC3(void);
+static void StopMotor(void);
 /*---------------------------- Module Variables ---------------------------*/
 // with the introduction of Gen2, we need a module level Priority variable
 #define PWM_freq 10000 // wheel motor PWM frquency in Hz
@@ -48,6 +49,7 @@ static void ConfigPWM_OC3(void);
 #define H_bridge3A_LAT LATBbits.LATB9     // latch
 // prescalars and priorities
 #define prescalar_T2 2  // for PWM for the 2 motors
+#define Turn90TIME 1300 // time to turn 90 degrees in ms
 static uint8_t MyPriority;
 
 /*------------------------------ Module Code ------------------------------*/
@@ -145,11 +147,14 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
   switch (ThisEvent.EventType)
   {
+  case ES_TIMEOUT:
+    if (ThisEvent.EventParam == Motor_Turning_TIMER)//meaning that turning has completed
+    {
+      StopMotor();
+    }
+    break;
   case ES_MOTOR_STOP:
-    H_bridge1A_LAT = 0;
-    H_bridge3A_LAT = 0;
-    OC4RS = 0;
-    OC3RS = 0;
+    StopMotor();
     break;
   case ES_MOTOR_FWD:
     OC4RS = (float)PR2 * ThisEvent.EventParam /100;
@@ -174,7 +179,12 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
     OC3RS = (float)PR2 * ThisEvent.EventParam /100;
     break;
   case ES_MOTOR_CW90:
-  break;
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME);
+    H_bridge1A_LAT = 0;
+    H_bridge3A_LAT = 1;
+    OC4RS = (float)PR2 * 80 /100;
+    OC3RS = (float)PR2 * (100 - 80) /100;
+    break;
   case ES_MOTOR_CW180:
   break;
   case ES_MOTOR_CCW90:
@@ -257,6 +267,13 @@ static void ConfigPWM_OC3()
   OC3CONbits.ON = 1; // Enable Output Compare module
 
   return;
+}
+static void StopMotor()
+{
+  H_bridge1A_LAT = 0;
+  H_bridge3A_LAT = 0;
+  OC4RS = 0;
+  OC3RS = 0;
 }
 /*------------------------------- Footnotes -------------------------------*/
 /*------------------------------ End of file ------------------------------*/

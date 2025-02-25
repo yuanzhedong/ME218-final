@@ -133,14 +133,14 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'c':
-        Event2Post.EventType = ES_TAPE_FOLLOW;
-        Event2Post.EventParam = 1;
+        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+        Event2Post.EventParam = 80;
         PostTapeFSM(Event2Post);
         DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
         break;
     case 'd':
-        Event2Post.EventType = ES_TAPE_FOLLOW;
-        Event2Post.EventParam = 0;
+        Event2Post.EventType = ES_TAPE_FOLLOW_FWD;
+        Event2Post.EventParam = 80;
         PostTapeFSM(Event2Post);
         DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
         break;
@@ -173,7 +173,8 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         PostMotorService(Event2Post);
         break;
     case 'l':
-        /* code */
+        Event2Post.EventType = ES_MOTOR_CW90;
+        PostMotorService(Event2Post);
         break;
     case 'm':
         /* code */
