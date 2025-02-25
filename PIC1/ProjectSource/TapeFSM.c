@@ -43,6 +43,8 @@ static void exitFollowing(void);           // the exit function for exiting the 
 static void ConfigTimer3(void);
 static void ConfigTimer4(void);       // for running control loop
 static void ConfigureReflectSensor(); // for the reflectance sensor array
+
+static void AdjustKvalues(uint16_t targetDutyCycle_input);      // adjust K values based on the targetDutyCycle
 /*---------------------------- Module Variables ---------------------------*/
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
@@ -65,9 +67,11 @@ static uint8_t Dir = 0; // the direction of the motor, 0 = forward, 1 = backward
 
 // control stuff
 #define Control_interval 10 // in ms, max value with prescalar of 16 is 65535*16/20MHz = 52.4288ms
-#define Kp 500
-#define Ki 300
-#define Kd 0
+//the K values used will be scaled based on commanded targetDutyCycle
+//because when the cart is moving faster, K values should be smaller to avoid aggressive control
+#define Kp_base 500
+#define Ki_base 300
+#define Kd_base 0
 static uint16_t targetDutyCycle;    // the duty cycle of the motor as passed by the eventparam
 //static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
 static uint8_t sensorWeights[] = {4, 2, 4, 4, 2, 4}; // weights for the 6 sensors from left to right of sensor array
@@ -274,7 +278,9 @@ static void enterFollowing(int Dir_input, uint16_t targetDutyCycle_input)
   DB_printf("K_effort_max: %d\n", K_effort_max);
   DB_printf("K_effort_min: %d\n", K_effort_min);
   DB_printf("targetDutyCycle is %d \n", targetDutyCycle);
-// step4: start the motor
+  //step4: set the K values based on the targetDutyCycle
+  AdjustKvalues(targetDutyCycle);
+  // step5: start the motor
 
   if (Dir == 0)
   {
@@ -297,7 +303,7 @@ static void enterFollowing(int Dir_input, uint16_t targetDutyCycle_input)
     DB_printf("OC3RS is %d \n", OC3RS);
 
   }
-//step5: start the control ISR
+//step6: start the control ISR
   T4CONbits.ON = 1;
   return;
 }
@@ -385,6 +391,16 @@ ANSELBbits.ANSB12 = 1; // set RB12 as analog
 TRISBbits.TRISB12 = 1; // set RB12 as input
   ADC_ConfigAutoScan(BIT0HI | BIT1HI | BIT4HI  | BIT5HI |BIT11HI |BIT12HI); // AN0/RA0, AN1/RA1, AN4/RB2, AN9/RB9, AN11/RB13, AN12/RB12
 
+  return;
+}
+static void AdjustKvalues(uint16_t targetDutyCycle_input)
+{
+  //the K values used will be scaled based on commanded targetDutyCycle
+  //because when the cart is moving faster, K values should be smaller to avoid aggressive control
+  Kp = (float) Kp_base * 100 / targetDutyCycle_input;
+  Ki = (float)Ki_base * 100 / targetDutyCycle_input;
+  Kd = (float)Kd_base * 100 / targetDutyCycle_input;
+  DB_printf("Kp: %d, Ki: %d, Kd: %d \n", Kp, Ki, Kd);
   return;
 }
 /***********************
