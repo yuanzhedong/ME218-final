@@ -11,16 +11,14 @@
 #define INIT_COMPLETE 'i'
 #define HAS_CRATE 'p'
 #define SIDE_DETECTED 's'
-#define AT_COLUMN1_INTERSECTION 'n'
+#define AT_COLUMN_INTERSECTION 'n'
 #define PROCESS_COLUMN 'c'
 #define AT_STACK 'g'
 #define DROPPED 'd'
-#define UPDATE_PROGRESS1 'u'
-#define UPDATE_PROGRESS2 'v'
+#define CHECK_ROBO_STATUS 'v'
 #define AT_CRATE 't'
 #define PICKUP_CRATE 'k'
-#define AT_COLUMN2_INTERSECTION 'm'
-#define COLUMN2_COMPLETE 'o'
+#define COLUMN_COMPLETE 'o'
 
 #define NAV_MOVE_FORWARD '1'
 #define NAV_MOVE_BACKWARD '2'
@@ -70,10 +68,6 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventType = ES_SIDE_DETECTED;
                 PostPlannerHSM(CurEvent);
                 break;
-            case AT_COLUMN1_INTERSECTION:
-                CurEvent.EventType = ES_AT_COLUMN1_INTERSECTION;
-                PostPlannerHSM(CurEvent);
-                break;
             case AT_STACK:
                 CurEvent.EventType = ES_AT_STACK;
                 PostPlannerHSM(CurEvent);
@@ -90,12 +84,12 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventType = ES_HAS_CRATE;
                 PostPlannerHSM(CurEvent);
                 break;
-            case AT_COLUMN2_INTERSECTION:
-                CurEvent.EventType = ES_AT_COLUMN2_INTERSECTION;
+            case AT_COLUMN_INTERSECTION:
+                CurEvent.EventType = ES_AT_COLUMN_INTERSECTION;
                 PostPlannerHSM(CurEvent);
                 break;
-            case COLUMN2_COMPLETE:
-                CurEvent.EventType = ES_COLUMN2_COMPLETE;
+            case COLUMN_COMPLETE:
+                CurEvent.EventType = ES_COLUMN_COMPLETE;
                 PostPlannerHSM(CurEvent);
                 break;
             case NAV_MOVE_FORWARD:

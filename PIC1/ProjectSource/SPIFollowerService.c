@@ -220,7 +220,7 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     DB_printf("Received byte: %d\r\n", receivedByte); // Add debug print
 
     // Process command directly
-    if(receivedByte >= NAV_CMD_MOVE && receivedByte <= NAV_CMD_TURN_360) {
+    if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_TURN_360) {
         ES_Event_t CmdEvent;
         CmdEvent.EventType = ES_NEW_PLANNER_CMD;
         CmdEvent.EventParam = receivedByte;

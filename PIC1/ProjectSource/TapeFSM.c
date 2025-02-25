@@ -514,11 +514,11 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
       K_commandedOC4 = K_effort_max;
       K_commandedOC3 = K_effort_max  + K_effort;
     }
-  DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
+  //DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
 
  //actuate the motors 
  if (moveAllowed){
-  DB_printf("move is allowed, commanding the motors \n");
+  //DB_printf("move is allowed, commanding the motors \n");
   switch (Dir)
   {
   case 0://meaning we are moving forward
