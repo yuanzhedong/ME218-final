@@ -203,7 +203,7 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     // DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
     Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
     Event2Post.EventParam = 70;
-    PostMotorService(Event2Post);
+    //PostMotorService(Event2Post);
   }
 
   switch (CurrentState)
