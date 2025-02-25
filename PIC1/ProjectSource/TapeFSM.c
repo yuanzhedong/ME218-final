@@ -36,7 +36,7 @@
 /* prototypes for private functions for this machine.They should be functions
    relevant to the behavior of this state machine
 */
-static void enterFollowing(int Dir_input, int targetDutyCycle_input); // the entry function for entering the Following state from Idle_tapeFSM
+static void enterFollowing(int Dir_input, uint16_t targetDutyCycle_input); // the entry function for entering the Following state from Idle_tapeFSM
 static void exitFollowing(void);           // the exit function for exiting the Following state back to Idle_tapeFSM
 
 // the configure timer functions don't turn on the timer, they just configure the timer
@@ -65,12 +65,12 @@ static uint8_t Dir = 0; // the direction of the motor, 0 = forward, 1 = backward
 
 // control stuff
 #define Control_interval 30 // in ms, max value with prescalar of 16 is 65535*16/20MHz = 52.4288ms
-#define Kp 1000
-#define Ki 600
+#define Kp 500
+#define Ki 300
 #define Kd 0
-static uint16_t targetDutyCycle = 60;    // the duty cycle of the motor as passed by the eventparam
+static uint16_t targetDutyCycle;    // the duty cycle of the motor as passed by the eventparam
 //static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
-static uint8_t sensorWeights[] = {4, 2, 4, 4, 2, 4}; // weights for the 6 sensors from left to right of sensor array
+static uint8_t sensorWeights[] = {4, 2, 0, 0, 2, 4}; // weights for the 6 sensors from left to right of sensor array
 // K_error is the error in the sensor readings, K_effort is the control effort
 volatile int16_t K_error = 0;
 volatile int16_t K_error_prev = 0; //for Derivative term
@@ -122,15 +122,10 @@ bool InitTapeFSM(uint8_t Priority)
   __builtin_enable_interrupts();
   K_error_max = 1023 * (sensorWeights[0] + sensorWeights[1] + sensorWeights[2]);
   K_error_min = -1023 * (sensorWeights[3] + sensorWeights[4] + sensorWeights[5]);
-  K_effort_max = (float)PR2 * targetDutyCycle / 100; // PR2 is the max value for OCxRS
-  K_effort_min = -K_effort_max;
-  //targetOC_ticks = (float)targetDutyCycle / 100 * PR2; //same as K_effort_max so don't need this
-  //DB_printf("targetOC_ticks: %d\n", targetOC_ticks);
-  DB_printf("K_effort_max: %d\n", K_effort_max);
-  DB_printf("K_effort_min: %d\n", K_effort_min);
+  
   K_error_sum_division_factor = (float)1000 / Control_interval;
   DB_printf("K_error_sum_division_factor: %d\n", K_error_sum_division_factor);
-  ES_Timer_InitTimer(TapeTest_TIMER, 5000);
+  ES_Timer_InitTimer(TapeTest_TIMER, 3000);
   ES_Event_t ThisEvent;
   MyPriority = Priority;
   // put us into the Initial PseudoState
@@ -196,13 +191,13 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     //ES_Timer_InitTimer(TapeTest_TIMER, 1000);
     DB_printf("Tape Test Timer\r\n");
     ES_Event_t Event2Post;
-    // Event2Post.EventType = ES_TAPE_FOLLOW_REV;
-    // Event2Post.EventParam = 100;
-    // PostTapeFSM(Event2Post);
+    Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    Event2Post.EventParam = 100;
+    //PostTapeFSM(Event2Post);
     // ADC_MultiRead(CurrADVal);
     // DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
-    Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
-    Event2Post.EventParam = 70;
+    // Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
+    // Event2Post.EventParam = 70;
     //PostMotorService(Event2Post);
   }
 
@@ -216,6 +211,7 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
       enterFollowing(0,ThisEvent.EventParam);
     }else if (ThisEvent.EventType == ES_TAPE_FOLLOW_REV)
     {
+      DB_printf("eventparam is %d \n", ThisEvent.EventParam);
       CurrentState = Following_tapeFSM;
       enterFollowing(1,ThisEvent.EventParam);
     }
@@ -263,7 +259,7 @@ TapeState_t QueryTapeFSM(void)
 /***************************************************************************
  private functions
  ***************************************************************************/
-static void enterFollowing(int Dir_input, int targetDutyCycle_input)
+static void enterFollowing(int Dir_input, uint16_t targetDutyCycle_input)
 {
   // step1: allow motor movement
   moveAllowed = true;
@@ -273,6 +269,13 @@ static void enterFollowing(int Dir_input, int targetDutyCycle_input)
   Dir = Dir_input;
   // step4: get the duty cycle from the eventparam
   targetDutyCycle = targetDutyCycle_input;
+  K_effort_max = (float)PR2 * targetDutyCycle / 100; // PR2 is the max value for OCxRS
+  K_effort_min = -K_effort_max;
+  //targetOC_ticks = (float)targetDutyCycle / 100 * PR2; //same as K_effort_max so don't need this
+  //DB_printf("targetOC_ticks: %d\n", targetOC_ticks);
+  DB_printf("K_effort_max: %d\n", K_effort_max);
+  DB_printf("K_effort_min: %d\n", K_effort_min);
+  DB_printf("targetDutyCycle is %d \n", targetDutyCycle);
   if (Dir == 0)
   {
     H_bridge1A_LAT = 0;
