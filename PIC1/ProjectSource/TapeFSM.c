@@ -64,13 +64,13 @@ static void ConfigureReflectSensor(); // for the reflectance sensor array
 static uint8_t Dir = 0; // the direction of the motor, 0 = forward, 1 = backward
 
 // control stuff
-#define Control_interval 30 // in ms, max value with prescalar of 16 is 65535*16/20MHz = 52.4288ms
+#define Control_interval 10 // in ms, max value with prescalar of 16 is 65535*16/20MHz = 52.4288ms
 #define Kp 500
 #define Ki 300
 #define Kd 0
 static uint16_t targetDutyCycle;    // the duty cycle of the motor as passed by the eventparam
 //static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
-static uint8_t sensorWeights[] = {4, 2, 0, 0, 2, 4}; // weights for the 6 sensors from left to right of sensor array
+static uint8_t sensorWeights[] = {4, 2, 4, 4, 2, 4}; // weights for the 6 sensors from left to right of sensor array
 // K_error is the error in the sensor readings, K_effort is the control effort
 volatile int16_t K_error = 0;
 volatile int16_t K_error_prev = 0; //for Derivative term
@@ -263,11 +263,9 @@ static void enterFollowing(int Dir_input, uint16_t targetDutyCycle_input)
 {
   // step1: allow motor movement
   moveAllowed = true;
-  // step2: start control ISR
-  T4CONbits.ON = 1;
-  // step3: set the direction of the motors
+  // step2: set the direction of the motors
   Dir = Dir_input;
-  // step4: get the duty cycle from the eventparam
+  // step3: get the duty cycle from the eventparam
   targetDutyCycle = targetDutyCycle_input;
   K_effort_max = (float)PR2 * targetDutyCycle / 100; // PR2 is the max value for OCxRS
   K_effort_min = -K_effort_max;
@@ -276,6 +274,8 @@ static void enterFollowing(int Dir_input, uint16_t targetDutyCycle_input)
   DB_printf("K_effort_max: %d\n", K_effort_max);
   DB_printf("K_effort_min: %d\n", K_effort_min);
   DB_printf("targetDutyCycle is %d \n", targetDutyCycle);
+// step4: start the motor
+
   if (Dir == 0)
   {
     H_bridge1A_LAT = 0;
@@ -297,7 +297,8 @@ static void enterFollowing(int Dir_input, uint16_t targetDutyCycle_input)
     DB_printf("OC3RS is %d \n", OC3RS);
 
   }
-
+//step5: start the control ISR
+  T4CONbits.ON = 1;
   return;
 }
 static void exitFollowing()
@@ -408,7 +409,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
   //this temp variable is for preventing the overflow of K_effort
   static int K_effort_temp;
   K_effort_temp = (float)K_error / K_error_max * Kp + (float)K_error_sum / K_error_max * Ki + (float)(K_error - K_error_prev) / K_error_max * Kd;
-  
+  K_effort = 0;
   // anti-windup
   if (K_effort_temp < K_effort_max && K_effort_temp > K_effort_min)
   {
@@ -424,7 +425,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
   switch (Dir)
   {
   case 0://meaning we are moving forward
-  if (K_effort > 0)
+  if (K_effort >= 0)
     {
     // if K_effort is positive, that means the sensors on the left read more black than the right
     //Cart has to turn right
@@ -441,7 +442,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
     }
   break;
   case 1://meaning we are moving backward
-    if (K_effort > 0)
+    if (K_effort >= 0)
     {
       K_commandedOC4 =  K_effort_max - K_effort;
       K_commandedOC3 = K_effort_max ;
@@ -459,19 +460,23 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
   }
 
   DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
-
+//DB_printf("K_effort_max: %d, K_effort_min: %d, OC4: %d, OC3: %d \n", K_effort_max, K_effort_min, K_commandedOC4, K_commandedOC3);
  //actuate the motors 
  if (moveAllowed){
-  DB_printf("move is allowed, commanding the motors \n");
+  //DB_printf("move is allowed, commanding the motors \n");
   switch (Dir)
   {
   case 0://meaning we are moving forward
     OC4RS = K_commandedOC4;
     OC3RS = K_commandedOC3;
+    // OC4RS = (float)PR2 * targetDutyCycle / 100;
+    // OC3RS = (float)PR2 * targetDutyCycle / 100;
     break;
   case 1://meaning we are moving backward
     OC4RS = PR2 - K_commandedOC4;
     OC3RS = PR2 - K_commandedOC3;
+    // OC4RS = (float)PR2 * (100 - targetDutyCycle) / 100;
+    // OC3RS = (float)PR2 * (100 - targetDutyCycle) / 100;
     break;
   default:
     break;

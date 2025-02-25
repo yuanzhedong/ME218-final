@@ -157,6 +157,8 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
     StopMotor();
     break;
   case ES_MOTOR_FWD:
+    H_bridge1A_LAT = 0;
+    H_bridge3A_LAT = 0;
     OC4RS = (float)PR2 * ThisEvent.EventParam /100;
     OC3RS = (float)PR2 * ThisEvent.EventParam /100;
     break;
