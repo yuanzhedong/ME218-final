@@ -72,6 +72,9 @@ static uint8_t Dir = 0; // the direction of the motor, 0 = forward, 1 = backward
 #define Kp_base 500
 #define Ki_base 300
 #define Kd_base 0
+static int16_t Kp;
+static int16_t Ki;
+static int16_t Kd;
 static uint16_t targetDutyCycle;    // the duty cycle of the motor as passed by the eventparam
 //static uint16_t targetOC_ticks; //calculated based on PR2 and the targetDutyCycle
 static uint8_t sensorWeights[] = {4, 2, 4, 4, 2, 4}; // weights for the 6 sensors from left to right of sensor array
@@ -192,14 +195,14 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
   if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == TapeTest_TIMER)
   {
-    //ES_Timer_InitTimer(TapeTest_TIMER, 1000);
+    ES_Timer_InitTimer(TapeTest_TIMER, 1000);
     DB_printf("Tape Test Timer\r\n");
     ES_Event_t Event2Post;
     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
     Event2Post.EventParam = 100;
     //PostTapeFSM(Event2Post);
-    // ADC_MultiRead(CurrADVal);
-    // DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    ADC_MultiRead(CurrADVal);
+    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
     // Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
     // Event2Post.EventParam = 70;
     //PostMotorService(Event2Post);
@@ -485,14 +488,10 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
   case 0://meaning we are moving forward
     OC4RS = K_commandedOC4;
     OC3RS = K_commandedOC3;
-    // OC4RS = (float)PR2 * targetDutyCycle / 100;
-    // OC3RS = (float)PR2 * targetDutyCycle / 100;
     break;
   case 1://meaning we are moving backward
     OC4RS = PR2 - K_commandedOC4;
     OC3RS = PR2 - K_commandedOC3;
-    // OC4RS = (float)PR2 * (100 - targetDutyCycle) / 100;
-    // OC3RS = (float)PR2 * (100 - targetDutyCycle) / 100;
     break;
   default:
     break;
