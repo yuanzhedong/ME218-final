@@ -133,10 +133,14 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'c':
-        /* code */
+        Event2Post.EventType = ES_TAPE_FOLLOW;
+        Event2Post.EventParam = 1;
+        PostTapeFSM(Event2Post);
+        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
         break;
     case 'd':
         Event2Post.EventType = ES_TAPE_FOLLOW;
+        Event2Post.EventParam = 0;
         PostTapeFSM(Event2Post);
         DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
         break;
