@@ -149,9 +149,7 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'g':
-        Event2Post.EventType = ES_REQUEST_SIDE_DETECTION;  
-        PostBeaconIndicatorService(Event2Post);
-        DB_printf("ES_REQUEST_SIDE_DETECTION posted to Side Service\r\n");
+
         break;
     case 'h':
         /* code */

@@ -83,6 +83,7 @@ bool InitBeaconIndicatorService(uint8_t Priority) {
     PostBeaconIndicatorService(Event2Post);
     DB_printf("ES_REQUEST_SIDE_DETECTION posted to Side Service!!!!!\r\n");
     __builtin_enable_interrupts();
+    
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
@@ -102,9 +103,9 @@ ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
             // Start rotating CCW
             LATBbits.LATB11 = 1;
             LATBbits.LATB9 = 0;
-//            OC1RS = 400;
+//            OC4RS = 400;
 //            OC3RS = 0;
-            OC1RS = (PR2 + 1) * (100 - dutyCycle) / 100;
+            OC4RS = (PR2 + 1) * (100 - dutyCycle) / 100;
             OC3RS = (PR2 + 1) * dutyCycle / 100;
 
             ES_Timer_InitTimer(BEACON_ALIGN_TIMER, ALIGNMENT_TIMEOUT);
@@ -114,7 +115,7 @@ ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
             DB_printf("\rMotor: Stop!!!!!!! in ES\r\n");
             LATBbits.LATB11 = 0;
             LATBbits.LATB9 = 0;
-            OC1RS = 0;
+            OC4RS = 0;
             OC3RS = 0;
             break;
 
@@ -256,7 +257,6 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
             //StopMotor();
         }
     }
-
     PrevVal = CurrentVal.FullTime;
 }
 
@@ -265,7 +265,7 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
 void StopMotor(){
     LATBbits.LATB11 = 0;
     LATBbits.LATB9 = 0;
-    OC1RS = 0;
+    OC4RS = 0;
     OC3RS = 0;
     puts("stopping motor!");
 }
@@ -274,9 +274,9 @@ void Moveforwards(){
     uint8_t dutyCycle = 70;
     LATBbits.LATB11 = 0;
     LATBbits.LATB9 = 0;
-//    OC1RS = 500;
+//    OC4RS = 500;
 //    OC3RS = 500;
-    OC1RS = (PR2 + 1) * dutyCycle / 100;
+    OC4RS = (PR2 + 1) * dutyCycle / 100;
     OC3RS = (PR2 + 1) * dutyCycle / 100;
     puts("moving forwards!!!!");
 }

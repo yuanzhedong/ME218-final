@@ -49,7 +49,6 @@
       <itemPath>ProjectHeaders/TapeFSM.h</itemPath>
       <itemPath>ProjectHeaders/KeyboardService.h</itemPath>
       <itemPath>ProjectHeaders/PIC32_AD_Lib.h</itemPath>
-      <itemPath>ProjectHeaders/BeaconIndicatorService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -71,7 +70,6 @@
       <itemPath>ProjectSource/KeyboardService.c</itemPath>
       <itemPath>ProjectSource/TapeFSM.c</itemPath>
       <itemPath>ProjectSource/PIC32_AD_Lib.c</itemPath>
-      <itemPath>ProjectSource/BeaconIndicatorService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -240,6 +238,38 @@
         <property key="stack-smashing" value=""/>
         <property key="wpo-lto" value="false"/>
       </C32Global>
+      <item path="ProjectHeaders/TapeFSM.h" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
+      <item path="ProjectSource/TapeFSM.c" ex="false" overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-CO>
+        </C32-CO>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
       <item path="ProjectSource/main.c" ex="false" overriding="false">
         <C32>
         </C32>

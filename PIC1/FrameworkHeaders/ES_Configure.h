@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 6
+#define NUM_SERVICES 5
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -109,11 +109,11 @@
 // These are the definitions for Service 5
 #if NUM_SERVICES > 5
 // the header file with the public function prototypes
-#define SERV_5_HEADER "BeaconIndicatorService.h"
+#define SERV_5_HEADER "TestHarnessService5.h"
 // the name of the Init function
-#define SERV_5_INIT InitBeaconIndicatorService
+#define SERV_5_INIT InitTestHarnessService5
 // the name of the run function
-#define SERV_5_RUN RunBeaconIndicatorService
+#define SERV_5_RUN RunTestHarnessService5
 // How big should this services Queue be?
 #define SERV_5_QUEUE_SIZE 3
 #endif
@@ -342,8 +342,8 @@ typedef enum
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
-#define TIMER13_RESP_FUNC PostBeaconIndicatorService
-#define TIMER14_RESP_FUNC PostBeaconIndicatorService
+#define TIMER13_RESP_FUNC TIMER_UNUSED
+#define TIMER14_RESP_FUNC TIMER_UNUSED
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
 /****************************************************************************/
@@ -355,7 +355,7 @@ typedef enum
 
 #define SERVICE0_TIMER 15
 #define TapeTest_TIMER 9
-#define BEACON_ALIGN_STOP_TIMER 14
-#define BEACON_ALIGN_TIMER 13
+//#define BEACON_ALIGN_STOP_TIMER 14
+//#define BEACON_ALIGN_TIMER 13
 
 #endif /* ES_CONFIGURE_H */
