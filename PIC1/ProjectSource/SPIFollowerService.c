@@ -124,7 +124,10 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_TURN_360) {
         ReceivedCmd = receivedByte;
         DB_printf("Received command: %d\r\n", ReceivedCmd);
-        //PostNavigatorHSM(CmdEvent);
+        ES_Event_t CmdEvent;
+        CmdEvent.EventType = ES_NEW_NAV_CMD;
+        CmdEvent.EventParam = ReceivedCmd;
+        PostNavigatorHSM(CmdEvent);
     } else if (receivedByte == NAV_CMD_QUERY_STATUS) {
         // Update status based on Navigator state
         DB_printf("Received status query\r\n");
