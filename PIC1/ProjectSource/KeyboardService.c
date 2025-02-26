@@ -23,6 +23,7 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "KeyboardService.h"
+#include "SPIFollowerService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 
@@ -221,27 +222,6 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
     case '2':
         /* code */
         break;
-    case '3':
-        /* code */
-        break;
-    case '4':
-        /* code */
-        break;
-    case '5':
-        /* code */
-        break;
-    case '6':
-        /* code */
-        break;
-    case '7':
-        /* code */
-        break;
-    case '8':
-        /* code */
-        break;
-    case '9':
-        /* code */
-        break;
     case 'A':
         /* code */
         break;
@@ -319,6 +299,13 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         break;
     case 'Z':
         /* code */
+        break;
+
+    case '3':
+        DB_printf("3 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_MOVE_FORWARD;
+        PostNavigatorHSM(Event2Post);
         break;
     default:
         break;

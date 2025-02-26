@@ -14,7 +14,7 @@ volatile static uint16_t CurrentNavigatorStatus;
 volatile static uint16_t PrevNavigatorStatus;
 static uint32_t LastTransferTime;
 static uint8_t LastSentCmd;
-
+static uint16_t QueryFreq = 5000; // in ms
 #define DEBUG_CMD NAV_CMD_QUERY_STATUS
 
 /*---------------------------- Module Functions ---------------------------*/
@@ -34,7 +34,7 @@ bool InitSPIMasterService(uint8_t Priority)
     CurrentNavigatorStatus = NAV_STATUS_IDLE;
 
     // Start a timer to query the slave periodically
-    ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000);
+    ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq);
     puts("[SPI] Started SPI Query Timer\n");
     // Post the initial transition event
     ES_Event_t ThisEvent;
@@ -59,7 +59,7 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
-    ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000); // Restart the timer
+    ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq); // Restart the timer
     // Handle events here
     if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == SPI_QUERY_TIMER)
     {
