@@ -342,7 +342,7 @@ typedef enum
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
 #define TIMER14_RESP_FUNC TIMER_UNUSED
-//#define TIMER14_RESP_FUNC PostSPIFollowerService
+#define TIMER14_RESP_FUNC PostNavigatorHSM
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
 /****************************************************************************/
@@ -352,7 +352,7 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
-#define NAV_CMD_UPDATE_TIMER 14
+#define NAV_STATE_DEBUG_TIMER 14
 #define TapeTest_TIMER 9
 
 #endif /* ES_CONFIGURE_H */

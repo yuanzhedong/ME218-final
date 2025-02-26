@@ -22,7 +22,6 @@ bool InitSPIFollowerService(uint8_t Priority)
 {
     MyPriority = Priority;
     InitSPI(); // Initialize SPI as slave
-    ES_Timer_InitTimer(NAV_CMD_UPDATE_TIMER, 1000);
     
     // Post the initial transition event
     ES_Event_t ThisEvent;

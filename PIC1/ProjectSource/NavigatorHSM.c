@@ -26,7 +26,7 @@
 
 
 /*---------------------------- Module Variables ---------------------------*/
-static NavigatorState_t CurrentState, NextState;
+static NavigatorState_t CurrentState, NextState, PrevState;
 static uint8_t MyPriority;
 
 /*---------------------------- Module Functions ---------------------------*/
@@ -47,6 +47,8 @@ bool InitNavigatorHSM(uint8_t Priority) {
     CurrentState = Init;
     ThisEvent.EventType = ES_INIT;
 
+    ES_Timer_InitTimer(NAV_STATE_DEBUG_TIMER, 2000);
+
     if (ES_PostToService(MyPriority, ThisEvent) == true) {
         DB_printf("Navigator HSM initialized\r\n");
         return true;
@@ -56,7 +58,6 @@ bool InitNavigatorHSM(uint8_t Priority) {
 }
 
 bool PostNavigatorHSM(ES_Event_t ThisEvent) {
-    DB_printf("[NAV HSM] Posting event: %d\r\n", ThisEvent.EventType);
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
@@ -106,6 +107,7 @@ NavigatorState_t QueryNavigatorHSM(void) {
 /***************************************************************************
  private functions
  ***************************************************************************/
+
 
 static ES_Event_t DuringInit(ES_Event_t Event) {
     if (Event.EventType == ES_ENTRY) {
@@ -230,6 +232,10 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
     //ES_Event_t EntryEventKind = {ES_ENTRY, 0}; // default to normal entry to new state
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
+    if (CurrentEvent.EventType == ES_TIMEOUT && CurrentEvent.EventParam == NAV_STATE_DEBUG_TIMER) {
+        DB_printf("[NAV HSM] Current state: %d\r\n", CurrentState);
+        ES_Timer_InitTimer(NAV_STATE_DEBUG_TIMER, 2000);
+    }
     switch (CurrentState) {
         case Init:
             //ReturnEvent = DuringInit(CurrentEvent);
@@ -259,11 +265,102 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
             }
             break;
         case LineFollow:
-            DB_printf("[NAV HSM] Line following\r\n");
-            ES_Event_t new_nav_status;
-            new_nav_status.EventType = ES_NEW_NAV_STATUS;
-            new_nav_status.EventParam = NAV_STATUS_LINE_FOLLOW;
-            PostSPIFollowerService(new_nav_status);
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                DB_printf("[NAV HSM] Line following\r\n");
+                ES_Event_t new_nav_status;
+                new_nav_status.EventType = ES_NEW_NAV_STATUS;
+                new_nav_status.EventParam = NAV_STATUS_LINE_FOLLOW;
+                PostSPIFollowerService(new_nav_status);
+                //TODO: post to tape FSM to start tape following
+            } else {
+                switch (CurrentEvent.EventType) {
+                    case ES_CRATE_DETECTED:
+                        NextState = CheckCrate;
+                        MakeTransition = true;
+                        //TODO: post to tape FSM to stop tape following
+                        break;
+                    case ES_CROSS_DETECTED:
+                        DB_printf("[NAV HSM LINE_FOLLOW] Cross detected \r\n");
+                        NextState = CheckIntersection;
+                        MakeTransition = true;
+                        //TODO: post to tape FSM to stop tape following
+                        break;
+                    case ES_TJUNCTION_DETECTED:
+                        NextState = CheckIntersection;
+                        MakeTransition = true;
+                        //TODO: post to tape FSM to stop tape following
+                        break;
+                    case ES_STOP:
+                        NextState = Idle;
+                        MakeTransition = true;
+                        //TODO: post to tape FSM to stop tape following
+                        break;
+                    case ES_ERROR:
+                        NextState = LineDiscover;
+                        MakeTransition = true;
+                        //TODO: post to tape FSM to stop tape following
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+
+        case CheckCrate:
+            DB_printf("[NAV HSM] CheckCrate \r\n");
+            break;
+        case CheckIntersection:
+            switch (CurrentEvent.EventType) {
+                case ES_NEW_NAV_CMD:
+                    switch (CurrentEvent.EventParam) {
+                        case NAV_CMD_TURN_LEFT:
+                            NextState = TurnLeft;
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_TURN_RIGHT:
+                            NextState = TurnLeft;   
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_MOVE_FORWARD:
+                            NextState = LineFollow;
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_MOVE_BACKWARD:
+                            NextState = LineFollow;
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_STOP:
+                            NextState = Idle;
+                            MakeTransition = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case ES_STOP:
+                    NextState = Idle;
+                    MakeTransition = true;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case TurnLeft:
+            DB_printf("[NAV HSM] TurnLeft \r\n");
+            if (CurrentEvent.EventType == ES_TURN_COMPLETE || (CurrentEvent.EventType == ES_NEW_NAV_CMD && CurrentEvent.EventParam == NAV_CMD_STOP)) {
+                NextState = PrevState;
+                MakeTransition = true;
+            }
+            break;
+        case TurnRight:
+            DB_printf("[NAV HSM] TurnRight \r\n");
+            if (CurrentEvent.EventType == ES_TURN_COMPLETE || (CurrentEvent.EventType == ES_NEW_NAV_CMD && CurrentEvent.EventParam == NAV_CMD_STOP)) {
+                NextState = PrevState;
+                MakeTransition = true;
+            }
+            break;
+        case LineDiscover:
+            DB_printf("[NAV HSM] LineDiscover \r\n");
             break;
         default:
             break;
@@ -388,7 +485,7 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
     if (MakeTransition) {
         CurrentEvent.EventType = ES_EXIT;
         RunNavigatorHSM(CurrentEvent);
-
+        PrevState = CurrentState;
         CurrentState = NextState;
         CurrentEvent.EventType = ES_ENTRY;
         RunNavigatorHSM(CurrentEvent);
