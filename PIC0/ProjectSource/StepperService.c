@@ -23,6 +23,9 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "StepperService.h"
+#include "dbprintf.h"
+#include <sys/attribs.h>
+#include "terminal.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 
@@ -36,10 +39,12 @@
 #define ticks_per_us 2.5
 static int stepInd = 0;
 static int RowNum;//number of rows in the table chosen
-static bool motorDir = 0; //0 means forward and 1 means backwards
+static bool Dir = 0; //0 means forward and 1 means backwards
 static uint16_t speedInHz = 50;//set motor speed in Hz
 static uint16_t maxSpeed = 150; //max motor speed in Hz
 static uint16_t minSpeed = 3;
+static uint16_t stepsCommanded;
+static uint16_t stepsCompleted;
 static uint16_t StepInterval = 20; //steps per sec = 1000 / StepInterval
 static bool (*tableChosen)[4];
 static bool table_FullStep[4][4] = {
@@ -152,9 +157,65 @@ ES_Event_t RunStepperService(ES_Event_t ThisEvent)
 {
   ES_Event_t ReturnEvent;
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
-  /********************************************
-   in here you write your service code
-   *******************************************/
+  switch (ThisEvent.EventType)
+  {
+  case ES_TIMEOUT:
+    if (stepsCompleted < stepsCommanded)
+    {
+      //step1: step a step
+      DB_printf("%d ",tableChosen[stepInd][0]);
+      DB_printf("%d ",tableChosen[stepInd][1]);
+      DB_printf("%d ",tableChosen[stepInd][2]);
+      DB_printf("%d \n",tableChosen[stepInd][3]);
+      // LATBbits.LATB0 = tableChosen[stepInd][0];
+      // LATBbits.LATB1= tableChosen[stepInd][1];
+      // LATBbits.LATB2= tableChosen[stepInd][2];
+      // LATBbits.LATB3 = tableChosen[stepInd][3];
+      if (Dir == 0)
+      {
+        if (stepInd >= RowNum - 1)
+        {
+          stepInd = 0;
+        }else
+        {
+          stepInd++;
+        }
+      }else
+      {
+        if (stepInd <= 0)
+        {
+          stepInd = RowNum - 1;
+        }else
+        {
+          stepInd--;
+        }      
+      }
+      stepsCompleted++;
+      //step2: reset the timer for the next step
+      ES_Timer_InitTimer(Stepper_TIMER, StepInterval);
+    }
+  
+    
+  break;
+  case ES_STEPPER_FWD:
+    stepInd = 0;
+    Dir = 0;
+    stepsCommanded = ThisEvent.EventParam;
+    stepsCompleted = 0;
+    ES_Timer_InitTimer(Stepper_TIMER, StepInterval);
+    DB_printf("steps commanded is %d\n", stepsCommanded);
+    break;
+  case ES_STEPPER_BWD:
+    stepInd = 0;
+    Dir = 1;
+    stepsCommanded = ThisEvent.EventParam;
+    stepsCompleted = 0;
+    ES_Timer_InitTimer(Stepper_TIMER, StepInterval);
+    DB_printf("steps commanded is %d\n", stepsCommanded);
+    break;
+  default:
+    break;
+  }
   return ReturnEvent;
 }
 

@@ -289,7 +289,10 @@ typedef enum
   ES_TURN_LEFT,
   ES_TURN_RIGHT,
   ES_TURN_COMPLETE,
-  ES_RECOVERED
+  ES_RECOVERED,
+  //the following is for the stepper service
+  ES_STEPPER_FWD,//event param is the number of steps
+  ES_STEPPER_BWD,
 } ES_EventType_t;
 
 /****************************************************************************/
