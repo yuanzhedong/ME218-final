@@ -293,6 +293,7 @@ typedef enum
   //the following is for the stepper service
   ES_STEPPER_FWD,//event param is the number of steps
   ES_STEPPER_BWD,
+  ES_STEPPER_COMPLETE,
 } ES_EventType_t;
 
 /****************************************************************************/

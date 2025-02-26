@@ -79,6 +79,16 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
             case COLUMN2_COMPLETE:
                 CurEvent.EventType = ES_COLUMN2_COMPLETE;
                 break;
+            case 'a':
+                CurEvent.EventType = ES_STEPPER_FWD;
+                CurEvent.EventParam = 100;
+                PostStepperService(CurEvent);
+                break;
+            case 'b':
+                CurEvent.EventType = ES_STEPPER_BWD;
+                CurEvent.EventParam = 100;
+                PostStepperService(CurEvent);
+                break;
             default:
                 return ReturnEvent;
         }
