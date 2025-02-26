@@ -307,6 +307,33 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         Event2Post.EventParam = NAV_CMD_MOVE_FORWARD;
         PostNavigatorHSM(Event2Post);
         break;
+
+    case '4':
+        DB_printf("4 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_MOVE_BACKWARD;
+        PostNavigatorHSM(Event2Post);
+        break;
+    
+    case '5':
+        DB_printf("5 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_TURN_LEFT;
+        PostNavigatorHSM(Event2Post);
+        break;
+
+    case '6':
+        DB_printf("6 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_TURN_RIGHT;
+        PostNavigatorHSM(Event2Post);
+        break;
+    case '7':
+        DB_printf("7 pressed\r\n");
+        Event2Post.EventType = ES_CROSS_DETECTED;
+        Event2Post.EventParam = NAV_CMD_STOP;
+        PostNavigatorHSM(Event2Post);
+        break;
     default:
         break;
     }
