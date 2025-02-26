@@ -19,13 +19,14 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "NavigatorHSM.h"
+#include "SPIFollowerService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 #define ENTRY_STATE Init
 
 
 /*---------------------------- Module Variables ---------------------------*/
-static NavigatorState_t CurrentState;
+static NavigatorState_t CurrentState, NextState;
 static uint8_t MyPriority;
 
 /*---------------------------- Module Functions ---------------------------*/
@@ -41,11 +42,13 @@ static ES_Event_t DuringCheckCrate(ES_Event_t Event);
 
 bool InitNavigatorHSM(uint8_t Priority) {
     ES_Event_t ThisEvent;
+    MyPriority = Priority;
 
-    CurrentState = ENTRY_STATE;
+    CurrentState = Init;
     ThisEvent.EventType = ES_INIT;
 
     if (ES_PostToService(MyPriority, ThisEvent) == true) {
+        DB_printf("Navigator HSM initialized\r\n");
         return true;
     } else {
         return false;
@@ -53,6 +56,7 @@ bool InitNavigatorHSM(uint8_t Priority) {
 }
 
 bool PostNavigatorHSM(ES_Event_t ThisEvent) {
+    DB_printf("[NAV HSM] Posting event: %d\r\n", ThisEvent.EventType);
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
@@ -106,10 +110,13 @@ NavigatorState_t QueryNavigatorHSM(void) {
 static ES_Event_t DuringInit(ES_Event_t Event) {
     if (Event.EventType == ES_ENTRY) {
         // Initialize sensors and motors
+        DB_printf("Navigator initialized\r\n");
     } else if (Event.EventType == ES_EXIT) {
         // Cleanup if necessary
+        DB_printf("Navigator init exited\r\n");
     } else {
         // During actions for Init state
+        DB_printf("Navigator running init\r\n");
     }
     return Event;
 }
@@ -220,18 +227,47 @@ static ES_Event_t DuringCheckCrate(ES_Event_t Event) {
 ****************************************************************************/
 ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
     bool MakeTransition = false; /* are we making a state transition? */
-    //NavigatorState_t NextState = CurrentState;
     //ES_Event_t EntryEventKind = {ES_ENTRY, 0}; // default to normal entry to new state
-    ES_Event_t ReturnEvent = { ES_NO_EVENT, 0 }; // assume no error
+    ES_Event_t ReturnEvent;
+    ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
+    switch (CurrentState) {
+        case Init:
+            //ReturnEvent = DuringInit(CurrentEvent);
+            if (CurrentEvent.EventType == ES_INIT) {
+                NextState = Idle;
+                MakeTransition = true;
+                DB_printf("[NAV HSM] Current state: %d\r\n", CurrentState);
+                DB_printf("[NAV HSM] Current event: %d\r\n", CurrentEvent.EventType);
+                DB_printf("[NAV HSM] Current event param: %d\r\n", CurrentEvent.EventParam);
+            }
+            break;
 
-    // switch (CurrentState) {
-    //     case Init:
-    //         ReturnEvent = DuringInit(CurrentEvent);
-    //         if (ReturnEvent.EventType == ES_INIT) {
-    //             NextState = Idle;
-    //             MakeTransition = true;
-    //         }
-    //         break;
+        case Idle:
+            if (CurrentEvent.EventType == ES_NEW_NAV_CMD) {
+                DB_printf("[NAV HSM] Received new command: %d\r\n", CurrentEvent.EventParam);
+                uint8_t command = CurrentEvent.EventParam;
+                switch (command) {
+                    case NAV_CMD_MOVE_FORWARD:
+                        NextState = LineFollow;
+                        MakeTransition = true;
+                        break;
+                    case NAV_CMD_MOVE_BACKWARD:
+                        NextState = LineFollow;
+                        MakeTransition = true;
+                        break;
+                }
+            }
+            break;
+        case LineFollow:
+            DB_printf("[NAV HSM] Line following\r\n");
+            ES_Event_t new_nav_status;
+            new_nav_status.EventType = ES_NEW_NAV_STATUS;
+            new_nav_status.EventParam = NAV_STATUS_LINE_FOLLOW;
+            PostSPIFollowerService(new_nav_status);
+            break;
+        default:
+            break;
+        }
 
     //     case Idle:
     //         ReturnEvent = DuringIdle(CurrentEvent);
@@ -349,14 +385,14 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
     //         break;
     // }
 
-    // if (MakeTransition) {
-    //     CurrentEvent.EventType = ES_EXIT;
-    //     RunNavigatorHSM(CurrentEvent);
+    if (MakeTransition) {
+        CurrentEvent.EventType = ES_EXIT;
+        RunNavigatorHSM(CurrentEvent);
 
-    //     CurrentState = NextState;
-
-    //     RunNavigatorHSM(EntryEventKind);
-    // }
+        CurrentState = NextState;
+        CurrentEvent.EventType = ES_ENTRY;
+        RunNavigatorHSM(CurrentEvent);
+    }
 
     return ReturnEvent;
 }
