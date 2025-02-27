@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 5
+#define NUM_SERVICES 6
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -109,11 +109,11 @@
 // These are the definitions for Service 5
 #if NUM_SERVICES > 5
 // the header file with the public function prototypes
-#define SERV_5_HEADER "SPIMasterService.h"
+#define SERV_5_HEADER "StepperService.h"
 // the name of the Init function
-#define SERV_5_INIT InitSPIMasterService
+#define SERV_5_INIT InitStepperService
 // the name of the run function
-#define SERV_5_RUN RunSPIMasterService
+#define SERV_5_RUN RunStepperService
 // How big should this services Queue be?
 #define SERV_5_QUEUE_SIZE 3
 #endif
@@ -288,6 +288,9 @@ typedef enum
   ES_TURN_RIGHT,
   ES_TURN_COMPLETE,
   ES_RECOVERED,
+  ES_STEPPER_FWD,//event param is the number of steps
+  ES_STEPPER_BWD,
+  ES_STEPPER_COMPLETE,
   ES_NEW_NAV_CMD,
   ES_REQUEST_NEW_PLANNER_POLICY,
   ES_CONTINUE_PLANNER_POLICY,
@@ -348,7 +351,7 @@ typedef enum
 #define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
-#define TIMER12_RESP_FUNC TIMER_UNUSED
+#define TIMER12_RESP_FUNC PostStepperService
 #define TIMER13_RESP_FUNC PostBeaconIndicatorService
 #define TIMER14_RESP_FUNC PostSPIMasterService
 #define TIMER15_RESP_FUNC PostTestHarnessService0
@@ -363,5 +366,6 @@ typedef enum
 #define SERVICE0_TIMER 15
 #define BEACON_ALIGN_TIMER 13
 #define SPI_QUERY_TIMER 14
+#define Stepper_TIMER 12
 
 #endif /* ES_CONFIGURE_H */

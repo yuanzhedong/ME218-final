@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 5
+#define NUM_SERVICES 6
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -83,11 +83,11 @@
 // These are the definitions for Service 3
 #if NUM_SERVICES > 3
 // the header file with the public function prototypes
-#define SERV_3_HEADER "TapeFSM.h"
+#define SERV_3_HEADER "MotorService.h"
 // the name of the Init function
-#define SERV_3_INIT InitTapeFSM
+#define SERV_3_INIT InitMotorService
 // the name of the run function
-#define SERV_3_RUN RunTapeFSM
+#define SERV_3_RUN RunMotorService
 // How big should this services Queue be?
 #define SERV_3_QUEUE_SIZE 3
 #endif
@@ -109,11 +109,11 @@
 // These are the definitions for Service 5
 #if NUM_SERVICES > 5
 // the header file with the public function prototypes
-#define SERV_5_HEADER "TestHarnessService5.h"
+#define SERV_5_HEADER "TapeFSM.h"
 // the name of the Init function
-#define SERV_5_INIT InitTestHarnessService5
+#define SERV_5_INIT InitTapeFSM
 // the name of the run function
-#define SERV_5_RUN RunTestHarnessService5
+#define SERV_5_RUN RunTapeFSM
 // How big should this services Queue be?
 #define SERV_5_QUEUE_SIZE 3
 #endif
@@ -279,8 +279,21 @@ typedef enum
   ES_TURN_LEFT,
   ES_TURN_RIGHT,
   ES_RECOVERED,
-  ES_TAPE_FOLLOW,
+  ES_NEW_PLANNER_CMD,
+  ES_TAPE_FOLLOW_FWD,
+  ES_TAPE_FOLLOW_REV,
   ES_TAPE_STOP,
+  ES_TAPE_FAIL,
+  ES_MOTOR_FWD,
+  ES_MOTOR_REV,
+  ES_MOTOR_STOP,
+  ES_MOTOR_CW_CONTINUOUS,
+  ES_MOTOR_CCW_CONTINUOUS,
+  ES_MOTOR_CW90,
+  ES_MOTOR_CW180,
+  ES_MOTOR_CCW90,
+  ES_MOTOR_CCW180,
+  ES_TAPE_FOLLOW,
   ES_NEW_NAV_STATUS,
   ES_NEW_NAV_CMD,
 } ES_EventType_t;
@@ -335,13 +348,14 @@ typedef enum
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
-#define TIMER9_RESP_FUNC TIMER_UNUSED
-//#define TIMER9_RESP_FUNC PostTapeFSM
-#define TIMER10_RESP_FUNC TIMER_UNUSED
+#define TIMER9_RESP_FUNC PostTapeFSM
+#define TIMER10_RESP_FUNC PostMotorService
+//#define TIMER9_RESP_FUNC TIMER_UNUSED
+//#define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
-#define TIMER14_RESP_FUNC TIMER_UNUSED
+//#define TIMER14_RESP_FUNC TIMER_UNUSED
 #define TIMER14_RESP_FUNC PostNavigatorHSM
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
@@ -354,5 +368,6 @@ typedef enum
 #define SERVICE0_TIMER 15
 #define NAV_STATE_DEBUG_TIMER 14
 #define TapeTest_TIMER 9
+#define Motor_Turning_TIMER 10
 
 #endif /* ES_CONFIGURE_H */

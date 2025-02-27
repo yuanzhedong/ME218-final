@@ -128,27 +128,26 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
     switch (ThisEvent.EventParam)
     {
     case 'a':
-        /* code */
+        Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
+        Event2Post.EventParam = 70;
+        PostMotorService(Event2Post);
+        DB_printf("ES_MOTOR_CW_CONTINUOUS posted to MotorService\r\n");
         break;
     case 'b':
         /* code */
         break;
     case 'c':
-        Event2Post.EventType = ES_TAPE_FOLLOW;
-        Event2Post.EventParam = 1;
-        PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+
         break;
     case 'd':
-        Event2Post.EventType = ES_TAPE_FOLLOW;
-        Event2Post.EventParam = 0;
-        PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+
+        Event2Post.EventType = ES_MOTOR_CCW_CONTINUOUS;
+        Event2Post.EventParam = 70;
+        PostMotorService(Event2Post);
+        DB_printf("ES_MOTOR_CCW_CONTINUOUS posted to MotorService\r\n");
         break;
     case 'e':
-        Event2Post.EventType = ES_TAPE_STOP;  
-        PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_STOP posted to TapeFSM\r\n");
+
         break;
     case 'f':
         /* code */
@@ -160,16 +159,18 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'i':
-        /* code */
+
         break;
     case 'j':
-        /* code */
+
         break;
     case 'k':
-        /* code */
+ 
         break;
     case 'l':
-        /* code */
+        Event2Post.EventType = ES_MOTOR_CW90;
+        PostMotorService(Event2Post);
+        DB_printf("ES_MOTOR_CW90 posted to MotorService\r\n");
         break;
     case 'm':
         /* code */
@@ -190,7 +191,10 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 's':
-        /* code */
+        ThisEvent.EventType = ES_MOTOR_FWD;
+        ThisEvent.EventParam = 70;
+        PostMotorService(ThisEvent);
+        DB_printf("ES_MOTOR_FWD posted to MotorService\r\n");
         break;
     case 't':
         /* code */
@@ -202,10 +206,16 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'w':
-        /* code */
+
+        ThisEvent.EventType = ES_MOTOR_REV;
+        ThisEvent.EventParam = 70;
+        PostMotorService(ThisEvent);
+        DB_printf("ES_MOTOR_REV posted to MotorService\r\n");
         break;
     case 'x':
-        /* code */
+        Event2Post.EventType = ES_MOTOR_STOP;
+        PostMotorService(Event2Post);
+        DB_printf("ES_MOTOR_STOP posted to MotorService\r\n");
         break;
     case 'y':
         /* code */
@@ -214,15 +224,57 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case '0':
-        /* code */
+        Event2Post.EventType = ES_TAPE_STOP;  
+        PostTapeFSM(Event2Post);
+        DB_printf("ES_TAPE_STOP posted to TapeFSM\r\n");
         break;
     case '1':
-        /* code */
+        Event2Post.EventType = ES_TAPE_FOLLOW_FWD;
+        Event2Post.EventParam = 70;
+        PostTapeFSM(Event2Post);
+        DB_printf("ES_TAPE_FOLLOW_FWD 70 posted to TapeFSM\r\n");
         break;
     case '2':
-        /* code */
+        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+        Event2Post.EventParam = 40;
+        PostTapeFSM(Event2Post);
+        DB_printf("ES_TAPE_FOLLOW_REV 40 posted to TapeFSM\r\n");
         break;
     case 'A':
+        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+        Event2Post.EventParam = 50;
+        PostTapeFSM(Event2Post);
+        DB_printf("ES_TAPE_FOLLOW 50 posted to TapeFSM\r\n");
+        break;
+    // case '4':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 60;
+    //     PostTapeFSM(Event2Post);
+    //     DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+    //     break;
+    // case '5':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 70;
+    //     PostTapeFSM(Event2Post);
+    //     DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+    //     break;
+    // case '6':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 80;
+    //     PostTapeFSM(Event2Post);
+    //     DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+    //     break;
+    // case '7':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 90;
+    //     PostTapeFSM(Event2Post);
+    //     break;
+    // case '8':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 100;
+    //     PostTapeFSM(Event2Post);
+    //     break;
+    case '9':
         /* code */
         break;
     case 'B':

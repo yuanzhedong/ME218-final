@@ -92,6 +92,16 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventType = ES_COLUMN_COMPLETE;
                 PostPlannerHSM(CurEvent);
                 break;
+            case 'a':
+                CurEvent.EventType = ES_STEPPER_FWD;
+                CurEvent.EventParam = 100;
+                PostStepperService(CurEvent);
+                break;
+            case 'b':
+                CurEvent.EventType = ES_STEPPER_BWD;
+                CurEvent.EventParam = 100;
+                PostStepperService(CurEvent);
+                break;
             case NAV_MOVE_FORWARD:
                 CurEvent.EventType = ES_NEW_NAV_CMD;
                 CurEvent.EventParam = NAV_CMD_MOVE_FORWARD;
@@ -127,7 +137,6 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventParam = NAV_CMD_TURN_360;
                 PostSPIMasterService(CurEvent);
                 break;
-        
             default:
                 return ReturnEvent;
         }
