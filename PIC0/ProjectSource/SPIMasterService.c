@@ -9,12 +9,12 @@
 
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
-volatile static uint16_t ReceivedCmd;
+volatile static uint16_t ReceivedStatus;
 volatile static uint16_t CurrentNavigatorStatus;
-volatile static uint16_t PrevNavigatorStatus;
+volatile static uint16_t PrevNavigatorStatus = NAV_STATUS_IDLE;
 static uint32_t LastTransferTime;
 static uint8_t LastSentCmd;
-static uint16_t QueryFreq = 5000; // in ms
+static uint16_t QueryFreq = 2000; // in ms
 #define DEBUG_CMD NAV_CMD_QUERY_STATUS
 
 /*---------------------------- Module Functions ---------------------------*/
@@ -58,8 +58,7 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
-    //TODO: disable for debug
-    //ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq); // Restart the timer
+    ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq); // Restart the timer
     
     // Handle events here
     if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == SPI_QUERY_TIMER)
@@ -134,7 +133,7 @@ bool SendSPICommand(uint8_t command) {
     
     // Send command directly
     while(SPI1STATbits.SPITBF);
-    DB_printf("[SPI] Sending command: %x\r\n", command);
+    //DB_printf("[SPI] Sending command: %x\r\n", command);
     SPI1BUF = command;
     LastSentCmd = command;
     LastTransferTime = ES_Timer_GetTime();
@@ -160,9 +159,16 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
         DB_printf("SPI Timeout\r\n");
         return;
     } else {
-        ReceivedCmd = receivedByte;
+        ReceivedStatus = receivedByte;
         ES_Event_t CmdEvent;
-        DB_printf("[SPI] Received status: %d\r\n", ReceivedCmd);
+        if (PrevNavigatorStatus != ReceivedStatus) {
+            DB_printf("[SPI] Previous status: %d\r\n", PrevNavigatorStatus);
+            DB_printf("[SPI] Received status: %d\r\n", ReceivedStatus);
+            CmdEvent.EventType = ES_NAVIGATOR_STATUS_CHANGE;
+            CmdEvent.EventParam = ReceivedStatus;
+            PostPlannerHSM(CmdEvent);
+            PrevNavigatorStatus = ReceivedStatus;
+        }
     }
     LastTransferTime = ES_Timer_GetTime();
 }

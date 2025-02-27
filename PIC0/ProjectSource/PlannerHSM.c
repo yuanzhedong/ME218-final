@@ -141,8 +141,6 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
     if (CurrentEvent.EventType != ES_EXIT && CurrentEvent.EventType != ES_ENTRY && CurrentEvent.EventType != ES_NEW_KEY) {
         DB_printf("Current State: %s, Current Column: %d, Drop Crate Count: %d\r\n",
                   GetStateName(CurrentState), CURRENT_COLUMN, drop_crate_count);
-        DB_printf("EventType is %d\r\n",CurrentEvent.EventType);
-        DB_printf("EventParam is %d\r\n",CurrentEvent.EventParam);
     }
 
     switch (CurrentState) {
@@ -234,10 +232,21 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     PostPlannerPolicyService(ThisEvent);
                     break;
 
-                case ES_TURN_COMPLETE:
-                    DB_printf("Turn complete, moving to next action\r\n");
-                case ES_TJUNCTION_DETECTED:
-                    DB_printf("Arrived at T-junction, moving to next action\r\n");
+                case ES_NAVIGATOR_STATUS_CHANGE:
+                    switch (CurrentEvent.EventParam)
+                    {
+                        case NAV_STATUS_IDLE:
+                            DB_printf("Navigator is idle, moving to next action\r\n");
+                            ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
+                            PostPlannerPolicyService(ThisEvent);
+                            break;
+                    
+                        default:
+                            DB_printf("[Planner] UPDATE Navigator status: %d\r\n", CurrentEvent.EventParam);
+                            break;
+                    }
+
+
                 case ES_AT_COLUMN_INTERSECTION:
                     DB_printf("Arrived at column intersection\r\n");
                     ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;

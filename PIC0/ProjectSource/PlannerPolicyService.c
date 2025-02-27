@@ -37,7 +37,6 @@ uint8_t NAV_POLICIES[][4] = {
 
 // Public function to post events to the service
 bool PostPlannerPolicyService(ES_Event_t ThisEvent) {
-    DB_printf("[POLICY] Posting event %d\r\n", ThisEvent.EventType);
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
@@ -77,7 +76,6 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
                 ReturnEvent.EventParam = INVALID_POLICY_IDX;
                 return ReturnEvent;
             }
-            DB_printf("[POLICY] Setting policy %d\r\n", policy_idx);
             SetPolicy(policy_idx);
             NextAction();
             break;

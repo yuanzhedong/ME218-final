@@ -299,7 +299,8 @@ typedef enum
   ES_NAV_CMD_COMPLETE,
   ES_TAPE_ALIGNED,
   ES_NAV_ERROR,
-  ES_START_PLANNER
+  ES_START_PLANNER,
+  ES_NAVIGATOR_STATUS_CHANGE,
 } ES_EventType_t;
 
 /****************************************************************************/

@@ -42,11 +42,8 @@ stateDiagram-v2
         Wait for cmd
     end note
 
-    TurnLeft --> CheckIntersection: Turn Complete
-    TurnRight --> CheckIntersection: Turn Complete
-
-    TurnLeft --> Idle: STOP
-    TurnRight --> Idle: STOP
+    TurnLeft --> Idle: Turn Complete
+    TurnRight --> Idle: Turn Complete
 
     LineDiscover --> LineFollow: recovered
     LineDiscover --> Idle: STOP
