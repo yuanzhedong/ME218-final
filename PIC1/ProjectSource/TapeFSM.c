@@ -379,7 +379,7 @@ static void ConfigTimer4()
 static void ConfigureReflectSensor()
 {
 
-  // Sensors' 0-5 ports: AN0/RA0, AN1/RA1, AN4/RB2, AN9/RB15, AN11/RB13, AN12/RB12
+  // Sensors' 0-5 ports: AN0/RA0, AN1/RA1, AN4/RB2, AN5/RB3, AN11/RB13, AN12/RB12
 ANSELAbits.ANSA0 = 1; // set RA0 as analog
 TRISAbits.TRISA0 = 1; // set RA0 as input
 ANSELAbits.ANSA1 = 1; // set RA1 as analog
@@ -392,7 +392,7 @@ ANSELBbits.ANSB13 = 1; // set RB13 as analog
 TRISBbits.TRISB13 = 1; // set RB13 as input
 ANSELBbits.ANSB12 = 1; // set RB12 as analog
 TRISBbits.TRISB12 = 1; // set RB12 as input
-  ADC_ConfigAutoScan(BIT0HI | BIT1HI | BIT4HI  | BIT5HI |BIT11HI |BIT12HI); // AN0/RA0, AN1/RA1, AN4/RB2, AN9/RB9, AN11/RB13, AN12/RB12
+  ADC_ConfigAutoScan(BIT0HI | BIT1HI | BIT4HI  | BIT5HI |BIT11HI |BIT12HI); 
 
   return;
 }
