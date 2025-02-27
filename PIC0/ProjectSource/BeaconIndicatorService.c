@@ -24,6 +24,7 @@
 #include "terminal.h"
 #include "dbprintf.h"
 #include "BeaconIndicatorService.h"
+#include "ServoService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 
@@ -167,6 +168,7 @@ void ConfigTimer2() {
     IEC0CLR = _IEC0_T2IE_MASK;
 }
 
+
 void ConfigPWM_OC1() {
     RPB3R = 0b0101;
     OC1CON = 0;
@@ -186,19 +188,6 @@ void ConfigPWM_OC3() {
     OC3RS = 0;
     OC3R = 0;
     OC3CONbits.ON = 1;
-}
-
-void ConfigTimer3() {
-    T3CONbits.ON = 0;
-    T3CONbits.TCS = 0;
-    T3CONbits.TCKPS = 0b011;
-    TMR3 = 0;
-    PR3 = 0xFFFF;
-
-    IFS0CLR = _IFS0_T3IF_MASK;
-    IPC3bits.T3IP = 6;
-    IEC0SET = _IEC0_T3IE_MASK;
-    T3CONbits.ON = 1;
 }
 
 void Config_IC2() {
@@ -259,11 +248,3 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
     PrevVal = CurrentVal.FullTime;
 }
 
-void __ISR(_TIMER_3_VECTOR, IPL6SOFT) Timer3_ISR(void) {
-    __builtin_disable_interrupts();
-    if (IFS0bits.T3IF) {
-        NumRollover++;
-        IFS0CLR = _IFS0_T3IF_MASK;
-    }
-    __builtin_enable_interrupts();
-}
