@@ -288,18 +288,14 @@ typedef enum
   ES_TURN_RIGHT,
   ES_TURN_COMPLETE,
   ES_RECOVERED,
-<<<<<<< HEAD
-  //the following is for the stepper service
   ES_STEPPER_FWD,//event param is the number of steps
   ES_STEPPER_BWD,
   ES_STEPPER_COMPLETE,
-=======
   ES_NEW_NAV_CMD,
   ES_REQUEST_NEW_PLANNER_POLICY,
   ES_CONTINUE_PLANNER_POLICY,
   ES_PLANNER_POLICY_COMPLETE,
   ES_SEND_NEW_NAV_CMD
->>>>>>> origin/main
 } ES_EventType_t;
 
 /****************************************************************************/

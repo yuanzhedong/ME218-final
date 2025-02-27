@@ -277,9 +277,6 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
     case '9':
         /* code */
         break;
-    case 'A':
-        /* code */
-        break;
     case 'B':
         /* code */
         break;

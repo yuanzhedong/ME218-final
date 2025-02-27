@@ -195,14 +195,14 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
   if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == TapeTest_TIMER)
   {
-    ES_Timer_InitTimer(TapeTest_TIMER, 1000);
-    DB_printf("Tape Test Timer\r\n");
+    ES_Timer_InitTimer(TapeTest_TIMER, 2000);
+    //DB_printf("Tape Test Timer\r\n");
     ES_Event_t Event2Post;
     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
     Event2Post.EventParam = 100;
     //PostTapeFSM(Event2Post);
     ADC_MultiRead(CurrADVal);
-    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    //DB_printf("[Line follow]: %d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
     // Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
     // Event2Post.EventParam = 70;
     //PostMotorService(Event2Post);
