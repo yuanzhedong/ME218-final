@@ -279,6 +279,7 @@ typedef enum
   ES_TURN_LEFT,
   ES_TURN_RIGHT,
   ES_RECOVERED,
+<<<<<<< HEAD
   ES_NEW_PLANNER_CMD,
 
   ES_TAPE_FOLLOW_FWD,
@@ -295,6 +296,12 @@ typedef enum
   ES_MOTOR_CW180,
   ES_MOTOR_CCW90,
   ES_MOTOR_CCW180,
+=======
+  ES_TAPE_FOLLOW,
+  ES_TAPE_STOP,
+  ES_NEW_NAV_STATUS,
+  ES_NEW_NAV_CMD,
+>>>>>>> origin/main
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -347,12 +354,16 @@ typedef enum
 #define TIMER6_RESP_FUNC TIMER_UNUSED
 #define TIMER7_RESP_FUNC TIMER_UNUSED
 #define TIMER8_RESP_FUNC TIMER_UNUSED
+//#define TIMER9_RESP_FUNC PostTapeFSM
 #define TIMER9_RESP_FUNC PostTapeFSM
 #define TIMER10_RESP_FUNC PostMotorService
+#define TIMER9_RESP_FUNC TIMER_UNUSED
+#define TIMER10_RESP_FUNC TIMER_UNUSED
 #define TIMER11_RESP_FUNC TIMER_UNUSED
 #define TIMER12_RESP_FUNC TIMER_UNUSED
 #define TIMER13_RESP_FUNC TIMER_UNUSED
 #define TIMER14_RESP_FUNC TIMER_UNUSED
+#define TIMER14_RESP_FUNC PostNavigatorHSM
 #define TIMER15_RESP_FUNC PostTestHarnessService0
 
 /****************************************************************************/
@@ -362,6 +373,7 @@ typedef enum
 // These symbolic names should be changed to be relevant to your application
 
 #define SERVICE0_TIMER 15
+#define NAV_STATE_DEBUG_TIMER 14
 #define TapeTest_TIMER 9
 #define Motor_Turning_TIMER 10
 

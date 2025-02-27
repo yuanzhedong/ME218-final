@@ -4,9 +4,9 @@ sequenceDiagram
     participant Navigator
 
     rect rgb(255, 220, 220)
-    Note over Planner,Navigator: Scan Area and Decide
-    Planner->>Navigator: DETECT_BEACON
-    Navigator-->>Planner: BEACON_DETECTED
+    Note over Planner,Navigator: Decide Side
+    Planner->>Navigator: TURN_360
+    Navigator-->>Planner: DONE
 
     rect rgb(255, 220, 220)
     Note over Planner,Navigator: Put first Craft

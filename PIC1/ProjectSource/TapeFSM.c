@@ -478,7 +478,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
     break;
   }
 
-  DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
+  //DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
 //DB_printf("K_effort_max: %d, K_effort_min: %d, OC4: %d, OC3: %d \n", K_effort_max, K_effort_min, K_commandedOC4, K_commandedOC3);
  //actuate the motors 
  if (moveAllowed){
