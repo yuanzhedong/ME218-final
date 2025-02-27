@@ -115,7 +115,7 @@ bool InitStepperService(uint8_t Priority)
   tableChosen = table_HalfStep;
   stepInd = 0;
   RowNum = 8;
-  DB_printf("half step mode chosen\n");
+  DB_printf("[STEP MOTER] half step mode chosen\r\n");
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
   if (ES_PostToService(MyPriority, ThisEvent) == true)

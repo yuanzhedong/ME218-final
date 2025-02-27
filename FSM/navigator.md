@@ -10,14 +10,17 @@ stateDiagram-v2
     end note
 
     Idle --> LineFollow: FORWARD
-    Idle --> AlignBeacon: ALIGN_BEACON
+    Idle --> AlignTape: ALIGN_TAPE
     note right of Idle
         Wait for commands
         Motors stopped
     end note
 
-    AlignBeacon --> Idle: STOP or Aligned.
-
+    AlignTape --> Idle: ALIGNED/MISSED.
+    note right of AlignTape
+        Turn CCW till stop, then turn CW
+    end note
+    
     LineFollow --> CheckCrate: CRATE_DETECTED
     LineFollow --> CheckIntersection: CROSS_DETECTED
     LineFollow --> Idle: STOP

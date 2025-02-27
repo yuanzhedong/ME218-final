@@ -35,7 +35,6 @@ bool InitSPIMasterService(uint8_t Priority)
 
     // Start a timer to query the slave periodically
     ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq);
-    puts("[SPI] Started SPI Query Timer\n");
     // Post the initial transition event
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_INIT;
@@ -59,7 +58,9 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
-    ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq); // Restart the timer
+    //TODO: disable for debug
+    //ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq); // Restart the timer
+    
     // Handle events here
     if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == SPI_QUERY_TIMER)
     {

@@ -13,12 +13,13 @@ static uint8_t MyPriority;
 static uint8_t CURRENT_COLUMN = 1;
 static uint8_t drop_crate_count = 1;
 static PlannerState_t ProcessColumnSubState = GO_TO_STACK; // Start substate
-
+static tape_aligned = false;
+static side_detected = false;
 /*---------------------------- Helper Functions ---------------------------*/
 const char* GetStateName(PlannerState_t state) {
     switch (state) {
         case INIT_PLANNER: return "INIT_PLANNER";
-        case SIDE_DETECTION: return "SIDE_DETECTION";
+        case TAPE_AND_SIDE_DETECTION: return "TAPE_AND_SIDE_DETECTION";
         case NAVIGATE_TO_COLUMN_1: return "NAVIGATE_TO_COLUMN_1";
         case PROCESS_COLUMN: return "PROCESS_COLUMN";
         case GO_TO_STACK: return "GO_TO_STACK";
@@ -119,6 +120,7 @@ static ES_Event_t DuringPROCESS_COLUMN(ES_Event_t Event) {
 bool InitPlannerHSM(uint8_t Priority) {
     ES_Event_t ThisEvent;
     MyPriority = Priority;
+    CurrentState = INIT_PLANNER;
     ThisEvent.EventType = ES_ENTRY;
     StartPlannerHSM(ThisEvent);
     DB_printf("Entering the FSM\r\n");
@@ -148,39 +150,80 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             if (CurrentEvent.EventType == ES_ENTRY) {
                 CURRENT_COLUMN = 1;
                 drop_crate_count = 1;
+                DB_printf("[Planner] Initializing....\r\n");
+                ThisEvent.EventType = ES_INIT_COMPLETE;
+                PostPlannerHSM(ThisEvent);
             } else if (CurrentEvent.EventType == ES_INIT_COMPLETE) {
-                NextState = SEARCH_PICKUP_CRATE;
+                DB_printf("[Planner] Init complete....\r\n");
+                //NextState = SEARCH_PICKUP_CRATE;
+                //MakeTransition = true;
+            }
+            // for debug purposes, disable this when deploy
+            if (CurrentEvent.EventType == ES_START_PLANNER) {
                 MakeTransition = true;
+                NextState = TAPE_AND_SIDE_DETECTION;
+                DB_printf("Exiting INIT_PLANNER\r\n");
             }
             break;
 
-        case SIDE_DETECTION:
-            if (CurrentEvent.EventType == ES_ENTRY) {
-                ThisEvent.EventType = ES_REQUEST_SIDE_DETECTION;
-                PostBeaconIndicatorService(ThisEvent);
-                // Request chassis to turn 360 degrees
-                ThisEvent.EventType = ES_NEW_NAV_CMD;
-                ThisEvent.EventParam = NAV_CMD_TURN_360;
-                PostSPIMasterService(ThisEvent);
-            } 
-
-            if (CurrentEvent.EventType == ES_SIDE_DETECTED) {
-                Beacon_t detected_beacon = CurrentEvent.EventParam;
-
-                if (detected_beacon == BEACON_UNKNOWN) {
-                    puts("Fail to identify side! from put\r\n");
-                    NextState = GAME_OVER;
-                    MakeTransition = true;
-                } else {
-                    if (detected_beacon == BEACON_L) {
-                        puts("We are at green side!\r\n");
-                    } else {
-                        puts("We are at blue side!\r\n");
-                    }
+        case SEARCH_PICKUP_CRATE:
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    //TODO: add code to pick up the first crate
+                    DB_printf("Entering SEARCH_PICKUP_CRATE\r\n");
                     NextState = NAVIGATE_TO_COLUMN_1;
                     MakeTransition = true;
-                }
+                    break;
+                default:
+                    break;
             }
+            break;
+        case TAPE_AND_SIDE_DETECTION:
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    ThisEvent.EventType = ES_REQUEST_SIDE_DETECTION;
+                    PostBeaconIndicatorService(ThisEvent);
+                    // Request chassis to turn CCW
+                    ThisEvent.EventType = ES_NEW_NAV_CMD;
+                    ThisEvent.EventParam = NAV_CMD_ALIGN;
+                    PostSPIMasterService(ThisEvent);
+                    break;
+
+                case ES_SIDE_DETECTED:
+                    if (CurrentEvent.EventParam == BEACON_UNKNOWN) {
+                        puts("Fail to identify side! from put\r\n");
+                        //NextState = GAME_OVER;
+                        //MakeTransition = true;
+                    } else {
+                        if (CurrentEvent.EventParam == BEACON_L) {
+                            puts("We are at green side!\r\n");
+                        } else {
+                            puts("We are at blue side!\r\n");
+                        }
+                    }
+                    // TODO: for debug purposes, disable this when deploy
+                    side_detected = true;
+                    break;
+                
+                //TODO: Assume beacon detection always success before tape detection
+                case ES_TAPE_ALIGNED:
+                    tape_aligned = true;
+                    if (tape_aligned && side_detected) {
+                        DB_printf("Tape and side detected, moving to next state\r\n");
+                        NextState = NAVIGATE_TO_COLUMN_1;
+                        MakeTransition = true;
+                    }
+                    break;
+                
+                case ES_NAV_ERROR:
+                    puts("Navigation error! from put\r\n");
+                    NextState = GAME_OVER;
+                    MakeTransition = true;
+                    break;
+                default:
+                    break;
+            }
+
             break;
 
         case NAVIGATE_TO_COLUMN_1:
@@ -191,19 +234,31 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     PostPlannerPolicyService(ThisEvent);
                     break;
 
+                case ES_TURN_COMPLETE:
+                    DB_printf("Turn complete, moving to next action\r\n");
+                case ES_TJUNCTION_DETECTED:
+                    DB_printf("Arrived at T-junction, moving to next action\r\n");
                 case ES_AT_COLUMN_INTERSECTION:
+                    DB_printf("Arrived at column intersection\r\n");
                     ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
                     PostPlannerPolicyService(ThisEvent);
+                    
+                    //NextState = PROCESS_COLUMN;
+                    //MakeTransition = true;
                     break;
 
                 case ES_PLANNER_POLICY_COMPLETE:
-                    NextState = PROCESS_COLUMN;
+                    DB_printf("Policy complete, moving to next state\r\n");
+                    //NextState = PROCESS_COLUMN;
+                    // TODO: for checkoff purposes, disable this when deploy
+                    NextState = GAME_OVER;
                     MakeTransition = true;
                     break;
 
                 default:
                     // shouldn't go here
                     // add code to deal with exception
+                    
                     break;
             }
             break;
