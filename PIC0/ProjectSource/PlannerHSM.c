@@ -233,24 +233,13 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     break;
 
                 case ES_NAVIGATOR_STATUS_CHANGE:
-                    switch (CurrentEvent.EventParam)
-                    {
-                        case NAV_STATUS_IDLE:
-                            DB_printf("Navigator is idle, moving to next action\r\n");
-                            ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
-                            PostPlannerPolicyService(ThisEvent);
-                            break;
-                    
-                        default:
-                            DB_printf("[Planner] UPDATE Navigator status: %d\r\n", CurrentEvent.EventParam);
-                            break;
-                    }
-
-
-                case ES_AT_COLUMN_INTERSECTION:
-                    DB_printf("Arrived at column intersection\r\n");
                     ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
-                    PostPlannerPolicyService(ThisEvent);
+                    //PostPlannerPolicyService(ThisEvent);
+
+                    case ES_AT_COLUMN_INTERSECTION:
+                        DB_printf("Arrived at column intersection\r\n");
+                        ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
+                        PostPlannerPolicyService(ThisEvent);
                     
                     //NextState = PROCESS_COLUMN;
                     //MakeTransition = true;

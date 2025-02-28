@@ -11,8 +11,8 @@
 #define NAV_CMD_TURN_LEFT 0x03
 #define NAV_CMD_TURN_RIGHT 0x04
 #define NAV_CMD_STOP 0x05
-#define NAV_CMD_TURN_CW 0x06
-#define NAV_CMD_TURN_CCW 0x07
+#define NAV_CMD_TURN_CW 0x06 // Clockwise 180 degrees
+#define NAV_CMD_TURN_CCW 0x07 // Counter-clockwise 180 degrees
 #define NAV_CMD_QUERY_STATUS 0x08
 #define NAV_CMD_ALIGN 0x09
 

@@ -120,7 +120,7 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     DB_printf("[SPI] Received byte: %d\r\n", receivedByte); // Add debug print
 
     // Process command directly
-    if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_TURN_360) {
+    if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_TURN_CCW) {
         ReceivedCmd = receivedByte;
         DB_printf("Received command: %d\r\n", ReceivedCmd);
         ES_Event_t CmdEvent;
@@ -138,11 +138,12 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
             case Idle:
                 CurrentNavStatus = NAV_STATUS_IDLE;
                 break;
-            case LineFollow:
+            case LineFollowForward:
+            case LineFollowBackward:
                 CurrentNavStatus = NAV_STATUS_LINE_FOLLOW;
                 break;
             case AlignBeacon:
-                CurrentNavStatus = NAV_STATUS_ALIGN_BEACON;
+                CurrentNavStatus = NAV_STATUS_ALIGN_TAPE;
                 break;
             case CheckIntersection:
                 CurrentNavStatus = NAV_STATUS_CHECK_INTERSECTION;

@@ -355,7 +355,7 @@ typedef enum
 #define TIMER8_RESP_FUNC TIMER_UNUSED
 #define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
-#define TIMER11_RESP_FUNC TIMER_UNUSED
+#define TIMER11_RESP_FUNC PostPlannerPolicyService
 #define TIMER12_RESP_FUNC PostStepperService
 #define TIMER13_RESP_FUNC PostBeaconIndicatorService
 #define TIMER14_RESP_FUNC PostSPIMasterService
@@ -372,5 +372,6 @@ typedef enum
 #define BEACON_ALIGN_TIMER 13
 #define SPI_QUERY_TIMER 14
 #define Stepper_TIMER 12
+#define PLANNER_POLICY_TIMER 11
 
 #endif /* ES_CONFIGURE_H */

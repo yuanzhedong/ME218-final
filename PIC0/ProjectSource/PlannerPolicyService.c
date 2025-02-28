@@ -30,9 +30,9 @@ void SetPolicy(uint8_t policy_idx) {
 }
 
 // 0 for padding
-uint8_t NAV_POLICIES[][4] = {
-    {NAV_CMD_MOVE_BACKWARD, NAV_CMD_TURN_LEFT, NAV_CMD_MOVE_FORWARD, 0}, // NAV_TO_COLUMN_1
-    {NAV_CMD_TURN_CW, NAV_CMD_MOVE_FORWARD, NAV_CMD_TURN_LEFT, NAV_CMD_MOVE_FORWARD} // NAV_TO_COLUMN_2
+uint8_t NAV_POLICIES[][4][2] = {
+    {{NAV_CMD_MOVE_BACKWARD, 2}, {NAV_CMD_TURN_LEFT, 2}, {NAV_CMD_MOVE_FORWARD, 2}, {0, 0}}, // NAV_TO_COLUMN_1
+    {{NAV_CMD_TURN_CW, 2}, {NAV_CMD_MOVE_FORWARD, 6}, {NAV_CMD_TURN_LEFT, 3}, {NAV_CMD_MOVE_FORWARD, 4}} // NAV_TO_COLUMN_2
 };
 
 // Public function to post events to the service
@@ -43,7 +43,7 @@ bool PostPlannerPolicyService(ES_Event_t ThisEvent) {
 void NextAction() {
     ES_Event_t newEvent;
     newEvent.EventType = ES_NEW_NAV_CMD;
-    newEvent.EventParam = NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep];
+    newEvent.EventParam = NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][0];
     DB_printf("[POLICY] Posting new command %d\r\n", newEvent.EventParam);
     PostSPIMasterService(newEvent);
     CurrentPolicyStep += 1;
@@ -77,14 +77,24 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
                 return ReturnEvent;
             }
             SetPolicy(policy_idx);
+            DB_printf("[POLICY] Current policy index: %d\r\n", CurrentPolicyIdx);
+            DB_printf("[POLICY] Current policy step: %d\r\n", CurrentPolicyStep);
+            DB_printf("[POLICY] Current policy command: %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][0]);
+            DB_printf("[POLICY] Current policy duration: %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]);
+            DB_printf("[POLICY] Init timer for policy %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]);
+            ES_Timer_InitTimer(PLANNER_POLICY_TIMER, NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][1] * 1000);
             NextAction();
             break;
 
         case ES_CONTINUE_PLANNER_POLICY:
-            DB_printf("[POLICY] Continuing policy %d\r\n", CurrentPolicyIdx);
-            NextAction();
+            // NextAction();
             break;
 
+        case ES_TIMEOUT:
+            DB_printf("[POLICY] Timeout event received\r\n");
+            ES_Timer_InitTimer(PLANNER_POLICY_TIMER, NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1] * 1000);
+            NextAction();
+            
         // Add other event cases as needed
 
         default:

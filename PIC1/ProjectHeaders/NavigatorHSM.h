@@ -32,7 +32,8 @@
 typedef enum {
     Init,
     Idle,
-    LineFollow,
+    LineFollowForward,
+    LineFollowBackward,
     AlignBeacon,
     CheckIntersection,
     TurnLeft,
