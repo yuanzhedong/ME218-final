@@ -130,7 +130,7 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventParam = NAV_CMD_STOP;
                 PostSPIMasterService(CurEvent);
                 break;
-            case NAV_CMD_TURN_CW:
+            case NAV_TURN_CW:
                 CurEvent.EventType = ES_NEW_NAV_CMD;
                 CurEvent.EventParam = NAV_CMD_TURN_CW;
                 PostSPIMasterService(CurEvent);
