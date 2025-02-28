@@ -134,7 +134,9 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         DB_printf("ES_MOTOR_CW_CONTINUOUS posted to MotorService\r\n");
         break;
     case 'b':
-        /* code */
+        Event2Post.EventType = ES_TAPE_LookForTape;
+        PostTapeFSM(Event2Post);
+        DB_printf("ES_TAPE_LookForTape posted to TapeFSM\r\n");
         break;
     case 'c':
 

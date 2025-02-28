@@ -119,3 +119,32 @@ bool Check4Keystroke(void)
   return false;
 }
 
+bool Check4IntersectionIR(void){
+  ES_Event_t ThisEvent;
+  //initialize current local variables
+    bool ReturnVal = false;
+    bool rightIR_state = PORTBbits.RB14; //defining to read input of shot sensor
+    bool leftIR_state = PORTAbits.RA3; //defining to read input of shot sensor
+    static bool lastRightIR_state = false; //defining to read input of shot sensor
+    static bool lastLeftIR_state = false; //defining to read input of shot sensor
+    //debounce function, only if the state has changed
+    if(rightIR_state != lastRightIR_state || leftIR_state != lastLeftIR_state){
+        if(leftIR_state){
+            ThisEvent.EventType= ES_LEFT_INTERSECTION_DETECT;
+            PostPlannerHSM(ThisEvent);
+            ReturnVal = true;
+            DB_printf("Left IR detected in eventcheker and event posted\n\r");
+        }
+
+        if (rightIR_state){
+            ThisEvent.EventType= ES_RIGHT_INTERSECTION_DETECT;
+            PostPlannerHSM(ThisEvent);
+            ReturnVal = true;
+            DB_printf("Right IR detected in eventcheker and event posted\n\r");
+        }
+        
+    }     
+  lastRightIR_state = rightIR_state;
+  lastLeftIR_state = leftIR_state;
+  return ReturnVal;
+}

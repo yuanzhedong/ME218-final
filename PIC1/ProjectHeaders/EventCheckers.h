@@ -22,5 +22,6 @@
 // prototypes for event checkers
 
 bool Check4Keystroke(void);
+bool Check4IntersectionIR(void);
 
 #endif /* EventCheckers_H */

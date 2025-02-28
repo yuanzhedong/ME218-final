@@ -284,6 +284,8 @@ typedef enum
   ES_TAPE_FOLLOW_REV,
   ES_TAPE_STOP,
   ES_TAPE_FAIL,
+  ES_TAPE_LookForTape,//for locating the tape
+  ES_TAPE_FOUND,
   ES_MOTOR_FWD,
   ES_MOTOR_REV,
   ES_MOTOR_STOP,
@@ -293,9 +295,10 @@ typedef enum
   ES_MOTOR_CW180,
   ES_MOTOR_CCW90,
   ES_MOTOR_CCW180,
-  ES_TAPE_FOLLOW,
   ES_NEW_NAV_STATUS,
   ES_NEW_NAV_CMD,
+  ES_LEFT_INTERSECTION_DETECT,
+  ES_RIGHT_INTERSECTION_DETECT,
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -330,7 +333,7 @@ typedef enum
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check4Keystroke
+#define EVENT_CHECK_LIST Check4Keystroke, Check4IntersectionIR
 
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the

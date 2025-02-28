@@ -45,6 +45,8 @@ static void ConfigTimer4(void);       // for running control loop
 static void ConfigureReflectSensor(); // for the reflectance sensor array
 
 static void AdjustKvalues(uint16_t targetDutyCycle_input);      // adjust K values based on the targetDutyCycle
+
+static void ConfigureIntersectionSensor(); // for the intersection IR sensors 
 /*---------------------------- Module Variables ---------------------------*/
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
@@ -221,6 +223,12 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
       DB_printf("eventparam is %d \n", ThisEvent.EventParam);
       CurrentState = Following_tapeFSM;
       enterFollowing(1,ThisEvent.EventParam);
+    }else if (ThisEvent.EventType == ES_TAPE_LookForTape)
+    {
+      CurrentState = Looking4Tape_tapeFSM;
+      DB_printf("Looking for tape111 \n");
+      //turn on ISR to begin looking for tape
+      T4CONbits.ON = 1;
     }
     
   }
@@ -235,6 +243,17 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
     }
   }
   break;
+  case Looking4Tape_tapeFSM:
+  {
+    if (ThisEvent.EventType == ES_TAPE_STOP)
+    {
+      CurrentState = Idle_tapeFSM;  
+      //turn off ISR to save CPU resources
+      T4CONbits.ON = 0;
+
+    }
+    DB_printf("Looking for tape, event sent to TapeService is ignored \n");
+  }
   default:
     break;
   } // end switch on Current State
@@ -406,106 +425,135 @@ static void AdjustKvalues(uint16_t targetDutyCycle_input)
   DB_printf("Kp: %d, Ki: %d, Kd: %d \n", Kp, Ki, Kd);
   return;
 }
+static void ConfigureIntersectionSensor()
+{
+  TRISAbits.TRISA3 = 1; // left IR sensor
+  TRISBbits.TRISB14 = 1; // right IR sensor
+  DB_printf("intersection sensor configured \n");
+  return;
+}
 /***********************
  * ******ISR*************************
  */
 void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
 {
   IFS0CLR = _IFS0_T4IF_MASK;             // Clear the Timer 4 interrupt flag
-  static uint16_t K_commandedOC4; // OC4RS commanded for left motor as determined appropriate by the control law
-  static uint16_t K_commandedOC3;
   ADC_MultiRead(CurrADVal);
-  // DB_printf("T4 ISR entered \n");
-  //DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
-  K_error = CurrADVal[0]*sensorWeights[0] + CurrADVal[1]*sensorWeights[1] + CurrADVal[2]*sensorWeights[2] - CurrADVal[3]*sensorWeights[3] - CurrADVal[4]*sensorWeights[4] - CurrADVal[5]*sensorWeights[5];
-
- // If K_error changed sign, clear the integral term
-  if (K_error * K_error_prev < 0)
+  //DB_printf("T4 ISR entered \n");
+  if (CurrentState == Following_tapeFSM)
   {
-    K_error_sum = 0;
+      static uint16_t K_commandedOC4; // OC4RS commanded for left motor as determined appropriate by the control law
+      static uint16_t K_commandedOC3;
+      
+      // DB_printf("T4 ISR entered \n");
+      //DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+      K_error = CurrADVal[0]*sensorWeights[0] + CurrADVal[1]*sensorWeights[1] + CurrADVal[2]*sensorWeights[2] - CurrADVal[3]*sensorWeights[3] - CurrADVal[4]*sensorWeights[4] - CurrADVal[5]*sensorWeights[5];
+    // If K_error changed sign, clear the integral term
+      if (K_error * K_error_prev < 0)
+      {
+        K_error_sum = 0;
+      }
+      
+      //this temp variable is for preventing the overflow of K_effort
+      static int K_effort_temp;
+      K_effort_temp = (float)K_error / K_error_max * Kp + (float)K_error_sum / K_error_max * Ki + (float)(K_error - K_error_prev) / K_error_max * Kd;
+      K_effort = 0;
+      // anti-windup
+      if (K_effort_temp < K_effort_max && K_effort_temp > K_effort_min)
+      {
+        //DB_printf("error sum is summing \n");
+        K_effort = K_effort_temp;
+        K_error_sum += (float)K_error / K_error_sum_division_factor; // K_error_sum is a float
+      }
+      K_error_prev = K_error;
+
+      
+      // OC4RS is the left motor and OC3RS is the right motor
+      
+      switch (Dir)
+      {
+      case 0://meaning we are moving forward
+      if (K_effort >= 0)
+        {
+        // if K_effort is positive, that means the sensors on the left read more black than the right
+        //Cart has to turn right
+        // so the right motor should slow down
+          K_commandedOC4 =  K_effort_max;
+          K_commandedOC3 = K_effort_max - K_effort ;
+        }
+        else if (K_effort < 0)
+        {
+          // K_effort is negative, that means the sensors on the right read more black than the left
+          // so the left motor should slow down
+          K_commandedOC4 = K_effort_max + K_effort;
+          K_commandedOC3 = K_effort_max;
+        }
+      break;
+      case 1://meaning we are moving backward
+        if (K_effort >= 0)
+        {
+          K_commandedOC4 =  K_effort_max - K_effort;
+          K_commandedOC3 = K_effort_max ;
+        }
+        else if (K_effort < 0)
+        {
+          // K_effort is negative, that means the sensors on the right read more black than the left
+          // so the left motor should slow down
+          K_commandedOC4 = K_effort_max;
+          K_commandedOC3 = K_effort_max  + K_effort;
+        }
+        break;
+      default:
+        break;
+      }
+
+      //DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
+    //DB_printf("K_effort_max: %d, K_effort_min: %d, OC4: %d, OC3: %d \n", K_effort_max, K_effort_min, K_commandedOC4, K_commandedOC3);
+    //actuate the motors 
+    if (moveAllowed){
+      //DB_printf("move is allowed, commanding the motors \n");
+      switch (Dir)
+      {
+      case 0://meaning we are moving forward
+        OC4RS = K_commandedOC4;
+        OC3RS = K_commandedOC3;
+        break;
+      case 1://meaning we are moving backward
+        OC4RS = PR2 - K_commandedOC4;
+        OC3RS = PR2 - K_commandedOC3;
+        break;
+      default:
+        break;
+      }
+      }
+      //check if the cart is off the track
+      if (CurrADVal[0]+CurrADVal[1]+CurrADVal[2]+CurrADVal[3]+CurrADVal[4]+CurrADVal[5] < 740)
+      {
+        CurrentState = Idle_tapeFSM;
+        exitFollowing();
+        ES_Event_t Event2Post;
+        Event2Post.EventType = ES_TAPE_FAIL;
+        PostNavigatorHSM(Event2Post);
+        DB_printf("Cart is not on line anymore\r\n");
+      }
+  }else if (CurrentState == Looking4Tape_tapeFSM)
+  {
+    DB_printf("Looking for tape \n");
+    puts("Looking for tape \n");
+    if (CurrADVal[2]+CurrADVal[3] > 700)
+    {
+      DB_printf("Found tape \n");
+      ES_Event_t Event2Post;
+      Event2Post.EventType = ES_TAPE_FOUND;
+      PostNavigatorHSM(Event2Post);
+      Event2Post.EventType = ES_TAPE_STOP;
+      PostTapeFSM(Event2Post);
+      CurrentState = Idle_tapeFSM;
+    }
+    
   }
   
-  //this temp variable is for preventing the overflow of K_effort
-  static int K_effort_temp;
-  K_effort_temp = (float)K_error / K_error_max * Kp + (float)K_error_sum / K_error_max * Ki + (float)(K_error - K_error_prev) / K_error_max * Kd;
-  K_effort = 0;
-  // anti-windup
-  if (K_effort_temp < K_effort_max && K_effort_temp > K_effort_min)
-  {
-    //DB_printf("error sum is summing \n");
-    K_effort = K_effort_temp;
-    K_error_sum += (float)K_error / K_error_sum_division_factor; // K_error_sum is a float
-  }
-  K_error_prev = K_error;
-
   
-  // OC4RS is the left motor and OC3RS is the right motor
-  
-  switch (Dir)
-  {
-  case 0://meaning we are moving forward
-  if (K_effort >= 0)
-    {
-    // if K_effort is positive, that means the sensors on the left read more black than the right
-    //Cart has to turn right
-    // so the right motor should slow down
-      K_commandedOC4 =  K_effort_max;
-      K_commandedOC3 = K_effort_max - K_effort ;
-    }
-    else if (K_effort < 0)
-    {
-      // K_effort is negative, that means the sensors on the right read more black than the left
-      // so the left motor should slow down
-      K_commandedOC4 = K_effort_max + K_effort;
-      K_commandedOC3 = K_effort_max;
-    }
-  break;
-  case 1://meaning we are moving backward
-    if (K_effort >= 0)
-    {
-      K_commandedOC4 =  K_effort_max - K_effort;
-      K_commandedOC3 = K_effort_max ;
-    }
-    else if (K_effort < 0)
-    {
-      // K_effort is negative, that means the sensors on the right read more black than the left
-      // so the left motor should slow down
-      K_commandedOC4 = K_effort_max;
-      K_commandedOC3 = K_effort_max  + K_effort;
-    }
-    break;
-  default:
-    break;
-  }
 
-  //DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
-//DB_printf("K_effort_max: %d, K_effort_min: %d, OC4: %d, OC3: %d \n", K_effort_max, K_effort_min, K_commandedOC4, K_commandedOC3);
- //actuate the motors 
- if (moveAllowed){
-  //DB_printf("move is allowed, commanding the motors \n");
-  switch (Dir)
-  {
-  case 0://meaning we are moving forward
-    OC4RS = K_commandedOC4;
-    OC3RS = K_commandedOC3;
-    break;
-  case 1://meaning we are moving backward
-    OC4RS = PR2 - K_commandedOC4;
-    OC3RS = PR2 - K_commandedOC3;
-    break;
-  default:
-    break;
-  }
-  }
-  //check if the cart is off the track
-  if (CurrADVal[0]+CurrADVal[1]+CurrADVal[2]+CurrADVal[3]+CurrADVal[4]+CurrADVal[5] < 740)
-  {
-    CurrentState = Idle_tapeFSM;
-    exitFollowing();
-    ES_Event_t Event2Post;
-    Event2Post.EventType = ES_TAPE_FAIL;
-    PostNavigatorHSM(Event2Post);
-    DB_printf("Cart is not on line anymore\r\n");
-  }
   
 }
