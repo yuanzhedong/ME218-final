@@ -48,10 +48,11 @@ void NextAction() {
     PostSPIMasterService(newEvent);
     CurrentPolicyStep += 1;
     // Check if current policy is finished.
-    if (NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep] == 0) {
+    if (NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][0] == 0) {
         ES_Event_t finishedEvent;
         finishedEvent.EventType = ES_PLANNER_POLICY_COMPLETE;
         // Post to planner current policy is complete
+        DB_printf("[POLICY] Current policy is complete\r\n");
         PostPlannerHSM(finishedEvent);
     }
 }
@@ -76,10 +77,6 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
                 return ReturnEvent;
             }
             SetPolicy(policy_idx);
-            DB_printf("[POLICY] Current policy index: %d\r\n", CurrentPolicyIdx);
-            DB_printf("[POLICY] Current policy step: %d\r\n", CurrentPolicyStep);
-            DB_printf("[POLICY] Current policy command: %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][0]);
-            DB_printf("[POLICY] Current policy duration: %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]);
             DB_printf("[POLICY] Init timer for policy %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]);
             ES_Timer_InitTimer(PLANNER_POLICY_TIMER, NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][1] * 1000);
             NextAction();

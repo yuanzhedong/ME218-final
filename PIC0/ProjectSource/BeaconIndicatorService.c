@@ -44,7 +44,7 @@
 #define FREQ_R 2000
 
 // Side Detection Colors
-Beacon_t DetectedBeacon;
+static volatile DetectedBeacon;
 
 static uint8_t MyPriority;
 //static MotorState_t CurrentState;
@@ -112,21 +112,13 @@ ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
             DB_printf("\r Receive Side detection request: Start Aligning\r\n");
 
             // Start rotating CCW
-            LATBbits.LATB2 = 1;
-            LATBbits.LATB9 = 0;
+            // LATBbits.LATB2 = 1;
+            // LATBbits.LATB9 = 0;
 
-            OC1RS = (PR2 + 1) * (100 - dutyCycle) / 100;
-            OC3RS = (PR2 + 1) * dutyCycle / 100;
+            // OC1RS = (PR2 + 1) * (100 - dutyCycle) / 100;
+            // OC3RS = (PR2 + 1) * dutyCycle / 100;
 
             ES_Timer_InitTimer(BEACON_ALIGN_TIMER, ALIGNMENT_TIMEOUT);
-            break;
-
-        case ES_STOP:
-            DB_printf("\rMotor: Stop\r\n");
-            LATBbits.LATB2 = 0;
-            LATBbits.LATB9 = 0;
-            OC1RS = 0;
-            OC3RS = 0;
             break;
 
         case ES_TIMEOUT:
@@ -246,7 +238,7 @@ void __ISR(_INPUT_CAPTURE_1_VECTOR, IPL7SOFT) IC1ISR(void) {
 
     float freq = TICK_FREQ / PulsePR;
     //DB_printf("PulsePR is: %d\n", PulsePR);
-    if (PulsePR > 0 && !aligned) {
+    if (freq > 0 && !aligned) {
         detectedFreq = (int)(freq+0.5);
         DB_printf("Detected Frequency: %d\n", freq);
         
@@ -254,26 +246,19 @@ void __ISR(_INPUT_CAPTURE_1_VECTOR, IPL7SOFT) IC1ISR(void) {
             DB_printf("Aligned with BEACON G\n");
             DetectedBeacon = BEACON_G;
             aligned = true;
-            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
-            PostPlannerHSM(Event2Post);
         } else if (abs(detectedFreq - FREQ_B) <= FreqTolerance) {
             DB_printf("Aligned with BEACON B\n");
             DetectedBeacon = BEACON_B;
             aligned = true;
-            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
-            PostPlannerHSM(Event2Post);
+            
         } else if (abs(detectedFreq - FREQ_R) <= FreqTolerance) {
             DB_printf("Aligned with BEACON R\n");
             DetectedBeacon = BEACON_R;
             aligned = true;
-            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
-            PostPlannerHSM(Event2Post);
         } else if (abs(detectedFreq - FREQ_L) <= FreqTolerance) {
             DB_printf("Aligned with BEACON L\n");
             DetectedBeacon = BEACON_L;
             aligned = true;
-            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
-            PostPlannerHSM(Event2Post);
         }
     }
 
