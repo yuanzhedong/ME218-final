@@ -195,14 +195,14 @@ ES_Event_t RunTapeFSM(ES_Event_t ThisEvent)
   ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
   if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == TapeTest_TIMER)
   {
-    ES_Timer_InitTimer(TapeTest_TIMER, 1000);
-    DB_printf("Tape Test Timer\r\n");
+    ES_Timer_InitTimer(TapeTest_TIMER, 2000);
+    //DB_printf("Tape Test Timer\r\n");
     ES_Event_t Event2Post;
     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
     Event2Post.EventParam = 100;
     //PostTapeFSM(Event2Post);
     ADC_MultiRead(CurrADVal);
-    DB_printf("%d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
+    //DB_printf("[Line follow]: %d %d %d  %d %d %d\r\n", CurrADVal[0], CurrADVal[1], CurrADVal[2], CurrADVal[3], CurrADVal[4], CurrADVal[5]);
     // Event2Post.EventType = ES_MOTOR_CW_CONTINUOUS;
     // Event2Post.EventParam = 70;
     //PostMotorService(Event2Post);
@@ -379,7 +379,7 @@ static void ConfigTimer4()
 static void ConfigureReflectSensor()
 {
 
-  // Sensors' 0-5 ports: AN0/RA0, AN1/RA1, AN4/RB2, AN9/RB15, AN11/RB13, AN12/RB12
+  // Sensors' 0-5 ports: AN0/RA0, AN1/RA1, AN4/RB2, AN5/RB3, AN11/RB13, AN12/RB12
 ANSELAbits.ANSA0 = 1; // set RA0 as analog
 TRISAbits.TRISA0 = 1; // set RA0 as input
 ANSELAbits.ANSA1 = 1; // set RA1 as analog
@@ -392,7 +392,7 @@ ANSELBbits.ANSB13 = 1; // set RB13 as analog
 TRISBbits.TRISB13 = 1; // set RB13 as input
 ANSELBbits.ANSB12 = 1; // set RB12 as analog
 TRISBbits.TRISB12 = 1; // set RB12 as input
-  ADC_ConfigAutoScan(BIT0HI | BIT1HI | BIT4HI  | BIT5HI |BIT11HI |BIT12HI); // AN0/RA0, AN1/RA1, AN4/RB2, AN9/RB9, AN11/RB13, AN12/RB12
+  ADC_ConfigAutoScan(BIT0HI | BIT1HI | BIT4HI  | BIT5HI |BIT11HI |BIT12HI); 
 
   return;
 }
@@ -478,7 +478,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
     break;
   }
 
-  DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
+  //DB_printf("K_error: %d,K_error_sum: %d, K_effort: %d, OC4: %d, OC3: %d \n", K_error, (int)K_error_sum, K_effort, K_commandedOC4, K_commandedOC3);
 //DB_printf("K_effort_max: %d, K_effort_min: %d, OC4: %d, OC3: %d \n", K_effort_max, K_effort_min, K_commandedOC4, K_commandedOC3);
  //actuate the motors 
  if (moveAllowed){

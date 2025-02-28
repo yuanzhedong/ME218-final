@@ -48,6 +48,8 @@
       <itemPath>ProjectHeaders/BeaconIndicatorService.h</itemPath>
       <itemPath>ProjectHeaders/KeyBoardService.h</itemPath>
       <itemPath>ProjectHeaders/PlannerHSM.h</itemPath>
+      <itemPath>ProjectHeaders/PlannerPolicyService.h</itemPath>
+      <itemPath>ProjectHeaders/StepperService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -68,6 +70,8 @@
       <itemPath>ProjectSource/BeaconIndicatorService.c</itemPath>
       <itemPath>ProjectSource/KeyBoardService.c</itemPath>
       <itemPath>ProjectSource/PlannerHSM.c</itemPath>
+      <itemPath>ProjectSource/PlannerPolicyService.c</itemPath>
+      <itemPath>ProjectSource/StepperService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

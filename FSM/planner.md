@@ -3,38 +3,34 @@ stateDiagram-v2
     state "STRATEGY_PLANNER_FSM" as PLANNER_FSM {
         [*] --> INIT_PLANNER
         
-        INIT_PLANNER --> SEARCH_PICKUP_CRATE: ES_INIT_COMPLETE
-        SEARCH_PICKUP_CRATE --> SIDE_DETECTION: ES_HAS_CRATE
-        SIDE_DETECTION --> NAVIGATE_TO_COLUMN1: ES_SIDE_DETECTED
+        INIT_PLANNER --> SIDE_DETECTION: ES_INIT_COMPLETE
+        SIDE_DETECTION --> NAVIGATE_TO_COLUMN_1: ES_SIDE_DETECTED
         
         note right of INIT_PLANNER
             Initialize variables
-            Set CURRENT_COLUMN = 1
         end note
 
-        NAVIGATE_TO_COLUMN1 --> PROCESS_COLUMN: ES_AT_COLUMN1_INTERSECTION
+        NAVIGATE_TO_COLUMN_1 --> PROCESS_COLUMN: ES_AT_COLUMN_1_INTERSECTION
         
-        note right of NAVIGATE_TO_COLUMN1
+        note right of NAVIGATE_TO_COLUMN_1
             Follow center line
-            Turn at intersection
-            Follow COLUMN1 line
+            Reach first intercection
         end note
 
         state PROCESS_COLUMN {
             [*] --> GO_TO_STACK
             GO_TO_STACK --> DROP_CRATE: ES_AT_STACK
-            DROP_CRATE --> UPDATE_PROGRESS2: ES_DROPPED
-            UPDATE_PROGRESS2 --> GO_TO_CRATE: !(CURRENT_COLUMN == 2 && drop_crate_count == 3)
+            DROP_CRATE --> CHECK_ROBO_STATUS: ES_DROP_COMPLETE
+            CHECK_ROBO_STATUS --> GO_TO_CRATE: NAVIGATE_TO_CRATE
             GO_TO_CRATE --> PICKUP_CRATE: ES_AT_CRATE
 
-            PICKUP_CRATE --> UPDATE_PROGRESS1: ES_HAS_CRATE
-            UPDATE_PROGRESS1 --> GO_TO_STACK: !(CURRENT_COLUMN == 1 && drop_crate_count == 3)
-
-            UPDATE_PROGRESS2 --> [*]: ES_COLUMN_DONE
-            UPDATE_PROGRESS1 --> [*]: ES_COLUMN_DONE
+            PICKUP_CRATE --> CHECK_ROBO_STATUS: ES_PICKUP_CRATE_COMPLETE
+            CHECK_ROBO_STATUS --> GO_TO_STACK: NAVIGATE_TO_STACK
+            CHECK_ROBO_STATUS --> NAVIGATE_TO_COLUMN_2: NAVIGATE_TO_COLUMN_2
+            CHECK_ROBO_STATUS --> GAME_OVER: ES_COLUMN_2_COMPLETE
         }
 
-        PROCESS_COLUMN --> NAVIGATE_TO_COLUMN2: ES_COLUMN1_COMPLETE
+        NAVIGATE_TO_COLUMN_2 --> PROCESS_COLUMN: ES_AT_COLUMN_2_INTERSECTION
         
         note right of PROCESS_COLUMN
             Move to crates
@@ -43,17 +39,13 @@ stateDiagram-v2
             Drop crate
             Repeat for column
         end note
-
-        NAVIGATE_TO_COLUMN2 --> PROCESS_COLUMN: ES_AT_COLUMN2_INTERSECTION
         
-        note right of NAVIGATE_TO_COLUMN2
+        note right of NAVIGATE_TO_COLUMN_2
             Return to center line
             Follow to next intersection
             Turn towards COLUMN2
             Reach intersection
         end note
-
-        PROCESS_COLUMN --> GAME_OVER: ES_COLUMN2_COMPLETE
         
         GAME_OVER --> [*]
     }

@@ -14,7 +14,7 @@ volatile static uint16_t CurrentNavigatorStatus;
 volatile static uint16_t PrevNavigatorStatus;
 static uint32_t LastTransferTime;
 static uint8_t LastSentCmd;
-
+static uint16_t QueryFreq = 5000; // in ms
 #define DEBUG_CMD NAV_CMD_QUERY_STATUS
 
 /*---------------------------- Module Functions ---------------------------*/
@@ -34,8 +34,8 @@ bool InitSPIMasterService(uint8_t Priority)
     CurrentNavigatorStatus = NAV_STATUS_IDLE;
 
     // Start a timer to query the slave periodically
-    ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000);
-    puts("Started SPI Query Timer");
+    ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq);
+    puts("[SPI] Started SPI Query Timer\n");
     // Post the initial transition event
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_INIT;
@@ -59,13 +59,16 @@ ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent)
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
 
+    ES_Timer_InitTimer(SPI_QUERY_TIMER, QueryFreq); // Restart the timer
     // Handle events here
     if (ThisEvent.EventType == ES_TIMEOUT && ThisEvent.EventParam == SPI_QUERY_TIMER)
     {
-        puts("Querying slave for status");
         // Query the slave for its status
-        SendSPICommand(DEBUG_CMD);
-        ES_Timer_InitTimer(SPI_QUERY_TIMER, 1000); // Restart the timer
+        SendSPICommand(NAV_CMD_QUERY_STATUS);
+    } else {
+        if (ThisEvent.EventType == ES_NEW_NAV_CMD && ThisEvent.EventParam != 0) {
+            SendSPICommand(ThisEvent.EventParam);
+        }
     }
 
     return ReturnEvent;
@@ -118,32 +121,29 @@ bool SendSPICommand(uint8_t command) {
     // Check if previous transfer is complete
     //LATBbits.LATB4 = 0; // Pull SS low
 
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
 
-    for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
     if(SPI1STATbits.SPIBUSY) {
         DB_printf("SPI is busy\r\n");
         return false;
     }
     
-    // Add a delay of 1 second
-    
-
     // Send command directly
     while(SPI1STATbits.SPITBF);
-    DB_printf("Sending command: %d\r\n", command);
+    DB_printf("[SPI] Sending command: %x\r\n", command);
     SPI1BUF = command;
     LastSentCmd = command;
     LastTransferTime = ES_Timer_GetTime();
     uint8_t receivedByte = SPI1BUF;
 
-        for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
-    for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
 
-    for (volatile uint32_t i = 0; i < 1000000; i++);
+    // for (volatile uint32_t i = 0; i < 1000000; i++);
     //LATBbits.LATB4 = 1; // Pull SS high    
     return true;
 }
@@ -161,7 +161,7 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
     } else {
         ReceivedCmd = receivedByte;
         ES_Event_t CmdEvent;
-        DB_printf("Received status: %d\r\n", ReceivedCmd);
+        DB_printf("[SPI] Received status: %d\r\n", ReceivedCmd);
     }
     LastTransferTime = ES_Timer_GetTime();
 }

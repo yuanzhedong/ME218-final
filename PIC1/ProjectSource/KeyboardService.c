@@ -23,6 +23,7 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 #include "KeyboardService.h"
+#include "SPIFollowerService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 
@@ -228,55 +229,52 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         DB_printf("ES_TAPE_STOP posted to TapeFSM\r\n");
         break;
     case '1':
-         Event2Post.EventType = ES_TAPE_FOLLOW_FWD;
+        Event2Post.EventType = ES_TAPE_FOLLOW_FWD;
         Event2Post.EventParam = 70;
         PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+        DB_printf("ES_TAPE_FOLLOW_FWD 70 posted to TapeFSM\r\n");
         break;
     case '2':
-          Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
         Event2Post.EventParam = 40;
         PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+        DB_printf("ES_TAPE_FOLLOW_REV 40 posted to TapeFSM\r\n");
         break;
-    case '3':
+    case 'A':
         Event2Post.EventType = ES_TAPE_FOLLOW_REV;
         Event2Post.EventParam = 50;
         PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+        DB_printf("ES_TAPE_FOLLOW 50 posted to TapeFSM\r\n");
         break;
-    case '4':
-                Event2Post.EventType = ES_TAPE_FOLLOW_REV;
-        Event2Post.EventParam = 60;
-        PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
-        break;
-    case '5':
-        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
-        Event2Post.EventParam = 70;
-        PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
-        break;
-    case '6':
-        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
-        Event2Post.EventParam = 80;
-        PostTapeFSM(Event2Post);
-        DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
-        break;
-    case '7':
-        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
-        Event2Post.EventParam = 90;
-        PostTapeFSM(Event2Post);
-        break;
-    case '8':
-        Event2Post.EventType = ES_TAPE_FOLLOW_REV;
-        Event2Post.EventParam = 100;
-        PostTapeFSM(Event2Post);
-        break;
+    // case '4':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 60;
+    //     PostTapeFSM(Event2Post);
+    //     DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+    //     break;
+    // case '5':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 70;
+    //     PostTapeFSM(Event2Post);
+    //     DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+    //     break;
+    // case '6':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 80;
+    //     PostTapeFSM(Event2Post);
+    //     DB_printf("ES_TAPE_FOLLOW posted to TapeFSM\r\n");
+    //     break;
+    // case '7':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 90;
+    //     PostTapeFSM(Event2Post);
+    //     break;
+    // case '8':
+    //     Event2Post.EventType = ES_TAPE_FOLLOW_REV;
+    //     Event2Post.EventParam = 100;
+    //     PostTapeFSM(Event2Post);
+    //     break;
     case '9':
-        /* code */
-        break;
-    case 'A':
         /* code */
         break;
     case 'B':
@@ -353,6 +351,40 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         break;
     case 'Z':
         /* code */
+        break;
+
+    case '3':
+        DB_printf("3 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_MOVE_FORWARD;
+        PostNavigatorHSM(Event2Post);
+        break;
+
+    case '4':
+        DB_printf("4 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_MOVE_BACKWARD;
+        PostNavigatorHSM(Event2Post);
+        break;
+    
+    case '5':
+        DB_printf("5 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_TURN_LEFT;
+        PostNavigatorHSM(Event2Post);
+        break;
+
+    case '6':
+        DB_printf("6 pressed\r\n");
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_TURN_RIGHT;
+        PostNavigatorHSM(Event2Post);
+        break;
+    case '7':
+        DB_printf("7 pressed\r\n");
+        Event2Post.EventType = ES_CROSS_DETECTED;
+        Event2Post.EventParam = NAV_CMD_STOP;
+        PostNavigatorHSM(Event2Post);
         break;
     default:
         break;
