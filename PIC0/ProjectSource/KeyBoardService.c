@@ -10,24 +10,31 @@
 /*----------------------------- Module Defines ----------------------------*/
 #define INIT_COMPLETE 'i'
 #define HAS_CRATE 'p'
-#define SIDE_DETECTED 's'
-#define AT_COLUMN_INTERSECTION 'n'
+#define SIDE_DETECTED 'l'
+
 #define PROCESS_COLUMN 'c'
 #define AT_STACK 'g'
-#define DROPPED 'd'
+#define DROPPED 'u'
 #define CHECK_ROBO_STATUS 'v'
 #define AT_CRATE 't'
 #define PICKUP_CRATE 'k'
 #define COLUMN_COMPLETE 'o'
+#define STEPPER_FORWARD 'f'
+#define STEPPER_BACKWARD 'b'
 
-#define NAV_MOVE_FORWARD '1'
-#define NAV_MOVE_BACKWARD '2'
-#define NAV_TURN_LEFT '3'
-#define NAV_TURN_RIGHT '4'
-#define NAV_STOP '5'
-#define NAV_TURN_180 '6'
-#define NAV_TURN_360 '7'
+#define NAV_MOVE_FORWARD 'w'
+#define NAV_MOVE_BACKWARD 's'
+#define NAV_TURN_LEFT 'a'
+#define NAV_TURN_RIGHT 'd'
+#define NAV_STOP 'x'
+#define NAV_TURN_CW 'e'
+#define NAV_TURN_CCW 'q'
 
+#define QUERY_STATUS 'z'
+
+#define START_PLANNER '0'
+#define TAPE_ALIGNED '1'
+#define AT_COLUMN_INTERSECTION '2'
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
 
@@ -84,20 +91,16 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventType = ES_HAS_CRATE;
                 PostPlannerHSM(CurEvent);
                 break;
-            case AT_COLUMN_INTERSECTION:
-                CurEvent.EventType = ES_AT_COLUMN_INTERSECTION;
-                PostPlannerHSM(CurEvent);
-                break;
             case COLUMN_COMPLETE:
                 CurEvent.EventType = ES_COLUMN_COMPLETE;
                 PostPlannerHSM(CurEvent);
                 break;
-            case 'a':
+            case STEPPER_FORWARD:
                 CurEvent.EventType = ES_STEPPER_FWD;
                 CurEvent.EventParam = 100;
                 PostStepperService(CurEvent);
                 break;
-            case 'b':
+            case STEPPER_BACKWARD:
                 CurEvent.EventType = ES_STEPPER_BWD;
                 CurEvent.EventParam = 100;
                 PostStepperService(CurEvent);
@@ -127,14 +130,31 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventParam = NAV_CMD_STOP;
                 PostSPIMasterService(CurEvent);
                 break;
-            case NAV_CMD_TURN_180:
+            case NAV_CMD_TURN_CW:
                 CurEvent.EventType = ES_NEW_NAV_CMD;
-                CurEvent.EventParam = NAV_CMD_TURN_180;
+                CurEvent.EventParam = NAV_CMD_TURN_CW;
                 PostSPIMasterService(CurEvent);
                 break;
-            case NAV_CMD_TURN_360:
+            case NAV_CMD_TURN_CCW:
                 CurEvent.EventType = ES_NEW_NAV_CMD;
-                CurEvent.EventParam = NAV_CMD_TURN_360;
+                CurEvent.EventParam = NAV_CMD_TURN_CCW;
+                PostSPIMasterService(CurEvent);
+                break;
+            case START_PLANNER:
+                CurEvent.EventType = ES_START_PLANNER;
+                PostPlannerHSM(CurEvent);
+                break;
+            case TAPE_ALIGNED:
+                CurEvent.EventType = ES_TAPE_ALIGNED;
+                PostPlannerHSM(CurEvent);
+                break;
+            case AT_COLUMN_INTERSECTION:
+                CurEvent.EventType = ES_AT_COLUMN_INTERSECTION;
+                PostPlannerHSM(CurEvent);
+                break;
+            case QUERY_STATUS:
+                CurEvent.EventType = ES_NEW_NAV_CMD;
+                CurEvent.EventParam = NAV_CMD_QUERY_STATUS;
                 PostSPIMasterService(CurEvent);
                 break;
             default:

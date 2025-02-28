@@ -4,7 +4,7 @@ stateDiagram-v2
         [*] --> INIT_PLANNER
         
         INIT_PLANNER --> SIDE_DETECTION: ES_INIT_COMPLETE
-        SIDE_DETECTION --> NAVIGATE_TO_COLUMN_1: ES_SIDE_DETECTED
+        TAPE_AND_SIDE_DETECTION --> NAVIGATE_TO_COLUMN_1: ES_ALIGN_COMPLETE
         
         note right of INIT_PLANNER
             Initialize variables

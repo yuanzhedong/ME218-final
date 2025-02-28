@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 6
+#define NUM_SERVICES 7
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -122,11 +122,11 @@
 // These are the definitions for Service 6
 #if NUM_SERVICES > 6
 // the header file with the public function prototypes
-#define SERV_6_HEADER "TestHarnessService6.h"
+#define SERV_6_HEADER "PlannerPolicyService.h"
 // the name of the Init function
-#define SERV_6_INIT InitTestHarnessService6
+#define SERV_6_INIT InitPlannerPolicyService
 // the name of the run function
-#define SERV_6_RUN RunTestHarnessService6
+#define SERV_6_RUN RunPlannerPolicyService
 // How big should this services Queue be?
 #define SERV_6_QUEUE_SIZE 3
 #endif
@@ -295,7 +295,12 @@ typedef enum
   ES_REQUEST_NEW_PLANNER_POLICY,
   ES_CONTINUE_PLANNER_POLICY,
   ES_PLANNER_POLICY_COMPLETE,
-  ES_SEND_NEW_NAV_CMD
+  ES_SEND_NEW_NAV_CMD,
+  ES_NAV_CMD_COMPLETE,
+  ES_TAPE_ALIGNED,
+  ES_NAV_ERROR,
+  ES_START_PLANNER,
+  ES_NAVIGATOR_STATUS_CHANGE,
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -350,7 +355,7 @@ typedef enum
 #define TIMER8_RESP_FUNC TIMER_UNUSED
 #define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
-#define TIMER11_RESP_FUNC TIMER_UNUSED
+#define TIMER11_RESP_FUNC PostPlannerPolicyService
 #define TIMER12_RESP_FUNC PostStepperService
 #define TIMER13_RESP_FUNC PostBeaconIndicatorService
 #define TIMER14_RESP_FUNC PostSPIMasterService
@@ -367,5 +372,6 @@ typedef enum
 #define BEACON_ALIGN_TIMER 13
 #define SPI_QUERY_TIMER 14
 #define Stepper_TIMER 12
+#define PLANNER_POLICY_TIMER 11
 
 #endif /* ES_CONFIGURE_H */
