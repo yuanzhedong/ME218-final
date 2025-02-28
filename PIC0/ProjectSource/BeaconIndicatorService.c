@@ -1,3 +1,4 @@
+
 /****************************************************************************
  Module
    MotorService.c
@@ -80,7 +81,7 @@ bool InitBeaconIndicatorService(uint8_t Priority) {
 
     // Configure Timer3 & Input Capture (IC3)
     ConfigTimer3();
-    Config_IC2();
+    Config_IC1();
 
     // Initialize Motor Pin state
     LATBbits.LATB2 = 0;
@@ -168,7 +169,6 @@ void ConfigTimer2() {
     IEC0CLR = _IEC0_T2IE_MASK;
 }
 
-
 void ConfigPWM_OC1() {
     RPB3R = 0b0101;
     OC1CON = 0;
@@ -190,6 +190,19 @@ void ConfigPWM_OC3() {
     OC3CONbits.ON = 1;
 }
 
+void ConfigTimer3() {
+    T3CONbits.ON = 0;
+    T3CONbits.TCS = 0;
+    T3CONbits.TCKPS = 0b011;
+    TMR3 = 0;
+    PR3 = 0xFFFF;
+
+    IFS0CLR = _IFS0_T3IF_MASK;
+    IPC3bits.T3IP = 6;
+    IEC0SET = _IEC0_T3IE_MASK;
+    T3CONbits.ON = 1;
+}
+
 void Config_IC2() {
     IC2CONbits.ON = 0;
     IC2CONbits.C32 = 0;
@@ -202,14 +215,25 @@ void Config_IC2() {
     IEC0SET = _IEC0_IC2IE_MASK;
     IC2CONbits.ON = 1;
 }
+void Config_IC1() {
+    IC1CONbits.ON = 0;
+    IC1CONbits.C32 = 0;
+    IC1CONbits.ICTMR = 0;
+    IC1CONbits.ICI = 0b00;
+    IC1CONbits.ICM = 0b011;
 
+    IFS0CLR = _IFS0_IC2IF_MASK;
+    IPC1bits.IC1IP = 7;
+    IEC0SET = _IEC0_IC1IE_MASK;
+    IC1CONbits.ON = 1;
+}
 /***************************************************************************
  * Interrupt Service Routines
  ***************************************************************************/
 
-void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
-    CapturedTime = IC2BUF;
-    IFS0CLR = _IFS0_IC2IF_MASK;
+void __ISR(_INPUT_CAPTURE_1_VECTOR, IPL7SOFT) IC1ISR(void) {
+    CapturedTime = IC1BUF;
+    IFS0CLR = _IFS0_IC1IF_MASK;
 
     if ((IFS0bits.T3IF == 1) && (CapturedTime < 0x8000)) {
         NumRollover++;
@@ -227,24 +251,40 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
         DB_printf("Detected Frequency: %d\n", freq);
         
         if (abs(detectedFreq - FREQ_G) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON G\n");
+            DB_printf("Aligned with BEACON G\n");
             DetectedBeacon = BEACON_G;
             aligned = true;
+            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
+            PostPlannerHSM(Event2Post);
         } else if (abs(detectedFreq - FREQ_B) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON B\n");
+            DB_printf("Aligned with BEACON B\n");
             DetectedBeacon = BEACON_B;
             aligned = true;
+            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
+            PostPlannerHSM(Event2Post);
         } else if (abs(detectedFreq - FREQ_R) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON R\n");
+            DB_printf("Aligned with BEACON R\n");
             DetectedBeacon = BEACON_R;
             aligned = true;
+            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
+            PostPlannerHSM(Event2Post);
         } else if (abs(detectedFreq - FREQ_L) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON L\n");
+            DB_printf("Aligned with BEACON L\n");
             DetectedBeacon = BEACON_L;
             aligned = true;
+            ES_Event_t Event2Post = {ES_SIDE_DETECTED, DetectedBeacon};
+            PostPlannerHSM(Event2Post);
         }
     }
 
     PrevVal = CurrentVal.FullTime;
 }
 
+void __ISR(_TIMER_3_VECTOR, IPL6SOFT) Timer3_ISR(void) {
+    __builtin_disable_interrupts();
+    if (IFS0bits.T3IF) {
+        NumRollover++;
+        IFS0CLR = _IFS0_T3IF_MASK;
+    }
+    __builtin_enable_interrupts();
+}

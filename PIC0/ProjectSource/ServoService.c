@@ -41,22 +41,22 @@ static uint8_t DutyCycle;
 #define PIC_FREQ 20000000 // PIC 20MHz
 #define BLUE_PWM 5
 #define GREEN_PWM 15
-#define INIT_PWM 10
+#define INIT_PWM 8
 
-
-void ConfigTimer3() {
-    T3CONbits.ON = 0;
-    T3CONbits.TCS = 0;
-    T3CONbits.TCKPS = 0b10;
-    TMR3 = 0;
-    PR3 = PIC_FREQ*50 / (CHANNEL4_PWM_FREQUENCY * TIMER3_PRESCALE) - 1;
-    //PR3 = 399;
-
-    IFS0CLR = _IFS0_T3IF_MASK;
-    IPC3bits.T3IP = 6;
-    IEC0SET = _IEC0_T3IE_MASK;
-    T3CONbits.ON = 1;
-}
+////
+//void ConfigTimer3() {
+//    T3CONbits.ON = 0;
+//    T3CONbits.TCS = 0;
+//    T3CONbits.TCKPS = 0b10;
+//    TMR3 = 0;
+//    PR3 = PIC_FREQ*50 / (CHANNEL4_PWM_FREQUENCY * TIMER3_PRESCALE) - 1;
+//    //PR3 = 399;
+//
+//    IFS0CLR = _IFS0_T3IF_MASK;
+//    IPC3bits.T3IP = 6;
+//    IEC0SET = _IEC0_T3IE_MASK;
+//    T3CONbits.ON = 1;
+//}
 
 static void ConfigPWM_OC4() {
 
@@ -91,7 +91,7 @@ bool InitServoService(uint8_t Priority)
     ConfigTimer3();
     ConfigPWM_OC4();
     //PR3 = 399999;
-    DutyCycle = INIT_PWM;
+    DutyCycle = GREEN_PWM;
 
     // post the initial transition event
     ThisEvent.EventType = ES_INIT;
@@ -116,10 +116,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
     switch (ThisEvent.EventType)
     {
-    case ES_INIT:
-        // Initialize step timer for motor control
-        
-//        ES_Timer_InitTimer(DC_MOTOR_TIMER, interval);
+    case ES_INIT:;
         OC4RS = (PR3 + 1) * DutyCycle / 100;
         DB_printf("curent PR3 is %d\n", PR3);
         
@@ -142,12 +139,12 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
     return ReturnEvent;
 }
 
-
-void __ISR(_TIMER_3_VECTOR, IPL6SOFT) Timer3_ISR(void) {
-    __builtin_disable_interrupts();
-    if (IFS0bits.T3IF) {
-        NumRollover++;
-        IFS0CLR = _IFS0_T3IF_MASK;
-    }
-    __builtin_enable_interrupts();
-}
+//
+//void __ISR(_TIMER_3_VECTOR, IPL6SOFT) Timer3_ISR(void) {
+//    __builtin_disable_interrupts();
+//    if (IFS0bits.T3IF) {
+//        NumRollover++;
+//        IFS0CLR = _IFS0_T3IF_MASK;
+//    }
+//    __builtin_enable_interrupts();
+//}
