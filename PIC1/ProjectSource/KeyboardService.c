@@ -168,12 +168,14 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
  
         break;
     case 'l':
-        Event2Post.EventType = ES_MOTOR_CW90;
+        Event2Post.EventType = ES_MOTOR_CW_180;
         PostMotorService(Event2Post);
         DB_printf("ES_MOTOR_CW90 posted to MotorService\r\n");
         break;
     case 'm':
-        /* code */
+        Event2Post.EventType = ES_NEW_NAV_CMD;
+        Event2Post.EventParam = NAV_CMD_ALIGN;
+        PostNavigatorHSM(Event2Post);
         break;
     case 'n':
         /* code */
@@ -206,7 +208,6 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'w':
-
         ThisEvent.EventType = ES_MOTOR_REV;
         ThisEvent.EventParam = 70;
         PostMotorService(ThisEvent);

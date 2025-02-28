@@ -289,13 +289,15 @@ typedef enum
   ES_MOTOR_STOP,
   ES_MOTOR_CW_CONTINUOUS,
   ES_MOTOR_CCW_CONTINUOUS,
-  ES_MOTOR_CW90,
-  ES_MOTOR_CW180,
-  ES_MOTOR_CCW90,
-  ES_MOTOR_CCW180,
+  ES_MOTOR_CW_90,
+  ES_MOTOR_CW_180,
+  ES_MOTOR_CCW_90,
+  ES_MOTOR_CCW_180,
+  ES_MOTOR_COMPLETE,
   ES_TAPE_FOLLOW,
   ES_NEW_NAV_STATUS,
   ES_NEW_NAV_CMD,
+  ES_TAPE_ALIGNED,
 } ES_EventType_t;
 
 /****************************************************************************/

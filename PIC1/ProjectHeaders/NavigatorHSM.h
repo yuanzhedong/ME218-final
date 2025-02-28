@@ -39,7 +39,9 @@ typedef enum {
     TurnLeft,
     TurnRight,
     LineDiscover,
-    CheckCrate
+    CheckCrate,
+    AlignTape,
+    LineDiscoverFail
 } NavigatorState_t;
 
 bool InitNavigatorHSM(uint8_t Priority);

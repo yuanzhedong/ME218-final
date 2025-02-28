@@ -40,6 +40,8 @@ static ES_Event_t DuringTurnRight(ES_Event_t Event);
 static ES_Event_t DuringLineDiscover(ES_Event_t Event);
 static ES_Event_t DuringCheckCrate(ES_Event_t Event);
 
+static bool search_tap_ccw = false;
+static bool search_tap_cw = false;
 
 void StopTapeFollow(void) {
     ES_Event_t ThisEvent;
@@ -269,9 +271,6 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
             if (CurrentEvent.EventType == ES_INIT) {
                 NextState = Idle;
                 MakeTransition = true;
-                DB_printf("[NAV HSM] Current state: %d\r\n", CurrentState);
-                DB_printf("[NAV HSM] Current event: %d\r\n", CurrentEvent.EventType);
-                DB_printf("[NAV HSM] Current event param: %d\r\n", CurrentEvent.EventParam);
             }
             break;
 
@@ -288,10 +287,48 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
                         NextState = LineFollowBackward;
                         MakeTransition = true;
                         break;
+                    case NAV_CMD_ALIGN:
+                        NextState = AlignTape;
+                        MakeTransition = true;
+                        break;
                 }
             }
             break;
 
+        case AlignTape:
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                DB_printf("[NAV HSM] Aligning with tape\r\n");
+                UpdateNavStatus(NAV_STATUS_ALIGN_TAPE);
+                ES_Event_t ThisEvent;
+                ThisEvent.EventType = ES_MOTOR_CCW_180;
+                search_tap_ccw = true;
+                PostMotorService(ThisEvent);
+            } else {
+                switch (CurrentEvent.EventType) {
+                    case ES_TAPE_ALIGNED:
+                        NextState = LineFollowForward;
+                        MakeTransition = true;
+                        break;
+                    case ES_TURN_COMPLETE:
+                        DB_printf("[NAV HSM] Motor complete \r\n");
+                        if (search_tap_ccw && search_tap_cw) {
+                            NextState = LineDiscoverFail;
+                            MakeTransition = true;
+                        } else {
+                            ES_Event_t ThisEvent;
+                            ThisEvent.EventType = ES_MOTOR_CW_180;
+                            search_tap_cw = true;
+                            PostMotorService(ThisEvent);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+        case LineDiscoverFail:
+            DB_printf("[NAV HSM] LineDiscoverFail \r\n");
+            break;
         case LineFollowForward:
             if (CurrentEvent.EventType == ES_ENTRY) {
                 DB_printf("[NAV HSM] Line following Forward\r\n");

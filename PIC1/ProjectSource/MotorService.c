@@ -151,6 +151,10 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
     if (ThisEvent.EventParam == Motor_Turning_TIMER)//meaning that turning has completed
     {
       StopMotor();
+      ES_Event_t ThisEvent;
+      ThisEvent.EventType = ES_TURN_COMPLETE;
+      DB_printf("[Motor Service] Turn complete \n");
+      PostNavigatorHSM(ThisEvent);
     }
     break;
   case ES_MOTOR_STOP:
@@ -175,25 +179,34 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
     OC3RS = (float)PR2 * ThisEvent.EventParam /100;
     break;
   case ES_MOTOR_CCW_CONTINUOUS:
-
     H_bridge1A_LAT = 0;
     H_bridge3A_LAT = 1;
     OC4RS = (float)PR2 * ThisEvent.EventParam /100;
     OC3RS = (float)PR2 * (100 - ThisEvent.EventParam) /100;
     break;
-  case ES_MOTOR_CW90:
+  case ES_MOTOR_CW_90:
     ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME);
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 0;
+    OC4RS = (float)PR2 * (100 - ThisEvent.EventParam) /100;
+    OC3RS = (float)PR2 * ThisEvent.EventParam /100;
+    break;
+  case ES_MOTOR_CW_180:
+    DB_printf("CW 180 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME*2);
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 0;
+    OC4RS = (float)PR2 * 50 /100;
+    OC3RS = (float)PR2 * 50 /100;
+    break;
+  case ES_MOTOR_CCW_180:
+    DB_printf("CCW 180 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME*2);
     H_bridge1A_LAT = 0;
     H_bridge3A_LAT = 1;
-    OC4RS = (float)PR2 * 80 /100;
-    OC3RS = (float)PR2 * (100 - 80) /100;
+    OC4RS = (float)PR2 * 50 /100;
+    OC3RS = (float)PR2 * 50 /100;
     break;
-  case ES_MOTOR_CW180:
-  break;
-  case ES_MOTOR_CCW90:
-  break;
-  case ES_MOTOR_CCW180:
-  break;
   default:
     break;
   }
