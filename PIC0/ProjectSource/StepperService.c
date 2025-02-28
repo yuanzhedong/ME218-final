@@ -49,7 +49,7 @@ static uint16_t maxSpeed = 150; //max motor speed in Hz
 static uint16_t minSpeed = 3;
 static uint16_t stepsCommanded;
 static uint16_t stepsCompleted;
-static uint16_t StepInterval = 20; //steps per sec = 1000 / StepInterval
+static uint16_t StepInterval = 3; //steps per sec = 1000 / StepInterval
 static bool (*tableChosen)[4];
 static bool table_FullStep[4][4] = {
     {1, 0, 1, 0},
@@ -174,11 +174,18 @@ ES_Event_t RunStepperService(ES_Event_t ThisEvent)
   switch (ThisEvent.EventType)
   {
   case ES_TIMEOUT:
+    if (ThisEvent.EventParam ==Stepper_TIMER)
+    {
     if (stepsCompleted >= stepsCommanded)
     {
+      H_bridge1A_LAT = 0;
+      H_bridge2A_LAT = 0;
+      H_bridge3A_LAT = 0;
+      H_bridge4A_LAT = 0;
       ES_Event_t Event2Post;
       Event2Post.EventType = ES_STEPPER_COMPLETE;
       PostPlannerHSM(Event2Post);
+      DB_printf("stepper complete\n");
     }else{
       //step1: step a step
       DB_printf("%d ",tableChosen[stepInd][0]);
@@ -212,10 +219,13 @@ ES_Event_t RunStepperService(ES_Event_t ThisEvent)
       //step2: reset the timer for the next step
       ES_Timer_InitTimer(Stepper_TIMER, StepInterval);
     }
+    }
+    
+    
   break;
 
   case ES_STEPPER_FWD:
-    stepInd = 0;
+   
     Dir = 0;
     stepsCommanded = ThisEvent.EventParam;
     stepsCompleted = 0;
@@ -223,7 +233,7 @@ ES_Event_t RunStepperService(ES_Event_t ThisEvent)
     DB_printf("steps commanded is %d\n", stepsCommanded);
     break;
   case ES_STEPPER_BWD:
-    stepInd = 0;
+   
     Dir = 1;
     stepsCommanded = ThisEvent.EventParam;
     stepsCompleted = 0;
