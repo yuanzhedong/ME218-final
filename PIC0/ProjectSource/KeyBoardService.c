@@ -28,7 +28,7 @@
 #define NAV_TURN_RIGHT 'd'
 #define NAV_STOP 'x'
 #define NAV_TURN_CW 'e'
-#define NAV_TURN_CCW 'q'
+#define NAV_TURN_CCW 'm'
 
 #define QUERY_STATUS 'z'
 
@@ -135,7 +135,7 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventParam = NAV_CMD_TURN_CW;
                 PostSPIMasterService(CurEvent);
                 break;
-            case NAV_CMD_TURN_CCW:
+            case NAV_TURN_CCW:
                 CurEvent.EventType = ES_NEW_NAV_CMD;
                 CurEvent.EventParam = NAV_CMD_TURN_CCW;
                 PostSPIMasterService(CurEvent);
