@@ -48,10 +48,11 @@ void NextAction() {
     PostSPIMasterService(newEvent);
     CurrentPolicyStep += 1;
     // Check if current policy is finished.
-    if (NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep] == 0) {
+    if (NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][0] == 0) {
         ES_Event_t finishedEvent;
         finishedEvent.EventType = ES_PLANNER_POLICY_COMPLETE;
         // Post to planner current policy is complete
+        DB_printf("[POLICY] Current policy is complete\r\n");
         PostPlannerHSM(finishedEvent);
     }
 }
