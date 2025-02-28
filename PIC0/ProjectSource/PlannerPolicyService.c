@@ -76,11 +76,8 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
                 return ReturnEvent;
             }
             SetPolicy(policy_idx);
-            DB_printf("[POLICY] Current policy index: %d\r\n", CurrentPolicyIdx);
-            DB_printf("[POLICY] Current policy step: %d\r\n", CurrentPolicyStep);
             DB_printf("[POLICY] Current policy command: %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][0]);
-            DB_printf("[POLICY] Current policy duration: %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]);
-            DB_printf("[POLICY] Init timer for policy %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]);
+            DB_printf("[POLICY] Current policy command: %s\r\n", TranslateNavCmdToStr(NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]));
             ES_Timer_InitTimer(PLANNER_POLICY_TIMER, NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][1] * 1000);
             NextAction();
             break;

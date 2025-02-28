@@ -38,4 +38,7 @@ bool InitSPIMasterService(uint8_t Priority);
 bool PostSPIMasterService(ES_Event_t ThisEvent);
 ES_Event_t RunSPIMasterService(ES_Event_t ThisEvent);
 
+const char* TranslateNavCmdToStr(uint8_t command);
+const char* TranslateNavStatusToStr(uint8_t status);
+
 #endif // SPIMASTER_SERVICE_H

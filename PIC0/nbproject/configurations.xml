@@ -50,7 +50,6 @@
       <itemPath>ProjectHeaders/PlannerHSM.h</itemPath>
       <itemPath>ProjectHeaders/PlannerPolicyService.h</itemPath>
       <itemPath>ProjectHeaders/StepperService.h</itemPath>
-      <itemPath>ProjectHeaders/ServoService.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -73,7 +72,6 @@
       <itemPath>ProjectSource/PlannerHSM.c</itemPath>
       <itemPath>ProjectSource/PlannerPolicyService.c</itemPath>
       <itemPath>ProjectSource/StepperService.c</itemPath>
-      <itemPath>ProjectSource/ServoService.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
