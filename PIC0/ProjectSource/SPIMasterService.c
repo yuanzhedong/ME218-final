@@ -137,7 +137,7 @@ bool SendSPICommand(uint8_t command) {
     SPI1BUF = command;
     LastSentCmd = command;
     LastTransferTime = ES_Timer_GetTime();
-    uint8_t receivedByte = SPI1BUF;
+    //uint8_t receivedByte = SPI1BUF;
 
     // for (volatile uint32_t i = 0; i < 1000000; i++);
     // for (volatile uint32_t i = 0; i < 1000000; i++);
