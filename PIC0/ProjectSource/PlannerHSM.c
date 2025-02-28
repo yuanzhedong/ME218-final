@@ -6,6 +6,7 @@
 #include "BeaconIndicatorService.h"
 #include "SPIMasterService.h"
 #include "PlannerPolicyService.h"
+#include "ServoService.h"
 
 /*----------------------------- Module Variables ---------------------------*/
 static PlannerState_t CurrentState;

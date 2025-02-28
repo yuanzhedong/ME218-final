@@ -134,12 +134,11 @@
 /****************************************************************************/
 // These are the definitions for Service 7
 #if NUM_SERVICES > 7
-// the header file with the public function prototypes
-#define SERV_7_HEADER "TestHarnessService7.h"
+#define SERV_7_HEADER "ServoService.h"
 // the name of the Init function
-#define SERV_7_INIT InitTestHarnessService7
+#define SERV_7_INIT InitServoService
 // the name of the run function
-#define SERV_7_RUN RunTestHarnessService7
+#define SERV_7_RUN RunServoService
 // How big should this services Queue be?
 #define SERV_7_QUEUE_SIZE 3
 #endif
