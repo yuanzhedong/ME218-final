@@ -257,8 +257,8 @@ static ES_Event_t DuringCheckCrate(ES_Event_t Event) {
    Uses nested switch/case to implement the machine.
 ****************************************************************************/
 ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
-    bool MakeTransition = false; /* are we making a state transition? */
     //ES_Event_t EntryEventKind = {ES_ENTRY, 0}; // default to normal entry to new state
+    bool MakeTransition = false; /* are we making a state transition? */
     ES_Event_t ReturnEvent;
     ReturnEvent.EventType = ES_NO_EVENT; // assume no errors
     if (CurrentEvent.EventType == ES_TIMEOUT && CurrentEvent.EventParam == NAV_STATE_DEBUG_TIMER) {
@@ -328,6 +328,24 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
             break;
         case LineDiscoverFail:
             DB_printf("[NAV HSM] LineDiscoverFail \r\n");
+            // TODO: For debug purposes, disable this when deploy
+            if (CurrentEvent.EventType == ES_NEW_NAV_CMD) {
+                StopTapeFollow();
+                switch (CurrentEvent.EventParam) {
+                    case NAV_CMD_MOVE_FORWARD:
+                        ForwardTapeFollow(70);
+                        break;
+                    case NAV_CMD_MOVE_BACKWARD:
+                        ReverseTapeFollow(70);
+                        break;
+                    case NAV_CMD_STOP:
+                        StopTapeFollow();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
             break;
         case LineFollowForward:
             if (CurrentEvent.EventType == ES_ENTRY) {

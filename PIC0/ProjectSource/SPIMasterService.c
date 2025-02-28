@@ -14,7 +14,7 @@ volatile static uint16_t CurrentNavigatorStatus;
 volatile static uint16_t PrevNavigatorStatus = NAV_STATUS_IDLE;
 static uint32_t LastTransferTime;
 static uint8_t LastSentCmd;
-static uint16_t QueryFreq = 2000; // in ms
+static uint16_t QueryFreq = 10000; // in ms
 #define DEBUG_CMD NAV_CMD_QUERY_STATUS
 
 /*---------------------------- Module Functions ---------------------------*/

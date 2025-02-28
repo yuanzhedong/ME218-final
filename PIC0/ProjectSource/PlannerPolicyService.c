@@ -30,9 +30,9 @@ void SetPolicy(uint8_t policy_idx) {
 }
 
 // 0 for padding
-uint8_t NAV_POLICIES[][4][2] = {
-    {{NAV_CMD_MOVE_BACKWARD, 2}, {NAV_CMD_TURN_LEFT, 2}, {NAV_CMD_MOVE_FORWARD, 2}, {0, 0}}, // NAV_TO_COLUMN_1
-    {{NAV_CMD_TURN_CW, 2}, {NAV_CMD_MOVE_FORWARD, 6}, {NAV_CMD_TURN_LEFT, 3}, {NAV_CMD_MOVE_FORWARD, 4}} // NAV_TO_COLUMN_2
+uint8_t NAV_POLICIES[][5][2] = {
+    {{NAV_CMD_MOVE_BACKWARD, 2}, {NAV_CMD_TURN_LEFT, 2}, {NAV_CMD_MOVE_FORWARD, 2}, {0, 0}, {0, 0}}, // NAV_TO_COLUMN_1
+    {{NAV_CMD_TURN_CW, 2}, {NAV_CMD_MOVE_FORWARD, 6}, {NAV_CMD_TURN_LEFT, 3}, {NAV_CMD_MOVE_FORWARD, 4}, {0, 0}} // NAV_TO_COLUMN_2
 };
 
 // Public function to post events to the service
@@ -48,8 +48,7 @@ void NextAction() {
     PostSPIMasterService(newEvent);
     CurrentPolicyStep += 1;
     // Check if current policy is finished.
-    if (CurrentPolicyStep >= sizeof(NAV_POLICIES[CurrentPolicyIdx]) / sizeof(NAV_POLICIES[CurrentPolicyIdx][0]) || 
-        NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep] == 0) {
+    if (NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep] == 0) {
         ES_Event_t finishedEvent;
         finishedEvent.EventType = ES_PLANNER_POLICY_COMPLETE;
         // Post to planner current policy is complete

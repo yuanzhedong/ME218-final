@@ -120,7 +120,7 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     DB_printf("[SPI] Received byte: %d\r\n", receivedByte); // Add debug print
 
     // Process command directly
-    if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_TURN_CCW) {
+    if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_ALIGN) {
         ReceivedCmd = receivedByte;
         DB_printf("Received command: %d\r\n", ReceivedCmd);
         ES_Event_t CmdEvent;
