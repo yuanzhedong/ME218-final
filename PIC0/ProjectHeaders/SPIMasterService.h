@@ -9,15 +9,15 @@
 
 #define SPI_TIMEOUT_MS 500
 
-#define NAV_CMD_MOVE_FORWARD 0x01
-#define NAV_CMD_MOVE_BACKWARD 0x02
-#define NAV_CMD_TURN_LEFT 0x03
-#define NAV_CMD_TURN_RIGHT 0x04
-#define NAV_CMD_STOP 0x05
-#define NAV_CMD_TURN_CW 0x06 // Clockwise 180 degrees
-#define NAV_CMD_TURN_CCW 0x07 // Counter-clockwise 180 degrees
-#define NAV_CMD_QUERY_STATUS 0x08
-#define NAV_CMD_ALIGN 0x09
+#define NAV_CMD_MOVE_FORWARD 0x10
+#define NAV_CMD_MOVE_BACKWARD 0x20
+#define NAV_CMD_TURN_LEFT 0x30
+#define NAV_CMD_TURN_RIGHT 0x40
+#define NAV_CMD_STOP 0x50
+#define NAV_CMD_TURN_CW 0x60 // Clockwise 180 degrees
+#define NAV_CMD_TURN_CCW 0x70 // Counter-clockwise 180 degrees
+#define NAV_CMD_QUERY_STATUS 0x80
+#define NAV_CMD_ALIGN 0x90
 
 #define NAV_STATUS_OK 0x50
 #define NAV_STATUS_AT_CROSS 0x51

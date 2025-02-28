@@ -22,6 +22,25 @@ void InitSPI(void);
 bool SendSPICommand(uint8_t command);
 void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void);
 
+
+const char* TranslateNavCmdToStr(uint8_t command) {
+    switch(command) {
+        case NAV_CMD_QUERY_STATUS:
+            return "NAV_CMD_QUERY_STATUS";
+        case NAV_CMD_MOVE_FORWARD:
+            return "NAV_CMD_MOVE_FORWARD";
+        case NAV_CMD_MOVE_BACKWARD:
+            return "NAV_CMD_MOVE_BACKWARD";
+        case NAV_CMD_TURN_LEFT:
+            return "NAV_CMD_TURN_LEFT";
+        case NAV_CMD_TURN_RIGHT:
+            return "NAV_CMD_TURN_RIGHT";
+        case NAV_CMD_STOP:
+            return "NAV_CMD_STOP";
+        default:
+            return "UNKNOWN_COMMAND";
+    }
+}
 /*------------------------------ Module Code ------------------------------*/
 bool InitSPIMasterService(uint8_t Priority)
 {
@@ -118,14 +137,6 @@ void InitSPI(void)
 }
 
 bool SendSPICommand(uint8_t command) {
-    // Check if previous transfer is complete
-    //LATBbits.LATB4 = 0; // Pull SS low
-
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
-
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
     if(SPI1STATbits.SPIBUSY) {
         DB_printf("SPI is busy\r\n");
         return false;
@@ -137,14 +148,6 @@ bool SendSPICommand(uint8_t command) {
     SPI1BUF = command;
     LastSentCmd = command;
     LastTransferTime = ES_Timer_GetTime();
-    //uint8_t receivedByte = SPI1BUF;
-
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
-
-    // for (volatile uint32_t i = 0; i < 1000000; i++);
-    //LATBbits.LATB4 = 1; // Pull SS high    
     return true;
 }
 
@@ -176,36 +179,3 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
 void UpdateNavigatorStatus(uint8_t newStatus) {
     CurrentNavigatorStatus = newStatus;
 }
-
-
-// bool SendSPICommand(NavCommand_t command) {
-//     // Check if previous transfer is complete
-//     if(SPI2STATbits.SPIBUSY) {
-//         return false;
-//     }
-    
-//     // Send header first
-//     while(SPI2STATbits.SPITBF);
-//     SPI2BUF = SPI_HEADER_BYTE;
-//     LastSentCmd = command;
-//     LastTransferTime = ES_GetTime();
-    
-//     return true;
-// }
-
-
-
-// void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
-//     CurrentNavigatorStatus = SPI1BUF;
-//     IFS1CLR = _IFS1_SPI1RXIF_MASK;
-
-//     // Only post if status changed
-//     if (PrevNavigatorStatus != CurrentNavigatorStatus) {
-//         ES_Event_t StatusEvent;
-//         StatusEvent.EventType = ES_NAVIGATOR_STATUS;
-//         StatusEvent.EventParam = CurrentNavigatorStatus;
-//         DB_printf("Received status: %d\r\n", CurrentNavigatorStatus);
-//         PostSPIMasterService(StatusEvent);
-//         PrevNavigatorStatus = CurrentNavigatorStatus;
-//     }
-// }

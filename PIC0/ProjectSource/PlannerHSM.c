@@ -158,9 +158,9 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             }
             // for debug purposes, disable this when deploy
             if (CurrentEvent.EventType == ES_START_PLANNER) {
-                MakeTransition = true;
-                NextState = TAPE_AND_SIDE_DETECTION;
                 DB_printf("Exiting INIT_PLANNER\r\n");
+                MakeTransition = true;
+                NextState = SEARCH_PICKUP_CRATE;
             }
             break;
 
@@ -169,7 +169,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 case ES_ENTRY:
                     //TODO: add code to pick up the first crate
                     DB_printf("Entering SEARCH_PICKUP_CRATE\r\n");
-                    NextState = NAVIGATE_TO_COLUMN_1;
+                    NextState = TAPE_AND_SIDE_DETECTION;
                     MakeTransition = true;
                     break;
                 default:
