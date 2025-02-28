@@ -45,6 +45,8 @@ static void ConfigTimer4(void);       // for running control loop
 static void ConfigureReflectSensor(); // for the reflectance sensor array
 
 static void AdjustKvalues(uint16_t targetDutyCycle_input);      // adjust K values based on the targetDutyCycle
+
+static void ConfigureIntersectionSensor(); // for the intersection IR sensors 
 /*---------------------------- Module Variables ---------------------------*/
 // everybody needs a state variable, you may need others as well.
 // type of state variable should match htat of enum in header file
@@ -404,6 +406,13 @@ static void AdjustKvalues(uint16_t targetDutyCycle_input)
   Ki = (float)Ki_base * 100 / targetDutyCycle_input;
   Kd = (float)Kd_base * 100 / targetDutyCycle_input;
   DB_printf("Kp: %d, Ki: %d, Kd: %d \n", Kp, Ki, Kd);
+  return;
+}
+static void ConfigureIntersectionSensor()
+{
+  TRISAbits.TRISA3 = 1; // left IR sensor
+  TRISBbits.TRISB14 = 1; // right IR sensor
+  DB_printf("intersection sensor configured \n");
   return;
 }
 /***********************

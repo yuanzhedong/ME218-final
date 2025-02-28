@@ -296,6 +296,8 @@ typedef enum
   ES_TAPE_FOLLOW,
   ES_NEW_NAV_STATUS,
   ES_NEW_NAV_CMD,
+  ES_LEFT_INTERSECTION_DETECT,
+  ES_RIGHT_INTERSECTION_DETECT,
 } ES_EventType_t;
 
 /****************************************************************************/
@@ -330,7 +332,7 @@ typedef enum
 
 /****************************************************************************/
 // This is the list of event checking functions
-#define EVENT_CHECK_LIST Check4Keystroke
+#define EVENT_CHECK_LIST Check4Keystroke, Check4IntersectionIR
 
 /****************************************************************************/
 // These are the definitions for the post functions to be executed when the
