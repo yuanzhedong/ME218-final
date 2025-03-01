@@ -194,9 +194,12 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                         //NextState = GAME_OVER;
                         //MakeTransition = true;
                     } else {
-                        if (CurrentEvent.EventParam == BEACON_L) {
+                        ThisEvent.EventType = ES_SIDE_DETECTED;
+                        PostServoService(ThisEvent);
+                        if (CurrentEvent.EventParam == BEACON_L || CurrentEvent.EventParam == BEACON_B ) {
                             puts("We are at green side!\r\n");
-                        } else {
+                            
+                        } else if (CurrentEvent.EventParam == BEACON_R || CurrentEvent.EventParam == BEACON_G ){
                             puts("We are at blue side!\r\n");
                         }
                     }
