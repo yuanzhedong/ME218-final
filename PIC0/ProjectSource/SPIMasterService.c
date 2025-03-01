@@ -67,8 +67,6 @@ const char* TranslateNavStatusToStr(uint8_t status) {
             return "NAV_STATUS_OK";
         case NAV_STATUS_AT_CROSS:
             return "NAV_STATUS_AT_CROSS";
-        case NAV_STATUS_TURN_DONE:
-            return "NAV_STATUS_TURN_DONE";
         case NAV_STATUS_ERROR:
             return "NAV_STATUS_ERROR";
         case NAV_STATUS_TURN_LEFT:
