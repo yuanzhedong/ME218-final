@@ -17,6 +17,76 @@ void InitSPI(void);
 void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void);
 void TriggerSPIFollowerISR(void); // Function prototype for triggering ISR
 
+
+const char* TranslateNavCmdToStr(uint8_t command) {
+    switch(command) {
+        case NAV_CMD_QUERY_STATUS:
+            return "NAV_CMD_QUERY_STATUS";
+        case NAV_CMD_MOVE_FORWARD:
+            return "NAV_CMD_MOVE_FORWARD";
+        case NAV_CMD_MOVE_BACKWARD:
+            return "NAV_CMD_MOVE_BACKWARD";
+        case NAV_CMD_TURN_LEFT:
+            return "NAV_CMD_TURN_LEFT";
+        case NAV_CMD_TURN_RIGHT:
+            return "NAV_CMD_TURN_RIGHT";
+        case NAV_CMD_STOP:
+            return "NAV_CMD_STOP";
+        default:
+            DB_printf("Unknown command: %x\r\n", command);
+            return "UNKNOWN_COMMAND";
+    }
+}
+
+const char* TranslateNavStatusToStr(uint8_t status) {
+    switch(status) {
+        case NAV_STATUS_MOVE_FORWARD_COMPLETE:
+            return "NAV_STATUS_MOVE_FORWARD_COMPLETE";
+        case NAV_STATUS_MOVE_BACKWARD_COMPLETE:
+            return "NAV_STATUS_MOVE_BACKWARD_COMPLETE";
+        case NAV_STATUS_TURN_LEFT_COMPLETE:
+            return "NAV_STATUS_TURN_LEFT_COMPLETE";
+        case NAV_STATUS_TURN_RIGHT_COMPLETE:
+            return "NAV_STATUS_TURN_RIGHT_COMPLETE";
+        case NAV_STATUS_STOP_COMPLETE:
+            return "NAV_STATUS_STOP_COMPLETE";
+        case NAV_STATUS_TURN_CW_COMPLETE:
+            return "NAV_STATUS_TURN_CW_COMPLETE";
+        case NAV_STATUS_TURN_CCW_COMPLETE:
+            return "NAV_STATUS_TURN_CCW_COMPLETE";
+        case NAV_STATUS_QUERY_COMPLETE:
+            return "NAV_STATUS_QUERY_COMPLETE";
+        case NAV_STATUS_ALIGN_COMPLETE:
+            return "NAV_STATUS_ALIGN_COMPLETE";
+        case NAV_STATUS_OK:
+            return "NAV_STATUS_OK";
+        case NAV_STATUS_ERROR:
+            return "NAV_STATUS_ERROR";
+        case NAV_STATUS_TURN_LEFT:
+            return "NAV_STATUS_TURN_LEFT";
+        case NAV_STATUS_TURN_RIGHT:
+            return "NAV_STATUS_TURN_RIGHT";
+        case NAV_STATUS_TURN_360:
+            return "NAV_STATUS_TURN_360";
+        case NAV_STATUS_IDLE:
+            return "NAV_STATUS_IDLE";
+        case NAV_STATUS_LINE_FOLLOW:
+            return "NAV_STATUS_LINE_FOLLOW";
+        case NAV_STATUS_ALIGN_TAPE:
+            return "NAV_STATUS_ALIGN_TAPE";
+        case NAV_STATUS_CHECK_INTERSECTION:
+            return "NAV_STATUS_CHECK_INTERSECTION";
+        case NAV_STATUS_LINE_DISCOVER:
+            return "NAV_STATUS_LINE_DISCOVER";
+        case NAV_STATUS_CHECK_CRATE:
+            return "NAV_STATUS_CHECK_CRATE";
+        case NAV_STATUS_INIT:
+            return "NAV_STATUS_INIT";
+        default:
+            return "UNKNOWN_STATUS";
+    }
+}
+
 /*------------------------------ Module Code ------------------------------*/
 bool InitSPIFollowerService(uint8_t Priority)
 {

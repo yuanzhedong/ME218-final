@@ -43,6 +43,12 @@ static ES_Event_t DuringCheckCrate(ES_Event_t Event);
 static bool search_tap_ccw = false;
 static bool search_tap_cw = false;
 
+void NavCMDComplete(unint8_t nav_cmd) {
+    ES_Event_t ThisEvent;
+    ThisEvent.EventType = ES_NEW_NAV_STATUS;
+    ThisEvent.EventParam = nav_cmd + 1;
+    PostSPIFollowerService(nav_cmd);
+}
 void StopTapeFollow(void) {
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_TAPE_STOP;
@@ -358,27 +364,32 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
                         NextState = CheckCrate;
                         MakeTransition = true;
                         StopTapeFollow();
+                        NavCMDComplete(NAV_CMD_MOVE_FORWARD);
                         break;
                     case ES_CROSS_DETECTED:
                         DB_printf("[NAV HSM LINE_FOLLOW] Cross detected \r\n");
                         NextState = CheckIntersection;
                         MakeTransition = true;
                         StopTapeFollow();
+                        NavCMDComplete(NAV_CMD_MOVE_FORWARD);
                         break;
                     case ES_TJUNCTION_DETECTED:
                         NextState = CheckIntersection;
                         MakeTransition = true;
                         StopTapeFollow();
+                        NavCMDComplete(NAV_CMD_MOVE_FORWARD);
                         break;
                     case ES_STOP:
                         NextState = Idle;
                         MakeTransition = true;
                         StopTapeFollow();
+                        NavCMDComplete(NAV_CMD_MOVE_FORWARD);
                         break;
                     case ES_ERROR:
                         NextState = LineDiscover;
                         MakeTransition = true;
                         StopTapeFollow();
+                        NavCMDComplete(NAV_CMD_MOVE_FORWARD);
                         break;
                     default:
                         break;

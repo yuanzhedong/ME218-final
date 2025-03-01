@@ -85,7 +85,7 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
             break;
 
         case ES_NAVIGATOR_STATUS_CHANGE:
-            if (ThisEvent.EventParam == (PrevSendCmd + 1)) {
+            if (ThisEvent.EventParam == (PrevSentCmd + 1)) {
                 DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
                 NextAction();
             }
