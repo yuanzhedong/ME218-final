@@ -32,6 +32,8 @@ const char* TranslateNavCmdToStr(uint8_t command) {
             return "NAV_CMD_TURN_RIGHT";
         case NAV_CMD_STOP:
             return "NAV_CMD_STOP";
+        case NAV_CMD_ALIGN:
+            return "NAV_CMD_ALIGN";
         default:
             DB_printf("Unknown command: %x\r\n", command);
             return "UNKNOWN_COMMAND";
@@ -80,8 +82,6 @@ const char* TranslateNavStatusToStr(uint8_t status) {
             return "NAV_STATUS_LINE_DISCOVER";
         case NAV_STATUS_CHECK_CRATE:
             return "NAV_STATUS_CHECK_CRATE";
-        case NAV_STATUS_INIT:
-            return "NAV_STATUS_INIT";
         default:
             return "UNKNOWN_STATUS";
     }
@@ -118,7 +118,11 @@ ES_Event_t RunSPIFollowerService(ES_Event_t ThisEvent)
 
     if (ThisEvent.EventType == ES_NEW_NAV_STATUS) {
         CurrentNavStatus = ThisEvent.EventParam;
-        DB_printf("[SPI] SPIFollowerService received new nav status: %d\r\n", CurrentNavStatus);
+        if (ThisEvent.EventParam >= NAV_CMD_MOVE_FORWARD && ThisEvent.EventParam <= NAV_CMD_ALIGN + 1) {
+            DB_printf("[SPI] SPIFollowerService complet: %s\r\n", TranslateNavCmdToStr(ThisEvent.EventParam - 1));
+        } else {
+            DB_printf("[SPI] SPIFollowerService received new nav status: %s\r\n", CurrentNavStatus);
+        }
     }
 
     // Start a timer to query the slave periodically
@@ -187,12 +191,12 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     uint8_t receivedByte = SPI2BUF;
     IFS1CLR = _IFS1_SPI2RXIF_MASK; // Clear the interrupt flag
 
-    DB_printf("[SPI] Received byte: %d\r\n", receivedByte); // Add debug print
+    //DB_printf("[SPI] Received byte: %d\r\n", receivedByte); // Add debug print
 
     // Process command directly
     if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_ALIGN) {
         ReceivedCmd = receivedByte;
-        DB_printf("Received command: %d\r\n", ReceivedCmd);
+        DB_printf("[SPI] Received nav command: %s\r\n", TranslateNavCmdToStr(ReceivedCmd));
         ES_Event_t CmdEvent;
         CmdEvent.EventType = ES_NEW_NAV_CMD;
         CmdEvent.EventParam = ReceivedCmd;
@@ -202,9 +206,6 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
         DB_printf("Received status query\r\n");
         NavigatorState_t currentState = QueryNavigatorHSM();
         switch (currentState) {
-            case Init:
-                CurrentNavStatus = NAV_STATUS_INIT;
-                break;
             case Idle:
                 CurrentNavStatus = NAV_STATUS_IDLE;
                 break;

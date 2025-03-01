@@ -387,6 +387,12 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         Event2Post.EventParam = NAV_CMD_STOP;
         PostNavigatorHSM(Event2Post);
         break;
+    case '8':
+        DB_printf("8 pressed\r\n");
+        Event2Post.EventType = ES_TJUNCTION_DETECTED;
+        Event2Post.EventParam = NAV_CMD_STOP;
+        PostNavigatorHSM(Event2Post);
+        break;
     default:
         break;
     }
