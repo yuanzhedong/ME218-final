@@ -8,6 +8,7 @@
 static uint8_t MyPriority;
 static uint8_t CurrentPolicyStep=0;
 static uint8_t CurrentPolicyIdx=0;
+static uint8_t PrevSentCmd = 0;
 
 
 // Public function to initialize the service
@@ -40,11 +41,12 @@ bool PostPlannerPolicyService(ES_Event_t ThisEvent) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
-void NextAction() {
+void NextAction() {    
     ES_Event_t newEvent;
     newEvent.EventType = ES_NEW_NAV_CMD;
     newEvent.EventParam = NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][0];
-    DB_printf("[POLICY] Posting new command %d\r\n", newEvent.EventParam);
+    DB_printf("[POLICY] Posting command: %s\r\n", TranslateNavCmdToStr(newEvent.EventParam));
+    PrevSentCmd = newEvent.EventParam;
     PostSPIMasterService(newEvent);
     CurrentPolicyStep += 1;
     // Check if current policy is finished.
@@ -54,6 +56,7 @@ void NextAction() {
         // Post to planner current policy is complete
         DB_printf("[POLICY] Current policy is complete\r\n");
         PostPlannerHSM(finishedEvent);
+        ES_Timer_StopTimer(PLANNER_POLICY_TIMER);
     }
 }
 
@@ -77,14 +80,15 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
                 return ReturnEvent;
             }
             SetPolicy(policy_idx);
-            DB_printf("[POLICY] Current policy command: %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][0]);
-            DB_printf("[POLICY] Current policy command: %s\r\n", TranslateNavCmdToStr(NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]));
             ES_Timer_InitTimer(PLANNER_POLICY_TIMER, NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][1] * 1000);
             NextAction();
             break;
 
-        case ES_CONTINUE_PLANNER_POLICY:
-            // NextAction();
+        case ES_NAVIGATOR_STATUS_CHANGE:
+            if (ThisEvent.EventParam == (prev_sent_cmd + 1)) {
+                DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(current_nav_status));
+                NextAction();
+            }
             break;
 
         case ES_TIMEOUT:

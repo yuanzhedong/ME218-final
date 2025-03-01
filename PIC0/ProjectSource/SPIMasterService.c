@@ -38,12 +38,31 @@ const char* TranslateNavCmdToStr(uint8_t command) {
         case NAV_CMD_STOP:
             return "NAV_CMD_STOP";
         default:
+            DB_printf("Unknown command: %x\r\n", command);
             return "UNKNOWN_COMMAND";
     }
 }
 
 const char* TranslateNavStatusToStr(uint8_t status) {
     switch(status) {
+        case NAV_STATUS_MOVE_FORWARD_COMPLETE:
+            return "NAV_STATUS_MOVE_FORWARD_COMPLETE";
+        case NAV_STATUS_MOVE_BACKWARD_COMPLETE:
+            return "NAV_STATUS_MOVE_BACKWARD_COMPLETE";
+        case NAV_STATUS_TURN_LEFT_COMPLETE:
+            return "NAV_STATUS_TURN_LEFT_COMPLETE";
+        case NAV_STATUS_TURN_RIGHT_COMPLETE:
+            return "NAV_STATUS_TURN_RIGHT_COMPLETE";
+        case NAV_STATUS_STOP_COMPLETE:
+            return "NAV_STATUS_STOP_COMPLETE";
+        case NAV_STATUS_TURN_CW_COMPLETE:
+            return "NAV_STATUS_TURN_CW_COMPLETE";
+        case NAV_STATUS_TURN_CCW_COMPLETE:
+            return "NAV_STATUS_TURN_CCW_COMPLETE";
+        case NAV_STATUS_QUERY_COMPLETE:
+            return "NAV_STATUS_QUERY_COMPLETE";
+        case NAV_STATUS_ALIGN_COMPLETE:
+            return "NAV_STATUS_ALIGN_COMPLETE";
         case NAV_STATUS_OK:
             return "NAV_STATUS_OK";
         case NAV_STATUS_AT_CROSS:
