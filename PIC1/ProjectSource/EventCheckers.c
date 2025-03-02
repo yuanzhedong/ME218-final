@@ -123,7 +123,7 @@ bool Check4IntersectionIR(void){
   ES_Event_t ThisEvent;
   //initialize current local variables
     bool ReturnVal = false;
-    bool rightIR_state = PORTBbits.RB12; //defining to read input of shot sensor
+    bool rightIR_state = PORTBbits.RB14; //defining to read input of shot sensor
     bool leftIR_state = PORTAbits.RA3; //defining to read input of shot sensor
     static bool lastRightIR_state = false; //defining to read input of shot sensor
     static bool lastLeftIR_state = false; //defining to read input of shot sensor

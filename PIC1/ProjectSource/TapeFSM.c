@@ -548,6 +548,7 @@ void __ISR(_TIMER_4_VECTOR, IPL5SOFT) control_update_ISR(void)
       PostNavigatorHSM(Event2Post);
       Event2Post.EventType = ES_TAPE_STOP;
       PostTapeFSM(Event2Post);
+      CurrentState = Idle_tapeFSM;
     }
     
   }
