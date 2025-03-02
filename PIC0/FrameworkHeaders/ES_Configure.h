@@ -33,7 +33,7 @@
 /****************************************************************************/
 // This macro determines that nuber of services that are *actually* used in
 // a particular application. It will vary in value from 1 to MAX_NUM_SERVICES
-#define NUM_SERVICES 9
+#define NUM_SERVICES 10
 
 /****************************************************************************/
 // These are the definitions for Service 0, the lowest priority service.
@@ -173,11 +173,11 @@
 // These are the definitions for Service 9
 #if NUM_SERVICES > 9
 // the header file with the public function prototypes
-#define SERV_9_HEADER "TestHarnessService9.h"
+#define SERV_9_HEADER "Joint2ServoService.h"
 // the name of the Init function
-#define SERV_9_INIT InitTestHarnessService9
+#define SERV_9_INIT InitJoint2ServoService
 // the name of the run function
-#define SERV_9_RUN RunTestHarnessService9
+#define SERV_9_RUN RunJoint2ServoService
 // How big should this services Queue be?
 #define SERV_9_QUEUE_SIZE 3
 #endif
@@ -360,7 +360,7 @@ typedef enum
 #define TIMER4_RESP_FUNC TIMER_UNUSED
 #define TIMER5_RESP_FUNC TIMER_UNUSED
 #define TIMER6_RESP_FUNC TIMER_UNUSED
-#define TIMER7_RESP_FUNC TIMER_UNUSED
+#define TIMER7_RESP_FUNC PostJoint2ServoService
 #define TIMER8_RESP_FUNC PostJoint1ServoService
 #define TIMER9_RESP_FUNC TIMER_UNUSED
 #define TIMER10_RESP_FUNC TIMER_UNUSED
@@ -382,5 +382,6 @@ typedef enum
 #define SPI_QUERY_TIMER 14
 #define Stepper_TIMER 12
 #define JOINT1_SERVO_TIMER 8
+#define JOINT2_SERVO_TIMER 7
 
 #endif /* ES_CONFIGURE_H */

@@ -76,8 +76,8 @@ bool InitBeaconIndicatorService(uint8_t Priority) {
 
     // Configure Timer2 & PWM
     ConfigTimer2();
-    ConfigPWM_OC1();
-    ConfigPWM_OC3();
+    //ConfigPWM_OC1();
+    //ConfigPWM_OC3();
 
     // Configure Timer3 & Input Capture (IC3)
     ConfigTimer3();
