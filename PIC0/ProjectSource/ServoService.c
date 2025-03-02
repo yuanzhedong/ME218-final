@@ -23,7 +23,7 @@ volatile static uint16_t NumRollover;
 
 #define GAME_TIME 60 * ONE_SEC
 
-#define PWM_OUTPUT LATBbits.LATB9
+//#define PWM_OUTPUT LATBbits.LATB9
 
 
 static uint16_t maxPulseTicks = 6250; // +90
