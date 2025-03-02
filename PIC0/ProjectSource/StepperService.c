@@ -49,7 +49,7 @@ static uint16_t maxSpeed = 150; //max motor speed in Hz
 static uint16_t minSpeed = 3;
 static uint16_t stepsCommanded;
 static uint16_t stepsCompleted;
-static uint16_t StepInterval = 20; //steps per sec = 1000 / StepInterval
+static uint16_t StepInterval = 1; //steps per sec = 1000 / StepInterval
 static bool (*tableChosen)[4];
 static bool table_FullStep[4][4] = {
     {1, 0, 1, 0},
@@ -108,13 +108,13 @@ bool InitStepperService(uint8_t Priority)
   TRISBbits.TRISB11 = 0;
   TRISBbits.TRISB12 = 0;
   ANSELBbits.ANSB12 = 0;
-  H_bridge1A_LAT = 0;
+  H_bridge1A_LAT = 0;//stepper phase A+ RB9
   H_bridge2A_LAT = 0;
   H_bridge3A_LAT = 0;
   H_bridge4A_LAT = 0;
-  tableChosen = table_HalfStep;
+  tableChosen = table_FullStep;
   stepInd = 0;
-  RowNum = 8;
+  RowNum = 4;
   DB_printf("[STEP MOTER] half step mode chosen\r\n");
   // post the initial transition event
   ThisEvent.EventType = ES_INIT;
@@ -176,9 +176,14 @@ ES_Event_t RunStepperService(ES_Event_t ThisEvent)
   case ES_TIMEOUT:
     if (stepsCompleted >= stepsCommanded)
     {
+      H_bridge1A_LAT = 0;
+      H_bridge2A_LAT = 0;
+      H_bridge3A_LAT = 0;
+      H_bridge4A_LAT = 0;
       ES_Event_t Event2Post;
       Event2Post.EventType = ES_STEPPER_COMPLETE;
       PostPlannerHSM(Event2Post);
+      DB_printf("steps completed is %d\n", stepsCompleted);
     }else{
       //step1: step a step
       DB_printf("%d ",tableChosen[stepInd][0]);
@@ -215,7 +220,7 @@ ES_Event_t RunStepperService(ES_Event_t ThisEvent)
   break;
 
   case ES_STEPPER_FWD:
-    stepInd = 0;
+    //stepInd = 0;
     Dir = 0;
     stepsCommanded = ThisEvent.EventParam;
     stepsCompleted = 0;
@@ -223,7 +228,7 @@ ES_Event_t RunStepperService(ES_Event_t ThisEvent)
     DB_printf("steps commanded is %d\n", stepsCommanded);
     break;
   case ES_STEPPER_BWD:
-    stepInd = 0;
+    //stepInd = 0;
     Dir = 1;
     stepsCommanded = ThisEvent.EventParam;
     stepsCompleted = 0;
