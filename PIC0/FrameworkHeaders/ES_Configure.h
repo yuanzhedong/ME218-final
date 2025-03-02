@@ -307,7 +307,9 @@ typedef enum
   ES_REQUEST_NEW_PLANNER_POLICY,
   ES_CONTINUE_PLANNER_POLICY,
   ES_PLANNER_POLICY_COMPLETE,
-  ES_SEND_NEW_NAV_CMD
+  ES_SEND_NEW_NAV_CMD,
+  ES_ROTATE_ZERO,
+  ES_ROTATE_90,
 } ES_EventType_t;
 
 /****************************************************************************/
