@@ -153,9 +153,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 ThisEvent.EventType = ES_INIT_COMPLETE;
                 PostPlannerHSM(ThisEvent);
             } else if (CurrentEvent.EventType == ES_INIT_COMPLETE) {
-                DB_printf("[Planner] Init complete....\r\n");
-                //NextState = SEARCH_PICKUP_CRATE;
-                //MakeTransition = true;
+                DB_printf("[Planner] Waiting for Navigator....\r\n");
             }
             // for debug purposes, disable this when deploy
             if (CurrentEvent.EventType == ES_START_PLANNER) {
@@ -163,17 +161,28 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 MakeTransition = true;
                 NextState = SEARCH_PICKUP_CRATE;
             }
+
+            // wait for nav status idle use this for check off
+            if (CurrentEvent.EventType == ES_NAVIGATOR_HEALTH_CHECK && CurrentEvent.EventParam == NAV_STATUS_IDLE) {
+                DB_printf("Navigator is idle, moving to next, search for first crate\r\n");
+                NextState = SEARCH_PICKUP_CRATE;
+                MakeTransition = true;
+            }
             break;
 
+        // pickup the first crate
         case SEARCH_PICKUP_CRATE:
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
                     //TODO: add code to pick up the first crate
                     DB_printf("Entering SEARCH_PICKUP_CRATE\r\n");
+                    //NextState = TAPE_AND_SIDE_DETECTION;
+                    //MakeTransition = true;
+                    break;
+                case ES_CRATE_PICKED:
+                    DB_printf("Crate picked up, moving to next state\r\n");
                     NextState = TAPE_AND_SIDE_DETECTION;
                     MakeTransition = true;
-                    break;
-                default:
                     break;
             }
             break;

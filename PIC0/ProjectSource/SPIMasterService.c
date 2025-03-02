@@ -214,9 +214,15 @@ void __ISR(_SPI_1_VECTOR, IPL6SOFT) SPIMasterISR(void) {
     } else {
         ReceivedStatus = receivedByte;
         ES_Event_t CmdEvent;
-        if (PrevNavigatorStatus != ReceivedStatus) {
-            DB_printf("[SPI] Previous status: %d\r\n", PrevNavigatorStatus);
-            DB_printf("[SPI] Received status: %d\r\n", ReceivedStatus);
+        if (ReceivedStatus == NAV_STATUS_OK || ReceivedStatus == NAV_STATUS_ERROR || ReceivedStatus == NAV_STATUS_IDLE) {
+            // Received status
+            DB_printf("[SPI] Received status: %s\r\n", TranslateNavStatusToStr(ReceivedStatus));
+            CmdEvent.EventType = ES_NAVIGATOR_HEALTH_CHECK;
+            CmdEvent.EventParam = ReceivedStatus;
+            PostPlannerHSM(CmdEvent);
+        } else if (PrevNavigatorStatus != ReceivedStatus) {
+            DB_printf("[SPI] Previous status: %s\r\n", TranslateNavStatusToStr(PrevNavigatorStatus));
+            DB_printf("[SPI] Received status: %s\r\n", TranslateNavStatusToStr(ReceivedStatus));
             CmdEvent.EventType = ES_NAVIGATOR_STATUS_CHANGE;
             CmdEvent.EventParam = ReceivedStatus;
             PostPlannerHSM(CmdEvent);

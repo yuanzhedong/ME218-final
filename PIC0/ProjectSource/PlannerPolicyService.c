@@ -31,9 +31,9 @@ void SetPolicy(uint8_t policy_idx) {
 }
 
 // 0 for padding
-uint8_t NAV_POLICIES[][5][2] = {
-    {{NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_TURN_LEFT, 10}, {NAV_CMD_MOVE_FORWARD, 10}, {0, 0}, {0, 0}}, // NAV_TO_COLUMN_1
-    {{NAV_CMD_TURN_CW, 2}, {NAV_CMD_MOVE_FORWARD, 6}, {NAV_CMD_TURN_LEFT, 3}, {NAV_CMD_MOVE_FORWARD, 4}, {0, 0}} // NAV_TO_COLUMN_2
+uint8_t NAV_POLICIES[][6][2] = {
+    {{NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_TURN_LEFT, 10}, {NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}}, // NAV_TO_COLUMN_1
+    {{NAV_CMD_TURN_CW, 2}, {NAV_CMD_MOVE_FORWARD, 6}, {NAV_CMD_TURN_LEFT, 3}, {NAV_CMD_MOVE_FORWARD, 4}, {NAV_CMD_STOP, 0}, {0, 0}} // NAV_TO_COLUMN_2
 };
 
 // Public function to post events to the service

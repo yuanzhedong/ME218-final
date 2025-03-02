@@ -306,25 +306,55 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
                 NextState = Idle;
                 MakeTransition = true;
             }
+
+            if (CurrentEvent.EventType == ES_EXIT) {
+                DB_printf("[NAV HSM] Exit\r\n");
+                UpdateNavStatus(NAV_STATUS_OK);
+            }
             break;
 
         case Idle:
-            if (CurrentEvent.EventType == ES_NEW_NAV_CMD) {
-                DB_printf("[NAV HSM] Received new command: %d\r\n", CurrentEvent.EventParam);
-                uint8_t command = CurrentEvent.EventParam;
-                switch (command) {
-                    case NAV_CMD_MOVE_FORWARD:
-                        NextState = LineFollowForward;
-                        MakeTransition = true;
-                        break;
-                    case NAV_CMD_MOVE_BACKWARD:
-                        NextState = LineFollowBackward;
-                        MakeTransition = true;
-                        break;
-                    case NAV_CMD_ALIGN:
-                        NextState = AlignTape;
-                        MakeTransition = true;
-                        break;
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                DB_printf("[NAV HSM] Idle\r\n");
+                UpdateNavStatus(NAV_STATUS_IDLE);
+            } else {
+                if (CurrentEvent.EventType == ES_NEW_NAV_CMD) {
+                    DB_printf("[NAV HSM] Received new command: %d\r\n", CurrentEvent.EventParam);
+                    uint8_t command = CurrentEvent.EventParam;
+                    switch (command) {
+                        case NAV_CMD_MOVE_FORWARD:
+                            NextState = LineFollowForward;
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_MOVE_BACKWARD:
+                            NextState = LineFollowBackward;
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_ALIGN:
+                            NextState = AlignTape;
+                            MakeTransition = true;
+                            break;
+    
+                        // for debug purposes, disable this when deploy
+    
+                        case NAV_CMD_STOP:
+                            NextState = Idle;
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_TURN_LEFT:
+                            NextState = TurnLeft;
+                            MakeTransition = true;
+                            break;
+                        case NAV_CMD_TURN_RIGHT:
+                            NextState = TurnRight;
+                            MakeTransition = true;
+                            break;
+                    }
+                }
+                // for debug purposes, disable this when deploy
+                if (CurrentEvent.EventType == ES_CROSS_DETECTED) {
+                    NextState = CheckIntersection;
+                    MakeTransition = true;
                 }
             }
             break;
