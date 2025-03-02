@@ -63,6 +63,18 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         char key = ThisEvent.EventParam;
         switch (key)
         {
+            case '7':
+                CurEvent.EventType = ES_STEPPER_BWD;
+                CurEvent.EventParam = 300;
+                PostStepperService(CurEvent);
+                DB_printf("Stepper Backward\n");
+            break;
+            case '8':
+                CurEvent.EventType = ES_STEPPER_FWD;
+                CurEvent.EventParam = 300;
+                PostStepperService(CurEvent);
+                DB_printf("Stepper Forward\n");
+            break;
             case INIT_COMPLETE:
                 CurEvent.EventType = ES_INIT_COMPLETE;
                 PostPlannerHSM(CurEvent);
