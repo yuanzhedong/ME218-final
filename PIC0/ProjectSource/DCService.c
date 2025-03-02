@@ -29,7 +29,7 @@ static MotorDirection_t Direction;
 #define DC_1 LATAbits.LATA1
 #define DC_2 LATAbits.LATA2
 //#define DIR_VAL PORTAbits.RA3
-#define DIR_VAL 1
+#define DIR_VAL 0
 
 
 #define PWM_freq  10000 //wheel motor PWM frquency in Hz
@@ -37,7 +37,7 @@ static MotorDirection_t Direction;
 #define PIC_freq_kHz 20000
 #define ns_per_tick 50 //nano-sec per tick for the PBC = 1/PIC_freq
 #define prescalar_T2 2 //for PWM for the 2 motors
-#define DUTY_CYCLE 90
+#define DUTY_CYCLE 60
 
 /*---------------------------- Module Functions ---------------------------*/
 //static void SetMotorDirection(bool direction);
@@ -57,7 +57,7 @@ static void ConfigPWM_OC2() {
 
     // Set the PWM duty cycle by writing to the OCxRS register
     OC2RS = PR2 * 0;       // Secondary Compare Register (for duty cycle)
-       OC2R = PR2 * 0;        // Primary Compare Register (initial value)
+    OC2R = PR2 * 0;        // Primary Compare Register (initial value)
     //OC2R = (PR2 + 1) * 60 / 100;
     //OC2RS = (PR2 + 1) * 60 / 100;
 
@@ -99,7 +99,7 @@ bool InitDCMotorService(uint8_t Priority)
     ES_Event_t ThisEvent;
     ThisEvent.EventType = ES_INIT;
     
-    ConfigTimer2();
+    //ConfigTimer2();
     ConfigPWM_OC2();
     //OC2RS = (PR2 + 1) * 90 / 100;
     //OC2RS = PR2/2;

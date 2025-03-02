@@ -39,9 +39,9 @@ static uint8_t DutyCycle;
 #define CHANNEL4_PWM_FREQUENCY 50
 #define TIMER3_PRESCALE 64
 #define PIC_FREQ 20000000 // PIC 20MHz
-#define BLUE_PWM 5
-#define GREEN_PWM 15
-#define INIT_PWM 8
+#define BLUE_PWM 9
+#define GREEN_PWM 5
+#define INIT_PWM 7
 
 ////
 //void ConfigTimer3() {
@@ -91,7 +91,7 @@ bool InitServoService(uint8_t Priority)
     ConfigTimer3();
     ConfigPWM_OC4();
     //PR3 = 399999;
-    DutyCycle = GREEN_PWM;
+    DutyCycle = INIT_PWM;
 
     // post the initial transition event
     ThisEvent.EventType = ES_INIT;
@@ -117,7 +117,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
     switch (ThisEvent.EventType)
     {
     case ES_INIT:;
-        OC4RS = (PR3 + 1) * DutyCycle / 100;
+        OC4RS = (float)(PR3 + 1) * DutyCycle / 100;
         DB_printf("curent PR3 is %d\n", PR3);
         
     break;
@@ -129,7 +129,7 @@ ES_Event_t RunServoService(ES_Event_t ThisEvent)
         }else if (DetectedBeacon == BEACON_G || DetectedBeacon == BEACON_R){
             DutyCycle = GREEN_PWM;
         }
-        OC4RS = (PR3 + 1) * DutyCycle / 100;
+        OC4RS = (float)(PR3 + 1) * DutyCycle / 100;
         DB_printf("ES_SIDE_DETECTED is  %d\n", DetectedBeacon);
     break;
      
