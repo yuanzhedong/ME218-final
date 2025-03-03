@@ -17,8 +17,6 @@
                 <sourceRootElem>FrameworkSource</sourceRootElem>
                 <sourceRootElem>ProjectSource</sourceRootElem>
                 <sourceRootElem>ProjectHeaders</sourceRootElem>
-                <sourceRootElem>../PIC1/ProjectSource</sourceRootElem>
-                <sourceRootElem>../PIC1/ProjectHeaders</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

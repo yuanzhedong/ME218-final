@@ -81,8 +81,6 @@
     <Elem>FrameworkSource</Elem>
     <Elem>ProjectSource</Elem>
     <Elem>ProjectHeaders</Elem>
-    <Elem>../PIC1/ProjectSource</Elem>
-    <Elem>../PIC1/ProjectHeaders</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
