@@ -30,6 +30,7 @@ const char* GetStateName(PlannerState_t state) {
         case PICKUP_CRATE: return "PICKUP_CRATE";
         case NAVIGATE_TO_COLUMN_2: return "NAVIGATE_TO_COLUMN_2";
         case GAME_OVER: return "GAME_OVER";
+        case SEARCH_PICKUP_CRATE: return "SEARCH_PICKUP_CRATE";
         default: return "UNKNOWN_STATE";
     }
 }
@@ -339,7 +340,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 //TODO Post to arm service to drop crate
                 PostSPIMasterService(ThisEvent);
             } else if (CurrentEvent.EventType == ES_CRATE_DROPPED) {
-                    drapper_crate_count++;
+                    drop_crate_count++;
                     NextState = NAVIGATE_FROM_STACK_TO_CRATE;
                     MakeTransition = true;
                 }
