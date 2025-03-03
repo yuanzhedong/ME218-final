@@ -86,14 +86,14 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
             break;
 
         case ES_NAVIGATOR_STATUS_CHANGE:
-            if (ThisEvent.EventParam == (PrevSentCmd + 1)) {
-                DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
-                NextAction();
-            }
+            // if (ThisEvent.EventParam == (PrevSentCmd + 1)) {
+            //     DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
+            //     NextAction();
+            // }
             if (ThisEvent.EventParam == NAV_STATUS_ALIGN_TAPE) {
                 DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
                 // wait for another 10s to do tape alignment
-                ES_Timer_InitTimer(PLANNER_POLICY_TIMER, 10);
+                ES_Timer_InitTimer(PLANNER_POLICY_TIMER, 20);
             }
             break;
 

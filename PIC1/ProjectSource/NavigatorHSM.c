@@ -40,6 +40,7 @@ static ES_Event_t DuringTurnRight(ES_Event_t Event);
 static ES_Event_t DuringLineDiscover(ES_Event_t Event);
 static ES_Event_t DuringCheckCrate(ES_Event_t Event);
 
+//TODO: need to test in field
 static const ES_EventType_t TapeSearchStrategy[] = {
     ES_MOTOR_CCW_30,
     ES_MOTOR_CW_60,
@@ -378,11 +379,22 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
                 UpdateNavStatus(NAV_STATUS_ALIGN_TAPE);
                 TapeSearchIndex = 0;
                 ES_Event_t ThisEvent;
-                ThisEvent.EventType = TapeSearchStrategy[TapeSearchIndex];
-                PostMotorService(ThisEvent);
+                bool already_aligned = false;
+                // TODO: check if tape is already aligned
+                // use TapeFSM to do tape detection
+                // need function call to TapeFSM and see if it's already aligned
+                // already_aligned = CheckTapeAligned();
+                if (already_aligned) {
+                    NextState = TapeAligned;
+                    MakeTransition = true;
+                } else {
+                    ThisEvent.EventType = TapeSearchStrategy[TapeSearchIndex];
+                    PostMotorService(ThisEvent);
+                }
             } else {
                 switch (CurrentEvent.EventType) {
-                    case ES_TAPE_ALIGNED:
+                    // TapeFSM need to post ES_TAPE_ALIGNED so we can go to TapeAligned state
+                    case ES_TAPE_ALIGNED: 
                         NextState = TapeAligned;
                         MakeTransition = true;
                         break;
@@ -498,7 +510,7 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
             if (CurrentEvent.EventType == ES_ENTRY) {
                 DB_printf("[NAV HSM] Line following Forward\r\n");
                 UpdateNavStatus(NAV_STATUS_LINE_FOLLOW);
-                ForwardTapeFollow(70);
+                ForwardTapeFollow(70); // 70 is duty cycle
             } else {
                 switch (CurrentEvent.EventType) {
                     case ES_CROSS_DETECTED:
@@ -655,7 +667,7 @@ ES_Event_t RunNavigatorHSM(ES_Event_t CurrentEvent) {
                             NextState = LineFollowBackward;
                             MakeTransition = true;
                             break;
-                        case NAV_CMD_STOP:
+                        case NAV_CMD_STOP: // this stop cmd will be sent from planner
                             NextState = Idle;
                             MakeTransition = true;
                             break;

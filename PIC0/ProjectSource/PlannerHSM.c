@@ -248,6 +248,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
 
             break;
 
+        // Deal with first crate. From the tape_aligned to the at_stack
         case NAVIGATE_TO_COLUMN_1:
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
@@ -315,7 +316,10 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     PostPlannerPolicyService(CurrentEvent);
                     break;
 
-                case ES_AT_STACK:
+                case ES_AT_STACK: // stack detection service will be posted
+                    ThisEvent.EventType = ES_NEW_NAV_CMD;
+                    ThisEvent.EventParam = NAV_CMD_STOP;
+                    PostSPIMasterService(ThisEvent);
                 case ES_PLANNER_POLICY_COMPLETE:
                     DB_printf("Policy complete, moving to next state\r\n");
                     NextState = DROP_CRATE;
@@ -332,7 +336,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
         case DROP_CRATE:
             if (CurrentEvent.EventType == ES_ENTRY) {
                 DB_printf("Entering DROP_CRATE, Drop Crate Count: %d\n", drop_crate_count);
-                //TODO Post to arm to drop crate
+                //TODO Post to arm service to drop crate
                 PostSPIMasterService(ThisEvent);
             } else if (CurrentEvent.EventType == ES_CRATE_DROPPED) {
                     drapper_crate_count++;
