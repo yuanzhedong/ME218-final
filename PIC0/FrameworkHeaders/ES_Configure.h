@@ -300,6 +300,9 @@ typedef enum
   ES_NAV_ERROR,
   ES_START_PLANNER,
   ES_NAVIGATOR_STATUS_CHANGE,
+  ES_NAVIGATOR_HEALTH_CHECK,
+  ES_CRATE_PICKED,
+  ES_CRATE_DROPPED,
 } ES_EventType_t;
 
 /****************************************************************************/

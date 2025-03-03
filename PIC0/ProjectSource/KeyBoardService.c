@@ -28,13 +28,16 @@
 #define NAV_TURN_RIGHT 'd'
 #define NAV_STOP 'x'
 #define NAV_TURN_CW 'e'
-#define NAV_TURN_CCW 'q'
+#define NAV_TURN_CCW 'm'
 
 #define QUERY_STATUS 'z'
 
 #define START_PLANNER '0'
 #define TAPE_ALIGNED '1'
 #define AT_COLUMN_INTERSECTION '2'
+#define CRATE_PICKED '3'
+#define CRATE_DROPPED '4'
+
 /*---------------------------- Module Variables ---------------------------*/
 static uint8_t MyPriority;
 
@@ -130,12 +133,12 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventParam = NAV_CMD_STOP;
                 PostSPIMasterService(CurEvent);
                 break;
-            case NAV_CMD_TURN_CW:
+            case NAV_TURN_CW:
                 CurEvent.EventType = ES_NEW_NAV_CMD;
                 CurEvent.EventParam = NAV_CMD_TURN_CW;
                 PostSPIMasterService(CurEvent);
                 break;
-            case NAV_CMD_TURN_CCW:
+            case NAV_TURN_CCW:
                 CurEvent.EventType = ES_NEW_NAV_CMD;
                 CurEvent.EventParam = NAV_CMD_TURN_CCW;
                 PostSPIMasterService(CurEvent);
@@ -156,6 +159,15 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
                 CurEvent.EventType = ES_NEW_NAV_CMD;
                 CurEvent.EventParam = NAV_CMD_QUERY_STATUS;
                 PostSPIMasterService(CurEvent);
+                break;
+
+            case CRATE_PICKED:
+                CurEvent.EventType = ES_CRATE_PICKED;
+                PostPlannerHSM(CurEvent);
+                break;
+            case CRATE_DROPPED:
+                CurEvent.EventType = ES_CRATE_DROPPED;
+                PostPlannerHSM(CurEvent);
                 break;
             default:
                 return ReturnEvent;

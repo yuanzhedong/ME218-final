@@ -8,6 +8,7 @@
 static uint8_t MyPriority;
 static uint8_t CurrentPolicyStep=0;
 static uint8_t CurrentPolicyIdx=0;
+static uint8_t PrevSentCmd = 0;
 
 
 // Public function to initialize the service
@@ -30,9 +31,10 @@ void SetPolicy(uint8_t policy_idx) {
 }
 
 // 0 for padding
-uint8_t NAV_POLICIES[][5][2] = {
-    {{NAV_CMD_MOVE_BACKWARD, 2}, {NAV_CMD_TURN_LEFT, 2}, {NAV_CMD_MOVE_FORWARD, 2}, {0, 0}, {0, 0}}, // NAV_TO_COLUMN_1
-    {{NAV_CMD_TURN_CW, 2}, {NAV_CMD_MOVE_FORWARD, 6}, {NAV_CMD_TURN_LEFT, 3}, {NAV_CMD_MOVE_FORWARD, 4}, {0, 0}} // NAV_TO_COLUMN_2
+uint8_t NAV_POLICIES[][6][2] = {
+    {{NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_TURN_LEFT, 10}, {NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}}, // deal with first crate
+    {{NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}, {0, 0}}, // nav from sack to crate
+    {{NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}, {0, 0}}, // deal with second crate
 };
 
 // Public function to post events to the service
@@ -40,11 +42,12 @@ bool PostPlannerPolicyService(ES_Event_t ThisEvent) {
     return ES_PostToService(MyPriority, ThisEvent);
 }
 
-void NextAction() {
+void NextAction() {    
     ES_Event_t newEvent;
     newEvent.EventType = ES_NEW_NAV_CMD;
     newEvent.EventParam = NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][0];
-    DB_printf("[POLICY] Posting new command %d\r\n", newEvent.EventParam);
+    DB_printf("[POLICY] Posting command: %s\r\n", TranslateNavCmdToStr(newEvent.EventParam));
+    PrevSentCmd = newEvent.EventParam;
     PostSPIMasterService(newEvent);
     CurrentPolicyStep += 1;
     // Check if current policy is finished.
@@ -54,6 +57,7 @@ void NextAction() {
         // Post to planner current policy is complete
         DB_printf("[POLICY] Current policy is complete\r\n");
         PostPlannerHSM(finishedEvent);
+        ES_Timer_StopTimer(PLANNER_POLICY_TIMER);
     }
 }
 
@@ -77,13 +81,20 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
                 return ReturnEvent;
             }
             SetPolicy(policy_idx);
-            DB_printf("[POLICY] Init timer for policy %d\r\n", NAV_POLICIES[CurrentPolicyIdx][CurrentPolicyStep][1]);
             ES_Timer_InitTimer(PLANNER_POLICY_TIMER, NAV_POLICIES[CurrentPolicyIdx] [CurrentPolicyStep][1] * 1000);
             NextAction();
             break;
 
-        case ES_CONTINUE_PLANNER_POLICY:
-            // NextAction();
+        case ES_NAVIGATOR_STATUS_CHANGE:
+            // if (ThisEvent.EventParam == (PrevSentCmd + 1)) {
+            //     DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
+            //     NextAction();
+            // }
+            if (ThisEvent.EventParam == NAV_STATUS_ALIGN_TAPE) {
+                DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
+                // wait for another 10s to do tape alignment
+                ES_Timer_InitTimer(PLANNER_POLICY_TIMER, 20);
+            }
             break;
 
         case ES_TIMEOUT:

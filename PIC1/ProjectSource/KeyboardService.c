@@ -137,7 +137,9 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'c':
-
+        DB_printf("ES_TAPE_ALIGNED posted to NavigatorHSM\r\n");
+        Event2Post.EventType = ES_TAPE_ALIGNED;
+        PostNavigatorHSM(Event2Post);
         break;
     case 'd':
 
@@ -384,6 +386,12 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
     case '7':
         DB_printf("7 pressed\r\n");
         Event2Post.EventType = ES_CROSS_DETECTED;
+        Event2Post.EventParam = NAV_CMD_STOP;
+        PostNavigatorHSM(Event2Post);
+        break;
+    case '8':
+        DB_printf("8 pressed\r\n");
+        Event2Post.EventType = ES_TJUNCTION_DETECTED;
         Event2Post.EventParam = NAV_CMD_STOP;
         PostNavigatorHSM(Event2Post);
         break;

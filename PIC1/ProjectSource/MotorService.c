@@ -49,7 +49,7 @@ static void StopMotor(void);
 #define H_bridge3A_LAT LATBbits.LATB9     // latch
 // prescalars and priorities
 #define prescalar_T2 2  // for PWM for the 2 motors
-#define Turn90TIME 1300 // time to turn 90 degrees in ms
+#define Turn90TIME 6000 // time to turn 90 degrees in ms
 static uint8_t MyPriority;
 
 /*------------------------------ Module Code ------------------------------*/
@@ -150,6 +150,7 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
   case ES_TIMEOUT:
     if (ThisEvent.EventParam == Motor_Turning_TIMER)//meaning that turning has completed
     {
+      
       StopMotor();
       ES_Event_t ThisEvent;
       ThisEvent.EventType = ES_TURN_COMPLETE;
@@ -206,6 +207,39 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
     H_bridge3A_LAT = 1;
     OC4RS = (float)PR2 * 50 /100;
     OC3RS = (float)PR2 * 50 /100;
+    break;
+  
+  case ES_MOTOR_CCW_90:
+    DB_printf("CCW 90 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME);
+    H_bridge1A_LAT = 0;
+    H_bridge3A_LAT = 1;
+    OC4RS = (float)PR2 * 50 /100;
+    OC3RS = (float)PR2 * 50 /100;
+    break;
+  case ES_MOTOR_CCW_30:
+    DB_printf("CCW 30 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME / 3);
+    H_bridge1A_LAT = 0;
+    H_bridge3A_LAT = 1;
+    OC4RS = (float)PR2 * 50 / 100;
+    OC3RS = (float)PR2 * 50 / 100;
+    break;
+  case ES_MOTOR_CW_60:
+    DB_printf("CW 60 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME * 2 / 3);
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 0;
+    OC4RS = (float)PR2 * 50 / 100;
+    OC3RS = (float)PR2 * 50 / 100;
+    break;
+  case ES_MOTOR_CW_210:
+    DB_printf("CW 210 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME * 7 / 3);
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 0;
+    OC4RS = (float)PR2 * 50 / 100;
+    OC3RS = (float)PR2 * 50 / 100;
     break;
   default:
     break;
