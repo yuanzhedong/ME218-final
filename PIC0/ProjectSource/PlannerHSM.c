@@ -6,12 +6,13 @@
 #include "BeaconIndicatorService.h"
 #include "SPIMasterService.h"
 #include "PlannerPolicyService.h"
+#include "ServoService.h"
 
 /*----------------------------- Module Variables ---------------------------*/
 static PlannerState_t CurrentState;
 static uint8_t MyPriority;
 static uint8_t CURRENT_COLUMN = 1;
-static uint8_t drop_crate_count = 1;
+static uint8_t drop_crate_count = 0;
 static PlannerState_t ProcessColumnSubState = GO_TO_STACK; // Start substate
 static tape_aligned = false;
 static side_detected = false;
@@ -29,6 +30,7 @@ const char* GetStateName(PlannerState_t state) {
         case PICKUP_CRATE: return "PICKUP_CRATE";
         case NAVIGATE_TO_COLUMN_2: return "NAVIGATE_TO_COLUMN_2";
         case GAME_OVER: return "GAME_OVER";
+        case SEARCH_PICKUP_CRATE: return "SEARCH_PICKUP_CRATE";
         default: return "UNKNOWN_STATE";
     }
 }
@@ -152,27 +154,36 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                 ThisEvent.EventType = ES_INIT_COMPLETE;
                 PostPlannerHSM(ThisEvent);
             } else if (CurrentEvent.EventType == ES_INIT_COMPLETE) {
-                DB_printf("[Planner] Init complete....\r\n");
-                //NextState = SEARCH_PICKUP_CRATE;
-                //MakeTransition = true;
+                DB_printf("[Planner] Waiting for Navigator....\r\n");
             }
             // for debug purposes, disable this when deploy
             if (CurrentEvent.EventType == ES_START_PLANNER) {
-                MakeTransition = true;
-                NextState = TAPE_AND_SIDE_DETECTION;
                 DB_printf("Exiting INIT_PLANNER\r\n");
+                MakeTransition = true;
+                NextState = SEARCH_PICKUP_CRATE;
+            }
+
+            // wait for nav status idle use this for check off
+            if (CurrentEvent.EventType == ES_NAVIGATOR_HEALTH_CHECK && CurrentEvent.EventParam == NAV_STATUS_IDLE) {
+                DB_printf("Navigator is idle, moving to next, search for first crate\r\n");
+                NextState = SEARCH_PICKUP_CRATE;
+                MakeTransition = true;
             }
             break;
 
+        // pickup the first crate
         case SEARCH_PICKUP_CRATE:
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
                     //TODO: add code to pick up the first crate
                     DB_printf("Entering SEARCH_PICKUP_CRATE\r\n");
-                    NextState = NAVIGATE_TO_COLUMN_1;
-                    MakeTransition = true;
+                    //NextState = TAPE_AND_SIDE_DETECTION;
+                    //MakeTransition = true;
                     break;
-                default:
+                case ES_CRATE_PICKED:
+                    DB_printf("Crate picked up, moving to next state\r\n");
+                    NextState = TAPE_AND_SIDE_DETECTION;
+                    MakeTransition = true;
                     break;
             }
             break;
@@ -193,9 +204,12 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                         //NextState = GAME_OVER;
                         //MakeTransition = true;
                     } else {
-                        if (CurrentEvent.EventParam == BEACON_L) {
+                        ThisEvent.EventType = ES_SIDE_DETECTED;
+                        PostServoService(ThisEvent);
+                        if (CurrentEvent.EventParam == BEACON_L || CurrentEvent.EventParam == BEACON_B ) {
                             puts("We are at green side!\r\n");
-                        } else {
+                            
+                        } else if (CurrentEvent.EventParam == BEACON_R || CurrentEvent.EventParam == BEACON_G ){
                             puts("We are at blue side!\r\n");
                         }
                     }
@@ -203,6 +217,20 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     side_detected = true;
                     break;
                 
+                case ES_NAVIGATOR_STATUS_CHANGE:
+                    switch (CurrentEvent.EventParam) {
+                        case NAV_STATUS_TAPE_ALIGNED:
+                            NextState = NAVIGATE_TO_COLUMN_1;
+                            MakeTransition = true;
+                            break;
+                        case NAV_STATUS_LINE_DISCOVER:
+                            puts("Line discovered failed!!!!\r\n");
+                            //TODO: try discover
+                            NextState = GAME_OVER;
+                            MakeTransition = true;
+                            break;
+                        }
+                    break;
                 //TODO: Assume beacon detection always success before tape detection
                 case ES_TAPE_ALIGNED:
                     tape_aligned = true;
@@ -224,6 +252,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
 
             break;
 
+        // Deal with first crate. From the tape_aligned to the at_stack
         case NAVIGATE_TO_COLUMN_1:
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:
@@ -233,23 +262,14 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     break;
 
                 case ES_NAVIGATOR_STATUS_CHANGE:
-                    ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
-                    //PostPlannerPolicyService(ThisEvent);
-
-                    case ES_AT_COLUMN_INTERSECTION:
-                        DB_printf("Arrived at column intersection\r\n");
-                        ThisEvent.EventType = ES_CONTINUE_PLANNER_POLICY;
-                        PostPlannerPolicyService(ThisEvent);
-                    
-                    //NextState = PROCESS_COLUMN;
-                    //MakeTransition = true;
+                    PostPlannerPolicyService(CurrentEvent);
                     break;
 
                 case ES_PLANNER_POLICY_COMPLETE:
                     DB_printf("Policy complete, moving to next state\r\n");
                     //NextState = PROCESS_COLUMN;
                     // TODO: for checkoff purposes, disable this when deploy
-                    NextState = GAME_OVER;
+                    NextState = DROP_CRATE;
                     MakeTransition = true;
                     break;
 
@@ -261,6 +281,83 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             }
             break;
 
+        case NAVIGATE_FROM_STACK_TO_CRATE:
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
+                    ThisEvent.EventParam = NAV_FROM_STACK_TO_CRATE_POLICY;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+
+                case ES_NAVIGATOR_STATUS_CHANGE:
+                    PostPlannerPolicyService(CurrentEvent);
+                    break;
+
+                case ES_CRATE_DETECTED:
+                case ES_PLANNER_POLICY_COMPLETE:
+                    DB_printf("Policy complete, moving to next state\r\n");
+                    NextState = PICKUP_CRATE;
+                    MakeTransition = true;
+                    break;
+
+                default:
+                    // shouldn't go here
+                    // add code to deal with exception
+                    
+                    break;
+            }
+            break;
+            
+        case NAVIGATE_FROM_CRATE_TO_STACK:
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
+                    ThisEvent.EventParam = NAV_FROM_CRATE_TO_STACK_POLICY;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+
+                case ES_NAVIGATOR_STATUS_CHANGE:
+                    PostPlannerPolicyService(CurrentEvent);
+                    break;
+
+                case ES_AT_STACK: // stack detection service will be posted
+                    ThisEvent.EventType = ES_NEW_NAV_CMD;
+                    ThisEvent.EventParam = NAV_CMD_STOP;
+                    PostSPIMasterService(ThisEvent);
+                case ES_PLANNER_POLICY_COMPLETE:
+                    DB_printf("Policy complete, moving to next state\r\n");
+                    NextState = DROP_CRATE;
+                    MakeTransition = true;
+                    break;
+
+                default:
+                    // shouldn't go here
+                    // add code to deal with exception       
+                    break;
+            }
+            break;
+
+        case DROP_CRATE:
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                DB_printf("Entering DROP_CRATE, Drop Crate Count: %d\n", drop_crate_count);
+                //TODO Post to arm service to drop crate
+                PostSPIMasterService(ThisEvent);
+            } else if (CurrentEvent.EventType == ES_CRATE_DROPPED) {
+                    drop_crate_count++;
+                    NextState = NAVIGATE_FROM_STACK_TO_CRATE;
+                    MakeTransition = true;
+                }
+            break;
+        
+        case PICKUP_CRATE:
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                DB_printf("Entering PICKUP_CRATE, Drop Crate Count: %d\n", drop_crate_count);
+                //TODO Post to arm to pick up crate
+            } else if (CurrentEvent.EventType == ES_CRATE_PICKED) {
+                    NextState = NAVIGATE_FROM_CRATE_TO_STACK;
+                    MakeTransition = true;
+            }
+            break;
         case NAVIGATE_TO_COLUMN_2:
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:

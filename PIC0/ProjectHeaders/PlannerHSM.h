@@ -19,7 +19,9 @@ typedef enum {
     PICKUP_CRATE,
     NAVIGATE_TO_COLUMN_2,
     CHECK_ROBO_STATUS,
-    GAME_OVER
+    GAME_OVER,
+    NAVIGATE_FROM_STACK_TO_CRATE,
+    NAVIGATE_FROM_CRATE_TO_STACK,
 } PlannerState_t;
 
 /*----------------------------- Public Functions ----------------------------*/

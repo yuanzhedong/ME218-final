@@ -1,3 +1,4 @@
+
 /****************************************************************************
  Module
    MotorService.c
@@ -24,6 +25,7 @@
 #include "terminal.h"
 #include "dbprintf.h"
 #include "BeaconIndicatorService.h"
+#include "ServoService.h"
 
 /*----------------------------- Module Defines ----------------------------*/
 
@@ -42,7 +44,7 @@
 #define FREQ_R 2000
 
 // Side Detection Colors
-Beacon_t DetectedBeacon;
+static volatile DetectedBeacon;
 
 static uint8_t MyPriority;
 //static MotorState_t CurrentState;
@@ -79,7 +81,7 @@ bool InitBeaconIndicatorService(uint8_t Priority) {
 
     // Configure Timer3 & Input Capture (IC3)
     ConfigTimer3();
-    Config_IC2();
+    Config_IC1();
 
     // Initialize Motor Pin state
     LATBbits.LATB2 = 0;
@@ -110,21 +112,13 @@ ES_Event_t RunBeaconIndicatorService(ES_Event_t ThisEvent) {
             DB_printf("\r Receive Side detection request: Start Aligning\r\n");
 
             // Start rotating CCW
-            LATBbits.LATB2 = 1;
-            LATBbits.LATB9 = 0;
+            // LATBbits.LATB2 = 1;
+            // LATBbits.LATB9 = 0;
 
-            OC1RS = (PR2 + 1) * (100 - dutyCycle) / 100;
-            OC3RS = (PR2 + 1) * dutyCycle / 100;
+            // OC1RS = (PR2 + 1) * (100 - dutyCycle) / 100;
+            // OC3RS = (PR2 + 1) * dutyCycle / 100;
 
             ES_Timer_InitTimer(BEACON_ALIGN_TIMER, ALIGNMENT_TIMEOUT);
-            break;
-
-        case ES_STOP:
-            DB_printf("\rMotor: Stop\r\n");
-            LATBbits.LATB2 = 0;
-            LATBbits.LATB9 = 0;
-            OC1RS = 0;
-            OC3RS = 0;
             break;
 
         case ES_TIMEOUT:
@@ -213,14 +207,25 @@ void Config_IC2() {
     IEC0SET = _IEC0_IC2IE_MASK;
     IC2CONbits.ON = 1;
 }
+void Config_IC1() {
+    IC1CONbits.ON = 0;
+    IC1CONbits.C32 = 0;
+    IC1CONbits.ICTMR = 0;
+    IC1CONbits.ICI = 0b00;
+    IC1CONbits.ICM = 0b011;
 
+    IFS0CLR = _IFS0_IC2IF_MASK;
+    IPC1bits.IC1IP = 7;
+    IEC0SET = _IEC0_IC1IE_MASK;
+    IC1CONbits.ON = 1;
+}
 /***************************************************************************
  * Interrupt Service Routines
  ***************************************************************************/
 
-void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
-    CapturedTime = IC2BUF;
-    IFS0CLR = _IFS0_IC2IF_MASK;
+void __ISR(_INPUT_CAPTURE_1_VECTOR, IPL7SOFT) IC1ISR(void) {
+    CapturedTime = IC1BUF;
+    IFS0CLR = _IFS0_IC1IF_MASK;
 
     if ((IFS0bits.T3IF == 1) && (CapturedTime < 0x8000)) {
         NumRollover++;
@@ -233,24 +238,25 @@ void __ISR(_INPUT_CAPTURE_2_VECTOR, IPL7SOFT) IC2ISR(void) {
 
     float freq = TICK_FREQ / PulsePR;
     //DB_printf("PulsePR is: %d\n", PulsePR);
-    if (PulsePR > 0 && !aligned) {
+    if (freq > 0 && !aligned) {
         detectedFreq = (int)(freq+0.5);
         DB_printf("Detected Frequency: %d\n", freq);
         
         if (abs(detectedFreq - FREQ_G) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON G\n");
+            DB_printf("Aligned with BEACON G\n");
             DetectedBeacon = BEACON_G;
             aligned = true;
         } else if (abs(detectedFreq - FREQ_B) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON B\n");
+            DB_printf("Aligned with BEACON B\n");
             DetectedBeacon = BEACON_B;
             aligned = true;
+            
         } else if (abs(detectedFreq - FREQ_R) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON R\n");
+            DB_printf("Aligned with BEACON R\n");
             DetectedBeacon = BEACON_R;
             aligned = true;
         } else if (abs(detectedFreq - FREQ_L) <= FreqTolerance) {
-            //DB_printf("Aligned with BEACON L\n");
+            DB_printf("Aligned with BEACON L\n");
             DetectedBeacon = BEACON_L;
             aligned = true;
         }

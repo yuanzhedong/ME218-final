@@ -6,7 +6,7 @@
 #include "ES_Configure.h"
 #include "ES_Framework.h"
 
-typedef enum { BEACON_G, BEACON_B, BEACON_R, BEACON_L, BEACON_UNKNOWN } Beacon_t;
+//typedef enum { BEACON_G, BEACON_B, BEACON_R, BEACON_L, BEACON_UNKNOWN } Beacon_t;
 
 bool InitBeaconIndicatorService(uint8_t Priority);
 bool PostBeaconIndicatorService(ES_Event_t ThisEvent);

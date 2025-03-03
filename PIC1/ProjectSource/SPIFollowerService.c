@@ -17,6 +17,78 @@ void InitSPI(void);
 void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void);
 void TriggerSPIFollowerISR(void); // Function prototype for triggering ISR
 
+
+const char* TranslateNavCmdToStr(uint8_t command) {
+    switch(command) {
+        case NAV_CMD_QUERY_STATUS:
+            return "NAV_CMD_QUERY_STATUS";
+        case NAV_CMD_MOVE_FORWARD:
+            return "NAV_CMD_MOVE_FORWARD";
+        case NAV_CMD_MOVE_BACKWARD:
+            return "NAV_CMD_MOVE_BACKWARD";
+        case NAV_CMD_TURN_LEFT:
+            return "NAV_CMD_TURN_LEFT";
+        case NAV_CMD_TURN_RIGHT:
+            return "NAV_CMD_TURN_RIGHT";
+        case NAV_CMD_STOP:
+            return "NAV_CMD_STOP";
+        case NAV_CMD_ALIGN:
+            return "NAV_CMD_ALIGN";
+        default:
+            DB_printf("Unknown command: %x\r\n", command);
+            return "UNKNOWN_COMMAND";
+    }
+}
+
+const char* TranslateNavStatusToStr(uint8_t status) {
+    switch(status) {
+        case NAV_STATUS_MOVE_FORWARD_COMPLETE:
+            return "NAV_STATUS_MOVE_FORWARD_COMPLETE";
+        case NAV_STATUS_MOVE_BACKWARD_COMPLETE:
+            return "NAV_STATUS_MOVE_BACKWARD_COMPLETE";
+        case NAV_STATUS_TURN_LEFT_COMPLETE:
+            return "NAV_STATUS_TURN_LEFT_COMPLETE";
+        case NAV_STATUS_TURN_RIGHT_COMPLETE:
+            return "NAV_STATUS_TURN_RIGHT_COMPLETE";
+        case NAV_STATUS_STOP_COMPLETE:
+            return "NAV_STATUS_STOP_COMPLETE";
+        case NAV_STATUS_TURN_CW_COMPLETE:
+            return "NAV_STATUS_TURN_CW_COMPLETE";
+        case NAV_STATUS_TURN_CCW_COMPLETE:
+            return "NAV_STATUS_TURN_CCW_COMPLETE";
+        case NAV_STATUS_QUERY_COMPLETE:
+            return "NAV_STATUS_QUERY_COMPLETE";
+        case NAV_STATUS_ALIGN_COMPLETE:
+            return "NAV_STATUS_ALIGN_COMPLETE";
+        case NAV_STATUS_OK:
+            return "NAV_STATUS_OK";
+        case NAV_STATUS_ERROR:
+            return "NAV_STATUS_ERROR";
+        case NAV_STATUS_TURN_LEFT:
+            return "NAV_STATUS_TURN_LEFT";
+        case NAV_STATUS_TURN_RIGHT:
+            return "NAV_STATUS_TURN_RIGHT";
+        case NAV_STATUS_TURN_360:
+            return "NAV_STATUS_TURN_360";
+        case NAV_STATUS_IDLE:
+            return "NAV_STATUS_IDLE";
+        case NAV_STATUS_LINE_FOLLOW:
+            return "NAV_STATUS_LINE_FOLLOW";
+        case NAV_STATUS_ALIGN_TAPE:
+            return "NAV_STATUS_ALIGN_TAPE";
+        case NAV_STATUS_CHECK_INTERSECTION:
+            return "NAV_STATUS_CHECK_INTERSECTION";
+        case NAV_STATUS_LINE_DISCOVER:
+            return "NAV_STATUS_LINE_DISCOVER";
+        case NAV_STATUS_CHECK_CRATE:
+            return "NAV_STATUS_CHECK_CRATE";
+        case NAV_STATUS_TAPE_ALIGNED:
+            return "NAV_STATUS_TAPE_ALIGNED";
+        default:
+            return "UNKNOWN_STATUS";
+    }
+}
+
 /*------------------------------ Module Code ------------------------------*/
 bool InitSPIFollowerService(uint8_t Priority)
 {
@@ -48,7 +120,11 @@ ES_Event_t RunSPIFollowerService(ES_Event_t ThisEvent)
 
     if (ThisEvent.EventType == ES_NEW_NAV_STATUS) {
         CurrentNavStatus = ThisEvent.EventParam;
-        DB_printf("[SPI] SPIFollowerService received new nav status: %d\r\n", CurrentNavStatus);
+        if (ThisEvent.EventParam >= NAV_CMD_MOVE_FORWARD && ThisEvent.EventParam <= NAV_CMD_ALIGN + 1) {
+            DB_printf("[SPI] complete: %s\r\n", TranslateNavCmdToStr(ThisEvent.EventParam - 1));
+        } else {
+            DB_printf("[SPI] received new nav status: %s\r\n", CurrentNavStatus);
+        }
     }
 
     // Start a timer to query the slave periodically
@@ -117,24 +193,21 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
     uint8_t receivedByte = SPI2BUF;
     IFS1CLR = _IFS1_SPI2RXIF_MASK; // Clear the interrupt flag
 
-    DB_printf("[SPI] Received byte: %d\r\n", receivedByte); // Add debug print
+    //DB_printf("[SPI] Received byte: %d\r\n", receivedByte); // Add debug print
 
     // Process command directly
-    if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_TURN_CCW) {
+    if(receivedByte >= NAV_CMD_MOVE_FORWARD && receivedByte <= NAV_CMD_ALIGN) {
         ReceivedCmd = receivedByte;
-        DB_printf("Received command: %d\r\n", ReceivedCmd);
+        DB_printf("[SPI] Received nav command: %s\r\n", TranslateNavCmdToStr(ReceivedCmd));
         ES_Event_t CmdEvent;
         CmdEvent.EventType = ES_NEW_NAV_CMD;
         CmdEvent.EventParam = ReceivedCmd;
         PostNavigatorHSM(CmdEvent);
     } else if (receivedByte == NAV_CMD_QUERY_STATUS) {
         // Update status based on Navigator state
-        DB_printf("Received status query\r\n");
+        DB_printf("[SPI] Received status query: %s\r\n", TranslateNavCmdToStr(receivedByte));
         NavigatorState_t currentState = QueryNavigatorHSM();
         switch (currentState) {
-            case Init:
-                CurrentNavStatus = NAV_STATUS_INIT;
-                break;
             case Idle:
                 CurrentNavStatus = NAV_STATUS_IDLE;
                 break;
@@ -159,6 +232,9 @@ void __ISR(_SPI_2_VECTOR, IPL6SOFT) SPIFollowerISR(void) {
                 break;
             case CheckCrate:
                 CurrentNavStatus = NAV_STATUS_CHECK_CRATE;
+                break;
+            case TapeAligned:
+                CurrentNavStatus = NAV_STATUS_TAPE_ALIGNED;
                 break;
             default:
                 CurrentNavStatus = NAV_STATUS_ERROR;
