@@ -137,7 +137,9 @@ ES_Event_t RunKeyboardService(ES_Event_t ThisEvent)
         /* code */
         break;
     case 'c':
-
+        DB_printf("ES_TAPE_ALIGNED posted to NavigatorHSM\r\n");
+        Event2Post.EventType = ES_TAPE_ALIGNED;
+        PostNavigatorHSM(Event2Post);
         break;
     case 'd':
 

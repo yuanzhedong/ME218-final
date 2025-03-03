@@ -87,6 +87,8 @@ const char* TranslateNavStatusToStr(uint8_t status) {
             return "NAV_STATUS_CHECK_CRATE";
         case NAV_STATUS_INIT:
             return "NAV_STATUS_INIT";
+        case NAV_STATUS_TAPE_ALIGNED:
+            return "NAV_STATUS_TAPE_ALIGNED";
         default:
             return "UNKNOWN_STATUS";
     }

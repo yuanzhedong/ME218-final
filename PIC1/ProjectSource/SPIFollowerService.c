@@ -82,6 +82,8 @@ const char* TranslateNavStatusToStr(uint8_t status) {
             return "NAV_STATUS_LINE_DISCOVER";
         case NAV_STATUS_CHECK_CRATE:
             return "NAV_STATUS_CHECK_CRATE";
+        case NAV_STATUS_TAPE_ALIGNED:
+            return "NAV_STATUS_TAPE_ALIGNED";
         default:
             return "UNKNOWN_STATUS";
     }
@@ -119,9 +121,9 @@ ES_Event_t RunSPIFollowerService(ES_Event_t ThisEvent)
     if (ThisEvent.EventType == ES_NEW_NAV_STATUS) {
         CurrentNavStatus = ThisEvent.EventParam;
         if (ThisEvent.EventParam >= NAV_CMD_MOVE_FORWARD && ThisEvent.EventParam <= NAV_CMD_ALIGN + 1) {
-            DB_printf("[SPI] SPIFollowerService complet: %s\r\n", TranslateNavCmdToStr(ThisEvent.EventParam - 1));
+            DB_printf("[SPI] complete: %s\r\n", TranslateNavCmdToStr(ThisEvent.EventParam - 1));
         } else {
-            DB_printf("[SPI] SPIFollowerService received new nav status: %s\r\n", CurrentNavStatus);
+            DB_printf("[SPI] received new nav status: %s\r\n", CurrentNavStatus);
         }
     }
 

@@ -6,9 +6,9 @@
 
 #define INVALID_POLICY_IDX -1
 #define NAV_TO_COLUMN_1_POLICY 0
-#define NAV_TO_COLUMN_2_POLICY 1
-#define NAV_TO_COLUMN_3_POLICY 2
-#define NAV_TO_COLUMN_4_POLICY 3
+#define NAV_FROM_STACK_TO_CRATE_POLICY 1
+#define NAV_FROM_CRATE_TO_STACK_POLICY 2
+#define NAV_TO_COLUMN_2_POLICY 3
 
 // Public Function Prototypes
 bool InitPlannerPolicyService(uint8_t Priority);

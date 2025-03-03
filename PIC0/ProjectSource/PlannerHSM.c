@@ -12,7 +12,7 @@
 static PlannerState_t CurrentState;
 static uint8_t MyPriority;
 static uint8_t CURRENT_COLUMN = 1;
-static uint8_t drop_crate_count = 1;
+static uint8_t drop_crate_count = 0;
 static PlannerState_t ProcessColumnSubState = GO_TO_STACK; // Start substate
 static tape_aligned = false;
 static side_detected = false;
@@ -213,6 +213,20 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     side_detected = true;
                     break;
                 
+                case ES_NAVIGATOR_STATUS_CHANGE:
+                    switch (CurrentEvent.EventParam) {
+                        case NAV_STATUS_TAPE_ALIGNED:
+                            NextState = NAVIGATE_TO_COLUMN_1;
+                            MakeTransition = true;
+                            break;
+                        case NAV_STATUS_LINE_DISCOVER:
+                            puts("Line discovered failed!!!!\r\n");
+                            //TODO: try discover
+                            NextState = GAME_OVER;
+                            MakeTransition = true;
+                            break;
+                        }
+                    break;
                 //TODO: Assume beacon detection always success before tape detection
                 case ES_TAPE_ALIGNED:
                     tape_aligned = true;
@@ -250,7 +264,7 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
                     DB_printf("Policy complete, moving to next state\r\n");
                     //NextState = PROCESS_COLUMN;
                     // TODO: for checkoff purposes, disable this when deploy
-                    NextState = GAME_OVER;
+                    NextState = DROP_CRATE;
                     MakeTransition = true;
                     break;
 
@@ -262,6 +276,80 @@ ES_Event_t RunPlannerHSM(ES_Event_t CurrentEvent) {
             }
             break;
 
+        case NAVIGATE_FROM_STACK_TO_CRATE:
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
+                    ThisEvent.EventParam = NAV_FROM_STACK_TO_CRATE_POLICY;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+
+                case ES_NAVIGATOR_STATUS_CHANGE:
+                    PostPlannerPolicyService(CurrentEvent);
+                    break;
+
+                case ES_CRATE_DETECTED:
+                case ES_PLANNER_POLICY_COMPLETE:
+                    DB_printf("Policy complete, moving to next state\r\n");
+                    NextState = PICKUP_CRATE;
+                    MakeTransition = true;
+                    break;
+
+                default:
+                    // shouldn't go here
+                    // add code to deal with exception
+                    
+                    break;
+            }
+            break;
+            
+        case NAVIGATE_FROM_CRATE_TO_STACK:
+            switch (CurrentEvent.EventType) {
+                case ES_ENTRY:
+                    ThisEvent.EventType = ES_REQUEST_NEW_PLANNER_POLICY;
+                    ThisEvent.EventParam = NAV_FROM_CRATE_TO_STACK_POLICY;
+                    PostPlannerPolicyService(ThisEvent);
+                    break;
+
+                case ES_NAVIGATOR_STATUS_CHANGE:
+                    PostPlannerPolicyService(CurrentEvent);
+                    break;
+
+                case ES_AT_STACK:
+                case ES_PLANNER_POLICY_COMPLETE:
+                    DB_printf("Policy complete, moving to next state\r\n");
+                    NextState = DROP_CRATE;
+                    MakeTransition = true;
+                    break;
+
+                default:
+                    // shouldn't go here
+                    // add code to deal with exception       
+                    break;
+            }
+            break;
+
+        case DROP_CRATE:
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                DB_printf("Entering DROP_CRATE, Drop Crate Count: %d\n", drop_crate_count);
+                //TODO Post to arm to drop crate
+                PostSPIMasterService(ThisEvent);
+            } else if (CurrentEvent.EventType == ES_CRATE_DROPPED) {
+                    drapper_crate_count++;
+                    NextState = NAVIGATE_FROM_STACK_TO_CRATE;
+                    MakeTransition = true;
+                }
+            break;
+        
+        case PICKUP_CRATE:
+            if (CurrentEvent.EventType == ES_ENTRY) {
+                DB_printf("Entering PICKUP_CRATE, Drop Crate Count: %d\n", drop_crate_count);
+                //TODO Post to arm to pick up crate
+            } else if (CurrentEvent.EventType == ES_CRATE_PICKED) {
+                    NextState = NAVIGATE_FROM_CRATE_TO_STACK;
+                    MakeTransition = true;
+            }
+            break;
         case NAVIGATE_TO_COLUMN_2:
             switch (CurrentEvent.EventType) {
                 case ES_ENTRY:

@@ -41,6 +41,8 @@
 #define NAV_STATUS_CHECK_INTERSECTION 0x5A
 #define NAV_STATUS_LINE_DISCOVER 0x5B
 #define NAV_STATUS_CHECK_CRATE 0x5C
+#define NAV_STATUS_INIT 0x5D
+#define NAV_STATUS_TAPE_ALIGNED 0x5E
 
 bool InitSPIFollowerService(uint8_t Priority);
 bool PostSPIFollowerService(ES_Event_t ThisEvent);

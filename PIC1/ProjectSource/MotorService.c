@@ -217,6 +217,30 @@ ES_Event_t RunMotorService(ES_Event_t ThisEvent)
     OC4RS = (float)PR2 * 50 /100;
     OC3RS = (float)PR2 * 50 /100;
     break;
+  case ES_MOTOR_CCW_30:
+    DB_printf("CCW 30 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME / 3);
+    H_bridge1A_LAT = 0;
+    H_bridge3A_LAT = 1;
+    OC4RS = (float)PR2 * 50 / 100;
+    OC3RS = (float)PR2 * 50 / 100;
+    break;
+  case ES_MOTOR_CW_60:
+    DB_printf("CW 60 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME * 2 / 3);
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 0;
+    OC4RS = (float)PR2 * 50 / 100;
+    OC3RS = (float)PR2 * 50 / 100;
+    break;
+  case ES_MOTOR_CW_210:
+    DB_printf("CW 210 \n");
+    ES_Timer_InitTimer(Motor_Turning_TIMER, Turn90TIME * 7 / 3);
+    H_bridge1A_LAT = 1;
+    H_bridge3A_LAT = 0;
+    OC4RS = (float)PR2 * 50 / 100;
+    OC3RS = (float)PR2 * 50 / 100;
+    break;
   default:
     break;
   }

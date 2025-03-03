@@ -16,10 +16,15 @@ stateDiagram-v2
         Motors stopped
     end note
 
-    AlignTape --> Idle: ALIGNED/MISSED.
+    AlignTape --> TapeAligned: ALIGNED.
     note right of AlignTape
-        Turn CCW till stop, then turn CW
+        Turn CCW 30 till stop or find tape
+        Then turn CW 60 till stop or find tape
+        Then turn CCW 180 till stop or find tape
+        Then turn CW 210 till stop or find tape
     end note
+
+    AlignTape --> AlignFailed: TAPE_MISSING
     
     LineFollow --> CheckCrate: CRATE_DETECTED
     LineFollow --> CheckIntersection: CROSS_DETECTED
@@ -42,11 +47,11 @@ stateDiagram-v2
         Wait for cmd
     end note
 
-    TurnLeft --> Idle: Turn Complete
-    TurnRight --> Idle: Turn Complete
+    TurnLeft --> AlignTape: Turn Complete
+    TurnRight --> AlignTape: Turn Complete
 
-    LineDiscover --> LineFollow: recovered
-    LineDiscover --> Idle: STOP
+    TapeAligned --> LineFollow: Forward/Backward
+    AlignFailed --> Idle: STOP
 
     CheckCrate --> LineFollow: FORWARD/BACKWARD
     CheckCrate --> Idle: STOP

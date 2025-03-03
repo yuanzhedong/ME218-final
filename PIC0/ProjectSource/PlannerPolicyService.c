@@ -32,8 +32,9 @@ void SetPolicy(uint8_t policy_idx) {
 
 // 0 for padding
 uint8_t NAV_POLICIES[][6][2] = {
-    {{NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_TURN_LEFT, 10}, {NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}}, // NAV_TO_COLUMN_1
-    {{NAV_CMD_TURN_CW, 2}, {NAV_CMD_MOVE_FORWARD, 6}, {NAV_CMD_TURN_LEFT, 3}, {NAV_CMD_MOVE_FORWARD, 4}, {NAV_CMD_STOP, 0}, {0, 0}} // NAV_TO_COLUMN_2
+    {{NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_TURN_LEFT, 10}, {NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}}, // deal with first crate
+    {{NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_MOVE_BACKWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}, {0, 0}}, // nav from sack to crate
+    {{NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_MOVE_FORWARD, 10}, {NAV_CMD_STOP, 0}, {0, 0}, {0, 0}, {0, 0}}, // deal with second crate
 };
 
 // Public function to post events to the service
@@ -88,6 +89,11 @@ ES_Event_t RunPlannerPolicyService(ES_Event_t ThisEvent) {
             if (ThisEvent.EventParam == (PrevSentCmd + 1)) {
                 DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
                 NextAction();
+            }
+            if (ThisEvent.EventParam == NAV_STATUS_ALIGN_TAPE) {
+                DB_printf("[POLICY] Received status: %s\r\n", TranslateNavStatusToStr(ThisEvent.EventParam));
+                // wait for another 10s to do tape alignment
+                ES_Timer_InitTimer(PLANNER_POLICY_TIMER, 10);
             }
             break;
 
